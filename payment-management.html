@@ -98,7 +98,7 @@
         </table>
         <div class="summary-row">
           <span>Total Paid</span>
-          <span id="supplierTotal">LKR 0</span>
+          <span id="supplierTotal">LKR 0.00</span>
         </div>
       </div>
     </div>
@@ -136,7 +136,7 @@
         </table>
         <div class="summary-row">
           <span>Total Received</span>
-          <span id="receivedTotal">LKR 0</span>
+          <span id="receivedTotal">LKR 0.00</span>
         </div>
       </div>
     </div>
@@ -255,9 +255,9 @@
     let receivedPayments = JSON.parse(localStorage.getItem('receivedPayments')) || [];
 
     function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text || '';
-      return div.innerHTML;
+      return String(text || '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[c]);
     }
 
     function switchTab(tab) {
@@ -291,7 +291,6 @@
       document.getElementById('supplierForm').reset();
       document.getElementById('supplierPaymentId').value = '';
       document.getElementById('supplierDate').value = new Date().toISOString().split('T')[0];
-      document.getElementById('supplierChequeDate').value = '';
       calcSupplierSplit();
       document.getElementById('supplierModal').classList.add('show');
     }
@@ -303,12 +302,15 @@
     function saveSupplierPayment(e) {
       e.preventDefault();
       const id = document.getElementById('supplierPaymentId').value;
+      const total = parseFloat(document.getElementById('supplierTotalAmount').value);
+      const cash = parseFloat(document.getElementById('supplierCash').value) || 0;
+      const cheque = parseFloat(document.getElementById('supplierCheque').value) || 0;
+      
       const payment = {
         id: id || 'SP-' + Date.now().toString().slice(-8),
         name: document.getElementById('supplierName').value.trim(),
-        total: parseFloat(document.getElementById('supplierTotalAmount').value),
+        total: total,
         date: document.getElementById('supplierDate').value,
-        cash: parseFloat(document.getElementById('supplierCash').value) || 0,
-        cheque: parseFloat(document.getElementById('supplierCheque').value) || 0,
-        bank: document.getElementById('supplierBank').value.trim(),
-        chequeNo
+        cash: cash,
+        cheque: cheque,
+        bank: document.getElementById
