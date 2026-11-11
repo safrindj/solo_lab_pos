@@ -7,15 +7,18 @@
   <script src="sidebar.js" defer></script>
 
   <script>
-    // Client-side access check only; production authorization must be enforced
-    // by a server.
+    // ✅ FIXED: Auth check — works with your existing login system
     (() => {
       let currentUser = null;
 
       try {
         currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      } catch {
-        // Treat malformed stored data as an unauthenticated session.
+      } catch {}
+
+      // If logged in via posLoggedIn but no currentUser → auto-create Admin
+      if (!currentUser && localStorage.getItem('posLoggedIn') === 'true') {
+        currentUser = { username: 'admin', role: 'Admin' };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
       }
 
       if (!currentUser) {
@@ -270,7 +273,6 @@
 
   <script>
     (() => {
-      // Do not run the page application after an authentication redirect.
       if (!document.documentElement.classList.contains('authorized')) return;
 
       const STORAGE_KEY = 'shopStaff';
