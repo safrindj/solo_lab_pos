@@ -131,7 +131,6 @@
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: #424242; }
     .form-group input, .form-group select, .form-group textarea { width: 100%; }
-    .form-group input:disabled { background: #f5f5f5; color: #666; }
     .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
     textarea { width: 100%; min-height: 120px; padding: 10px; border: 2px solid #FFE0B2; border-radius: 6px; font-family: monospace; font-size: 12px; }
@@ -187,7 +186,7 @@
           <th>Cost</th>
           <th>Price</th>
           <th>Stock</th>
-          <th style="text-align: right;">Actions</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="productTableBody">
@@ -196,6 +195,7 @@
     </table>
   </div>
 
+  <!-- Add/Edit Product Modal -->
   <div class="modal-overlay" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
       <h2 id="modalTitle">Add New Product</h2>
@@ -238,6 +238,7 @@
     </div>
   </div>
 
+  <!-- Bulk Import Modal -->
   <div class="modal-overlay" id="bulkModal" role="dialog" aria-modal="true" aria-labelledby="bulkTitle">
     <div class="modal">
       <h2 id="bulkTitle">📥 Bulk Import Products</h2>
@@ -260,7 +261,7 @@
     let editingId = null;
     let isLoading = false;
 
-    // Get next auto-generated product code
+    // Auto-generate next product code (P001, P002, etc.)
     function getNextProductCode() {
       if (products.length === 0) return 'P001';
       
@@ -334,7 +335,7 @@
       const select = document.getElementById('catFilter');
       const previousValue = select.value;
       const categories = [...new Set(
-        products.map(product => product.category.trim()).filter(Boolean)
+        products.map(product => product.category).filter(Boolean)
       )].sort((a, b) => a.localeCompare(b));
 
       select.innerHTML = '<option value="">All Categories</option>';
@@ -348,6 +349,11 @@
       if (categories.includes(previousValue)) {
         select.value = previousValue;
       }
+    }
+
+    function formatMoney(value) {
+      const amount = Number(value);
+      return Number.isFinite(amount) ? amount.toFixed(2) : '0.00';
     }
 
     function renderProducts() {
@@ -382,11 +388,8 @@
         const stock = Number(product.stock) || 0;
         const row = document.createElement('tr');
 
-        if (stock === 0) {
-          row.className = 'out-of-stock';
-        } else if (stock <= 3) {
-          row.className = 'low-stock';
-        }
+        if (stock === 0) row.className = 'out-of-stock';
+        else if (stock <= 3) row.className = 'low-stock';
 
         const cells = [
           product.code,
@@ -400,7 +403,4 @@
         cells.forEach(value => {
           const cell = document.createElement('td');
           cell.textContent = value;
-          row.appendChild(cell);
-        });
-
-        const actions
+          row.appendChild(cell
