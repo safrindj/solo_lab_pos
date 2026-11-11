@@ -261,21 +261,21 @@ async function gsSave(tabName, objects, headers) {
     let products = [];
     let editingId = null;
 
-    function loadData() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        const parsed = saved ? JSON.parse(saved) : [];
-        products = Array.isArray(parsed) ? parsed.filter(isValidStoredProduct) : [];
-      } catch (error) {
-        console.error('Could not load inventory data:', error);
-        products = [];
-        alert('Saved inventory data could not be read. Starting with an empty inventory.');
-      }
+   async function loadData() {
+  products = await gsRead('products');
+  // Ensure all numeric fields are numbers
+  products = products.map(p => ({
+    ...p,
+    id: Number(p.id) || getNextId(),
+    cost: Number(p.cost) || 0,
+    price: Number(p.price) || 0,
+    stock: Number(p.stock) || 0
+  }));
+  updateStats();
+  updateCategoryFilter();
+  renderProducts();
+}
 
-      updateStats();
-      updateCategoryFilter();
-      renderProducts();
-    }
 
     function isValidStoredProduct(product) {
       return product &&
