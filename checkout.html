@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="manifest.json">
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SOLO LAB MOBILE — Complete Invoice</title>
-   <script>// ==========================================
+<title>SOLO LAB MOBILE — POS Billing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
 // SOLO LAB MOBILES — COMPLETE PRODUCT DATABASE
 // Generated from your Excel database
 // ==========================================
@@ -199,302 +200,230 @@ const ACCESSORIES = [
   { id: 147, code: 'Magnetic-Color-11PM', name: 'Magnetic Color 11 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
   { id: 148, code: 'HC-11 USB A Adapter', name: 'HC-11 USB A Adapter', category: 'Adapters', supplier: 'XMART', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
   { id: 149, code: 'Apple Adapter + Cable A-L', name: 'Apple Adapter and Cable A to L', category: 'Accessories', supplier: 'Safraz', costPrice: 850, retailPrice: 2000, stock: 4, warranty: 'No' },
-  { id: 150, code: 'iPhone Jelly-13/14', name: 'iPhone 13 / 14 Jelly Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice:
-// Make products available to ALL pages — multiple names to be safe
+  { id: 150, code: 'iPhone Jelly-13/14', name: 'iPhone 13 / 14 Jelly Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 350, retailPrice: 1500, stock: 5, warranty: 'No' }
+];
 window.products = ACCESSORIES;
 window.ACCESSORIES = ACCESSORIES;
 window.CATEGORIES = CATEGORIES;
-
-// Also create a simple 'allCategories' list if your page needs it
-window.allCategories = Object.entries(CATEGORIES).map(([key, value]) => ({
-  key: key,
-  name: value
-}));
-
-console.log('✅ Products loaded:', ACCESSORIES.length, 'items');
-console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/lucide@1/dist/umd/lucide.min.js"></script>
 <style>
   :root{
-    --bg:#202024; --card:#2a2a2f; --card-2:#242429; --text:#e8e5df; --muted:#9a978f;
-    --accent:#c47046; --accent-soft:rgba(196,112,70,.14); --accent2:#7ba8b8;
-    --accent2-soft:rgba(123,168,184,.14); --border:rgba(232,229,223,.12);
-    --danger:#d9605a; --ok:#6fbf8a;
+    --bg:#f3f4f6; --card:#ffffff; --border:#e5e7eb; --border-soft:#f3f4f6;
+    --text:#111827; --muted:#6b7280; --faint:#9ca3af;
+    --red:#dc2626; --red-dark:#b91c1c; --red-soft:#fef2f2;
+    --green:#16a34a; --amber:#d97706;
+    --sidebar:#0f172a; --sidebar-text:#cbd5e1; --sidebar-dim:#64748b;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:'Sora',system-ui,sans-serif; background:var(--bg); color:var(--text);
-    min-height:100vh; line-height:1.55; -webkit-font-smoothing:antialiased;
-    background-image:
-      radial-gradient(900px 500px at 85% -10%, rgba(196,112,70,.10), transparent 60%),
-      radial-gradient(700px 420px at -10% 20%, rgba(123,168,184,.08), transparent 55%);
-  }
-  .num{font-variant-numeric:tabular-nums}
-  a{color:inherit;text-decoration:none}
+  body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;font-size:14px}
   button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-  input{font-family:inherit;font-size:14px;color:var(--text)}
+  input,select{font-family:inherit;color:var(--text)}
+  .num{font-variant-numeric:tabular-nums}
+  svg{flex-shrink:0}
 
-  /* ---------- Header ---------- */
-  .topbar{
-    border-bottom:1px solid var(--border); background:rgba(32,32,36,.85);
-    backdrop-filter:blur(10px); position:sticky; top:0; z-index:30;
-  }
-  .topbar-inner{
-    max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;
-    justify-content:space-between;gap:16px;flex-wrap:wrap;
-  }
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand-mark{
-    width:42px;height:42px;border-radius:12px;flex:0 0 auto;
-    background:linear-gradient(135deg,var(--accent),#8a4a28);
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 18px rgba(196,112,70,.35);
-  }
-  .brand-mark svg{width:22px;height:22px;color:#fff}
-  .brand-name{font-weight:800;font-size:18px;letter-spacing:.5px;line-height:1.1}
-  .brand-name small{display:block;font-weight:400;font-size:10.5px;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase}
-  .top-contact{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
-  .top-contact a{color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px}
-  .top-contact a:hover{color:var(--accent)}
-  .inv-badge{
-    display:flex;align-items:center;gap:7px;font-size:12px;color:var(--accent2);
-    border:1px solid rgba(123,168,184,.35);padding:6px 12px;border-radius:999px;
-    background:var(--accent2-soft);
-  }
+  /* ---------- App layout ---------- */
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:232px;background:var(--sidebar);color:var(--sidebar-text);flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .sidebar::-webkit-scrollbar{width:4px}
+  .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .content{flex:1;display:grid;grid-template-columns:1fr 360px;gap:20px;padding:20px 24px 32px;align-items:start}
+  @media (max-width:1100px){.content{grid-template-columns:1fr}}
+  @media (max-width:860px){.sidebar{display:none}.content{padding:16px}}
 
-  /* ---------- Layout ---------- */
-  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 60px}
-  .page-head{margin-bottom:24px;text-align:center}
-  .eyebrow{
-    display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2.5px;
-    text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px;
-  }
-  .eyebrow::before,.eyebrow::after{content:"";width:28px;height:1px;background:var(--accent)}
-  h1{font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-.5px}
-  h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .page-sub{color:var(--muted);font-size:13.5px;margin-top:8px}
-  .page-sub b{color:var(--text)}
+  /* ---------- Sidebar ---------- */
+  .sb-logo{padding:20px 18px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.07)}
+  .sb-logo-mark{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--red),#7f1d1d);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(220,38,38,.4)}
+  .sb-logo-mark svg{width:20px;height:20px}
+  .sb-logo-name{font-weight:800;font-size:15px;color:#fff;letter-spacing:.3px;line-height:1.15}
+  .sb-logo-name small{display:block;font-weight:500;font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--sidebar-dim);margin-top:2px}
+  .nav-group{padding:18px 10px 6px}
+  .nav-group-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--sidebar-dim);font-weight:700;padding:0 10px 10px;display:flex;align-items:center;gap:7px}
+  .nav-group-title .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;font-size:13px;color:var(--sidebar-text);cursor:pointer;margin-bottom:2px;font-weight:500;transition:background .15s,color .15s}
+  .nav-item svg{width:17px;height:17px;opacity:.85}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+  .nav-item.active{background:var(--red);color:#fff;font-weight:700;box-shadow:0 4px 12px rgba(220,38,38,.35)}
+  .nav-item.active svg{opacity:1}
+  .nav-item .chev{margin-left:auto;width:14px;height:14px;opacity:.6}
 
-  .grid{display:grid;grid-template-columns:1.25fr 1fr;gap:24px;align-items:start}
-  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  /* ---------- Topbar ---------- */
+  .topbar{height:64px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20}
+  .page-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+  .page-title span{color:var(--red)}
+  .topbar-right{display:flex;align-items:center;gap:14px}
+  .icon-btn{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#4b5563;cursor:pointer;position:relative;transition:background .15s}
+  .icon-btn:hover{background:#f3f4f6;color:var(--text)}
+  .icon-btn svg{width:18px;height:18px}
+  .notif-badge{position:absolute;top:2px;right:2px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+  .admin{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;box-shadow:0 2px 8px rgba(220,38,38,.3)}
+  .logout-btn{display:flex;align-items:center;gap:7px;padding:8px 14px;border:1px solid #d1d5db;border-radius:9px;font-size:12.5px;font-weight:700;color:#374151;background:#fff;cursor:pointer;transition:all .15s}
+  .logout-btn:hover{background:#f9fafb;border-color:#9ca3af}
+  .logout-btn svg{width:14px;height:14px}
 
-  .card{
-    background:var(--card); border:1px solid var(--border); border-radius:18px;
-    padding:24px; margin-bottom:18px;
-  }
-  .card-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;margin-bottom:16px}
-  .card-title .ico{
-    width:32px;height:32px;border-radius:9px;background:var(--accent-soft);color:var(--accent);
-    display:flex;align-items:center;justify-content:center;flex:0 0 auto;
-  }
-  .card-title .ico svg{width:16px;height:16px}
-  .card-title .tag{margin-left:auto;font-size:11px;color:var(--muted);font-weight:400}
+  /* ---------- Search row ---------- */
+  .search-row{display:flex;gap:10px;margin-bottom:16px}
+  .search-box{flex:1;position:relative}
+  .search-box > svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--faint)}
+  .search-box input{width:100%;padding:12px 14px 12px 44px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+  .search-box input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+  .toggle-btn{display:flex;align-items:center;gap:7px;padding:0 16px;border:1px solid var(--border);border-radius:10px;background:#fff;font-size:11px;font-weight:800;color:#374151;cursor:pointer;letter-spacing:.8px;transition:all .15s;white-space:nowrap}
+  .toggle-btn svg{width:15px;height:15px;color:var(--muted)}
+  .toggle-btn:hover{border-color:#d1d5db}
+  .toggle-btn.on{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+  .toggle-btn.on svg{color:var(--red)}
 
-  /* ---------- Items ---------- */
-  .items{max-height:340px;overflow-y:auto;padding-right:4px}
-  .items::-webkit-scrollbar{width:5px}
-  .items::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-  .item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-  .item:last-child{border-bottom:none}
-  .item-thumb{
-    width:52px;height:52px;border-radius:10px;flex:0 0 auto;
-    background:linear-gradient(135deg,var(--card-2),#1e1e23);
-    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-    color:var(--accent2);position:relative;
-  }
-  .item-thumb svg{width:24px;height:24px}
-  .item-thumb .qty-badge{
-    position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;
-    background:var(--accent);color:#fff;font-size:11px;font-weight:700;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .item-info{flex:1;min-width:0}
-  .item-name{font-size:13.5px;font-weight:600;line-height:1.35}
-  .item-variant{font-size:11.5px;color:var(--muted);margin-top:2px}
-  .item-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
-  .qty-ctl{display:flex;align-items:center;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-  .qty-ctl button{
-    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
-    color:var(--muted);transition:background .15s,color .15s;font-size:15px;font-weight:600;
-  }
-  .qty-ctl button:hover{background:var(--accent-soft);color:var(--accent)}
-  .qty-ctl .qty-val{min-width:28px;text-align:center;font-size:13px;font-weight:600}
-  .item-price{font-size:13.5px;font-weight:700;white-space:nowrap}
-  .item-remove{color:var(--muted);padding:4px;display:flex;align-items:center;border-radius:6px;transition:color .15s}
-  .item-remove:hover{color:var(--danger)}
-  .item-remove svg{width:14px;height:14px}
-  .empty-cart{text-align:center;padding:30px 10px;color:var(--muted);font-size:13.5px}
-  .empty-cart svg{width:40px;height:40px;margin:0 auto 12px;opacity:.4;display:block}
+  /* ---------- Product card ---------- */
+  .product-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .table-head{display:grid;padding:13px 20px;border-bottom:1px solid var(--border-soft);font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--faint);background:#fafafa}
+  .table-head > div:nth-child(n+3){text-align:right}
+  .results-body{max-height:52vh;overflow-y:auto}
+  .results-body::-webkit-scrollbar{width:5px}
+  .results-body::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+  .product-row{display:grid;padding:11px 20px;border-bottom:1px solid #fafafa;align-items:center;cursor:pointer;transition:background .12s}
+  .product-row:hover{background:var(--red-soft)}
+  .product-row:last-child{border-bottom:none}
+  .product-row.oos{opacity:.45;cursor:not-allowed}
+  .product-row.oos:hover{background:transparent}
+  .p-code{font-size:12px;font-weight:700;color:#374151;letter-spacing:.3px}
+  .p-name{font-size:13.5px;font-weight:600;color:var(--text);line-height:1.3}
+  .p-name small{display:block;font-size:10.5px;color:var(--faint);font-weight:500;margin-top:2px;letter-spacing:.3px}
+  .p-cost,.p-min{font-size:12px;text-align:right;color:var(--muted);font-weight:600}
+  .p-price{font-size:13.5px;font-weight:800;color:var(--text);text-align:right}
+  .p-stock{font-size:12.5px;font-weight:700;text-align:right}
+  .p-stock.in-stock{color:var(--green)}
+  .p-stock.low-stock{color:var(--amber)}
+  .p-stock.no-stock{color:var(--red)}
+  .no-results{padding:48px 20px;text-align:center;color:var(--faint);font-size:13px}
 
-  .promo{display:flex;gap:8px;margin-top:14px}
-  .promo input{
-    flex:1;background:var(--card-2);border:1px solid var(--border);border-radius:10px;
-    padding:11px 14px;outline:none;font-size:13px;transition:border-color .2s;text-transform:uppercase;
-  }
-  .promo input:focus{border-color:var(--accent)}
-  .promo button{
-    padding:0 18px;border-radius:10px;background:var(--accent2-soft);color:var(--accent2);
-    font-weight:600;font-size:13px;border:1px solid transparent;transition:all .2s;white-space:nowrap;
-  }
-  .promo button:hover{border-color:var(--accent2)}
-  .promo-msg{font-size:12px;margin:8px 0 0;display:none}
-  .promo-msg.ok{display:block;color:var(--ok)}
-  .promo-msg.bad{display:block;color:var(--danger)}
+  /* ---------- Empty state ---------- */
+  .empty-state{padding:64px 20px;text-align:center}
+  .empty-icon{width:64px;height:64px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+  .empty-icon svg{width:26px;height:26px;color:var(--red)}
+  .empty-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px}
+  .empty-sub{font-size:13px;color:var(--muted);max-width:340px;margin:0 auto;line-height:1.65}
 
-  /* ---------- Payment methods ---------- */
-  .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  @media (max-width:420px){.pay-grid{grid-template-columns:1fr}}
-  .pay-opt{
-    padding:16px 12px;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;
-    background:var(--card-2);text-align:center;transition:border-color .2s,background .2s,transform .15s;
-    position:relative;
-  }
-  .pay-opt:hover{border-color:rgba(196,112,70,.4);transform:translateY(-2px)}
-  .pay-opt.sel{border-color:var(--accent);background:var(--accent-soft)}
-  .pay-opt svg{width:24px;height:24px;margin:0 auto 8px;color:var(--accent2)}
-  .pay-opt.sel svg{color:var(--accent)}
-  .pay-opt .pay-name{font-size:13px;font-weight:700}
-  .pay-opt .pay-sub{font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.3px}
-  .pay-opt.sel .pay-sub{color:var(--accent)}
-  .pay-opt .check{
-    position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;
-    background:var(--accent);color:#fff;display:none;align-items:center;justify-content:center;
-  }
-  .pay-opt.sel .check{display:flex}
-  .pay-opt .check svg{width:11px;height:11px;color:#fff;margin:0}
+  /* ---------- Invoice panel ---------- */
+  .invoice-panel{background:#fff;border:1px solid var(--border);border-radius:12px;position:sticky;top:84px;overflow:hidden}
+  .panel-head{padding:15px 18px 13px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border-soft)}
+  .panel-head svg{width:18px;height:18px;color:var(--red)}
+  .panel-title{font-size:12px;font-weight:800;letter-spacing:1.2px;color:var(--text)}
+  .action-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:12px 18px;border-bottom:1px solid var(--border-soft)}
+  .act-btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 4px;border-radius:7px;font-size:10.5px;font-weight:800;cursor:pointer;letter-spacing:.3px;transition:opacity .15s,transform .1s;border:1px solid transparent}
+  .act-btn svg{width:12px;height:12px}
+  .act-btn:active{transform:scale(.96)}
+  .act-btn.drawer{background:var(--green);color:#fff}
+  .act-btn.held{background:var(--red);color:#fff}
+  .act-btn.ghost{background:#fff;border-color:var(--border);color:#4b5563}
+  .act-btn.ghost:hover{border-color:#d1d5db;background:#f9fafb}
 
-  .pay-note{
-    display:none;margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--card-2);
-    border:1px dashed var(--border);font-size:12.5px;color:var(--muted);line-height:1.75;
-  }
-  .pay-note.show{display:block;animation:fadeIn .25s ease}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-  .pay-note b{color:var(--text);font-weight:600}
-  .pay-note .ico-row{display:flex;align-items:flex-start;gap:9px;margin-top:5px}
-  .pay-note .ico-row svg{width:14px;height:14px;color:var(--accent);flex:0 0 auto;margin-top:3px}
-  .surcharge-tag{
-    display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
-    background:rgba(217,96,90,.15);color:var(--danger);margin-left:6px;letter-spacing:.5px;
-  }
+  .cart-area{padding:10px 18px;max-height:220px;overflow-y:auto;border-bottom:1px solid var(--border-soft);min-height:110px}
+  .cart-area::-webkit-scrollbar{width:4px}
+  .cart-area::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:2px}
+  .empty-cart-box{background:#f9fafb;border:1px dashed var(--border);border-radius:10px;padding:26px 12px;text-align:center;color:var(--faint);margin:4px 0}
+  .empty-cart-box svg{width:30px;height:30px;margin:0 auto 8px;display:block;opacity:.5}
+  .empty-cart-box div{font-size:12.5px;font-weight:700;letter-spacing:.3px}
+  .cart-item{display:flex;gap:8px;padding:9px 0;border-bottom:1px solid #fafafa;align-items:center}
+  .cart-item:last-child{border-bottom:none}
+  .ci-info{flex:1;min-width:0}
+  .ci-name{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ci-code{font-size:10px;color:var(--faint);letter-spacing:.3px;margin-top:1px}
+  .ci-qty{display:flex;align-items:center;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0}
+  .ci-qty button{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--muted);transition:background .12s,color .12s}
+  .ci-qty button:hover{background:var(--red-soft);color:var(--red)}
+  .ci-qty span{min-width:22px;text-align:center;font-size:12px;font-weight:800}
+  .ci-price{font-size:12.5px;font-weight:800;color:var(--text);white-space:nowrap;width:68px;text-align:right;flex-shrink:0}
+  .ci-rm{color:#d1d5db;padding:3px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;transition:color .12s}
+  .ci-rm:hover{color:var(--red)}
+  .ci-rm svg{width:13px;height:13px}
 
   /* ---------- Totals ---------- */
-  .totals{border-top:1px solid var(--border);padding-top:14px;margin-top:6px}
-  .t-row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:var(--muted)}
-  .t-row b{color:var(--text);font-weight:600}
-  .t-row.discount{color:var(--ok)}
-  .t-row.discount b{color:var(--ok)}
-  .t-row.surcharge{color:var(--danger)}
-  .t-row.surcharge b{color:var(--danger)}
-  .t-grand{
-    display:flex;justify-content:space-between;align-items:baseline;
-    margin-top:12px;padding-top:14px;border-top:1px solid var(--border);
-  }
-  .t-grand .lbl{font-size:14px;font-weight:700}
-  .t-grand .val{font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--accent)}
-  .t-grand .val small{font-size:13px;font-weight:500;color:var(--muted);margin-right:3px}
+  .totals-wrap{padding:14px 18px;border-bottom:1px solid var(--border-soft)}
+  .t-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);padding:4px 0;font-weight:700;letter-spacing:.3px}
+  .t-row .val{color:var(--text);font-weight:800}
+  .t-row.disc input{width:84px;text-align:right;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12.5px;font-weight:800;outline:none;color:var(--text)}
+  .t-row.disc input:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(220,38,38,.1)}
+  .grand-row{display:flex;justify-content:space-between;align-items:baseline;padding-top:10px;margin-top:8px;border-top:1px solid var(--border)}
+  .grand-row .lbl{font-size:13.5px;font-weight:800;color:var(--red);letter-spacing:.8px}
+  .grand-row .val{font-size:19px;font-weight:800;color:var(--red)}
 
-  .complete-btn{
-    width:100%;margin-top:18px;padding:16px;border-radius:12px;font-size:15px;font-weight:700;
-    background:linear-gradient(135deg,var(--accent),#a85a35);color:#fff;letter-spacing:.5px;
-    display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s,box-shadow .2s,opacity .2s;
-    box-shadow:0 6px 22px rgba(196,112,70,.35);
-  }
-  .complete-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(196,112,70,.45)}
-  .complete-btn:active{transform:translateY(0)}
-  .complete-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-  .complete-btn .spinner{
-    width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;
-    border-radius:50%;animation:spin .7s linear infinite;display:none;
-  }
-  .complete-btn.loading .spinner{display:inline-block}
-  @keyframes spin{to{transform:rotate(360deg)}}
+  /* ---------- Panel sections ---------- */
+  .panel-section{padding:13px 18px;border-bottom:1px solid var(--border-soft)}
+  .sec-label{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:flex;align-items:center;gap:6px}
+  .sec-label svg{width:13px;height:13px;color:var(--red)}
+  .sec-label .link{margin-left:auto;color:var(--red);font-size:11px;font-weight:800;cursor:pointer;text-transform:none;letter-spacing:0}
+  .sec-label .link:hover{text-decoration:underline}
+  .input-wrap{position:relative}
+  .input-wrap > svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--faint);z-index:1}
+  .input-wrap input,.input-wrap select{width:100%;padding:9px 10px 9px 34px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;background:#fff;outline:none;color:var(--text);appearance:none;-webkit-appearance:none;transition:border-color .15s,box-shadow .15s}
+  .input-wrap select{padding-right:30px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+  .input-wrap input:focus,.input-wrap select:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(220,38,38,.1)}
+  .promo-row{display:flex;gap:6px}
+  .promo-row .input-wrap{flex:1}
+  .promo-row input{text-transform:uppercase;letter-spacing:.5px}
+  .apply-btn{padding:0 16px;background:var(--red);color:#fff;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:background .15s}
+  .apply-btn:hover{background:var(--red-dark)}
+  .promo-msg{font-size:11px;margin-top:7px;font-weight:600;display:none}
+  .promo-msg.ok{display:block;color:var(--green)}
+  .promo-msg.bad{display:block;color:var(--red)}
 
-  .hint{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;font-size:11.5px;color:var(--muted);text-align:center}
-  .hint svg{width:13px;height:13px;color:var(--ok);flex:0 0 auto}
+  .cash-row{display:flex;gap:6px}
+  .cash-row .input-wrap{flex:1}
+  .exact-btn{padding:0 13px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:11px;font-weight:800;color:#4b5563;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .exact-btn:hover{background:#f9fafb;border-color:#d1d5db}
+  .change-row{display:none;justify-content:space-between;align-items:center;font-size:12px;font-weight:800;color:var(--green);margin-top:9px;padding-top:9px;border-top:1px dashed var(--border)}
+  .change-row.show{display:flex}
+  .change-row.bad{color:var(--red)}
 
-  /* ---------- Footer ---------- */
-  footer{border-top:1px solid var(--border);margin-top:16px;background:rgba(28,28,32,.6)}
-  .foot-inner{max-width:1080px;margin:0 auto;padding:30px 24px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px}
-  @media (max-width:720px){.foot-inner{grid-template-columns:1fr}}
-  .foot-brand{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-  .foot h4{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;font-weight:600}
-  .foot-line{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--muted);margin-bottom:9px;line-height:1.6}
-  .foot-line svg{width:14px;height:14px;color:var(--accent);flex:0 0 auto;margin-top:3px}
-  .foot-line b{color:var(--text);font-weight:600}
-  .foot-line a:hover{color:var(--accent)}
-  .foot-bottom{
-    max-width:1080px;margin:0 auto;padding:14px 24px;border-top:1px solid var(--border);
-    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);
-  }
+  .complete-btn{width:calc(100% - 36px);margin:14px 18px 18px;padding:14px 18px;border-radius:10px;background:#d1d5db;color:#fff;font-size:13.5px;font-weight:800;letter-spacing:1px;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:8px;border:none;transition:background .15s,box-shadow .15s}
+  .complete-btn.active{background:var(--red);cursor:pointer;box-shadow:0 6px 18px rgba(220,38,38,.35)}
+  .complete-btn.active:hover{background:var(--red-dark)}
+  .complete-btn svg{width:16px;height:16px}
+  .complete-btn .kbd{margin-left:auto;background:rgba(255,255,255,.28);padding:3px 7px;border-radius:5px;font-size:10px;font-weight:800;letter-spacing:.5px}
 
   /* ---------- Invoice overlay ---------- */
-  .overlay{
-    position:fixed;inset:0;background:rgba(15,15,18,.88);backdrop-filter:blur(8px);
-    display:none;align-items:flex-start;justify-content:center;z-index:50;padding:24px 16px;overflow-y:auto;
-  }
-  .overlay.show{display:flex;animation:fadeIn .3s ease}
-  .invoice{
-    background:#faf8f4;color:#1c1c1c;max-width:440px;width:100%;border-radius:6px;
-    padding:30px 28px;margin:auto 0;box-shadow:0 30px 80px rgba(0,0,0,.5);
-    animation:pop .4s cubic-bezier(.2,.9,.3,1.15);position:relative;
-    font-family:'Sora',system-ui,sans-serif;
-  }
-  @keyframes pop{from{transform:scale(.9) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;z-index:50;padding:24px 16px;overflow-y:auto}
+  .overlay.show{display:flex;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .invoice{background:#faf8f4;color:#1c1c1c;max-width:440px;width:100%;border-radius:8px;padding:30px 28px;margin:auto 0;box-shadow:0 30px 80px rgba(0,0,0,.4);animation:pop .35s cubic-bezier(.2,.9,.3,1.1);position:relative}
+  @keyframes pop{from{transform:scale(.92) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
   .inv-head{text-align:center;padding-bottom:16px;border-bottom:2px dashed #d8d2c4}
   .inv-shop{font-weight:800;font-size:19px;letter-spacing:.5px}
-  .inv-shop small{display:block;font-weight:500;font-size:9.5px;letter-spacing:3px;text-transform:uppercase;color:#8a8378;margin-top:2px}
+  .inv-shop small{display:block;font-weight:500;font-size:9.5px;letter-spacing:3px;text-transform:uppercase;color:#8a8378;margin-top:3px}
   .inv-addr{font-size:11px;color:#6b6558;margin-top:8px;line-height:1.6}
   .inv-addr b{color:#3a3630;font-weight:600}
-  .inv-meta{
-    display:flex;justify-content:space-between;font-size:11px;color:#6b6558;
-    padding:12px 0;border-bottom:1px solid #e5dfd0;margin-top:2px;
-  }
+  .inv-meta{display:flex;justify-content:space-between;font-size:11px;color:#6b6558;padding:12px 0;border-bottom:1px solid #e5dfd0;margin-top:2px;gap:10px;flex-wrap:wrap}
   .inv-meta b{color:#1c1c1c;display:block;font-size:12px;margin-top:2px;font-weight:700}
   .inv-items{padding:14px 0;border-bottom:2px dashed #d8d2c4}
   .inv-item{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;line-height:1.4}
   .inv-item .it-name{flex:1;padding-right:10px}
   .inv-item .it-name small{display:block;color:#8a8378;font-size:10.5px}
-  .inv-item .it-amt{font-weight:600;white-space:nowrap}
+  .inv-item .it-amt{font-weight:700;white-space:nowrap}
   .inv-totals{padding-top:12px;font-size:12.5px}
   .inv-t-row{display:flex;justify-content:space-between;padding:3px 0;color:#6b6558}
-  .inv-t-row b{color:#1c1c1c;font-weight:600}
+  .inv-t-row b{color:#1c1c1c;font-weight:700}
   .inv-t-row.disc b{color:#1a7a4a}
   .inv-t-row.sur b{color:#b34038}
-  .inv-grand{
-    display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;
-    padding-top:10px;border-top:1px solid #e5dfd0;font-weight:800;font-size:17px;
-  }
+  .inv-grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:10px;border-top:1px solid #e5dfd0;font-weight:800;font-size:17px}
   .inv-grand .amt{color:#a85a35}
-  .inv-pay{
-    margin-top:14px;padding:10px 14px;background:#f0ece2;border-radius:6px;
-    display:flex;justify-content:space-between;align-items:center;font-size:12px;
-  }
+  .inv-pay{margin-top:12px;padding:10px 14px;background:#f0ece2;border-radius:6px;font-size:12px;line-height:1.7}
+  .inv-pay .row{display:flex;justify-content:space-between}
   .inv-pay span{color:#6b6558}
   .inv-pay b{font-weight:700;color:#1c1c1c}
   .inv-thanks{text-align:center;font-size:11px;color:#8a8378;margin-top:16px;line-height:1.7}
   .inv-thanks b{color:#3a3630}
   .inv-actions{display:flex;gap:10px;margin-top:18px}
-  .inv-btn{
-    flex:1;padding:12px;border-radius:8px;font-size:13px;font-weight:600;display:flex;
-    align-items:center;justify-content:center;gap:7px;transition:opacity .2s;
-  }
+  .inv-btn{flex:1;padding:12px;border-radius:8px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .2s;cursor:pointer}
   .inv-btn.print{background:#1c1c1c;color:#fff}
   .inv-btn.new{background:transparent;color:#1c1c1c;border:1.5px solid #c9c2b0}
   .inv-btn:hover{opacity:.85}
   .inv-btn svg{width:15px;height:15px}
 
-  .toast{
-    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--card);border:1px solid var(--border);border-left:3px solid var(--danger);
-    padding:12px 20px;border-radius:10px;font-size:13px;z-index:60;opacity:0;pointer-events:none;
-    transition:opacity .25s,transform .25s;display:flex;align-items:center;gap:10px;max-width:90vw;
-  }
+  /* ---------- Toast ---------- */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;display:flex;align-items:center;gap:10px;max-width:90vw;box-shadow:0 10px 30px rgba(0,0,0,.3)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .toast svg{width:16px;height:16px;color:var(--danger);flex:0 0 auto}
+  .toast svg{width:16px;height:16px;color:#fbbf24;flex-shrink:0}
 
   @media print{
     body *{visibility:hidden !important}
@@ -503,216 +432,168 @@ console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
     .invoice{box-shadow:none;max-width:100%;margin:0;animation:none;border-radius:0}
     .inv-actions{display:none !important}
   }
-</style><script src="sidebar.js"></script>
-
+</style>
 </head>
 <body>
+<div class="app">
 
-<!-- ============ HEADER ============ -->
-<header class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <div class="brand-mark">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
       </div>
-      <div class="brand-name">SOLO LAB <small>Mobile · Kandy</small></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
-      <div class="top-contact">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        <a href="tel:0777322237">077 732 2237</a>
-      </div>
-      <div class="inv-badge">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
-        Counter Invoice
-      </div>
-    </div>
-  </div>
-</header>
-
-<div class="wrap">
-  <div class="page-head">
-    <div class="eyebrow">Quick Checkout</div>
-    <h1>Complete your <span>invoice</span></h1>
-    <p class="page-sub">Review items, pick a payment method, and finish — no sign-up needed. Call <b>077 732 2237</b> for assistance.</p>
-  </div>
-
-  <div class="grid">
-    <!-- ============ LEFT: ORDER ITEMS ============ -->
-    <div class="card" style="margin-bottom:0">
-      <div class="card-title">
-        <span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span>
-        Items
-        <span class="tag num" id="itemCountTag">3 items</span>
-      </div>
-
-      <div class="items" id="itemsList"></div>
-      <div class="empty-cart" id="emptyCart" style="display:none">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-        No items in this invoice.
-      </div>
-
-      <div class="promo">
-        <input type="text" id="promoInput" placeholder="Promo code (try SOLO10)">
-        <button id="promoBtn">Apply</button>
-      </div>
-      <div class="promo-msg" id="promoMsg"></div>
+      <div class="sb-logo-name">SOLO LAB<small>Mobile · Kandy</small></div>
     </div>
 
-    <!-- ============ RIGHT: PAYMENT + TOTALS ============ -->
-    <div>
-      <div class="card">
-        <div class="card-title">
-          <span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></span>
-          Payment Method
+    <nav class="nav-group">
+      <div class="nav-group-title"><span class="dot" style="background:var(--red)"></span>Main Hub</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</div>
+      <div class="nav-item active"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>POS Billing<svg class="chev" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Sales History</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customer Management</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7l9 6 9-6"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2"/></svg>Customer Returns</div>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-group-title"><span class="dot" style="background:#3b82f6"></span>Stock &amp; Inventory</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>Inventory Manager</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>Barcode Printer</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" x2="7.01" y1="7" y2="7"/></svg>Category Explorer</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Purchases &amp; Returns</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Supplier Registry</div>
+    </nav>
+
+    <nav class="nav-group" style="padding-bottom:24px">
+      <div class="nav-group-title"><span class="dot" style="background:var(--green)"></span>Finance &amp; Ledger</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>General Ledger</div>
+      <div class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>Vouchers</div>
+    </nav>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="page-title">POS <span>Billing</span></div>
+      <div class="topbar-right">
+        <div class="icon-btn" title="Refresh" onclick="location.reload()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></div>
+        <div class="icon-btn" title="Notifications"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="notif-badge">3</span></div>
+        <div class="admin"><span>Admin</span><div class="avatar">A</div></div>
+        <button class="logout-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>Logout</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- ============ BILLING AREA ============ -->
+      <section class="billing-area">
+        <div class="search-row">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="searchInput" placeholder="Scan barcode or search name..." autocomplete="off" autofocus>
+          </div>
+          <button class="toggle-btn" id="costToggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>COST</button>
+          <button class="toggle-btn" id="minToggle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>MIN PRICE</button>
         </div>
 
-        <div class="pay-grid">
-          <div class="pay-opt sel" data-pay="cash">
-            <span class="check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <div class="product-card">
+          <div class="table-head" id="tableHead"></div>
+          <div class="results-body" id="resultsBody" style="display:none"></div>
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+            <div class="empty-title">Ready for Scan or Search</div>
+            <div class="empty-sub">Scan a product barcode directly or start typing the code or name in the search bar above to fetch items.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INVOICE SUMMARY ============ -->
+      <aside class="invoice-panel">
+        <div class="panel-head">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          <span class="panel-title">Invoice Summary</span>
+        </div>
+
+        <div class="action-row">
+          <button class="act-btn drawer" id="drawerBtn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>Drawer</button>
+          <button class="act-btn held" id="heldBtn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>Held</button>
+          <button class="act-btn ghost" id="clearBtn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Clear</button>
+          <button class="act-btn ghost" id="holdBtn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Hold</button>
+        </div>
+
+        <div class="cart-area" id="cartArea"></div>
+
+        <div class="totals-wrap">
+          <div class="t-row"><span>SUBTOTAL</span><span class="val num" id="subTotal">Rs. 0.00</span></div>
+          <div class="t-row disc"><span>BILL DISCOUNT</span><input type="number" id="billDiscountInput" value="0" min="0" step="1"></div>
+          <div class="grand-row"><span class="lbl">GRAND TOTAL</span><span class="val num" id="grandTotal">Rs. 0.00</span></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="sec-label"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>Promo Voucher</div>
+          <div class="promo-row">
+            <div class="input-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              <input type="text" id="promoInput" placeholder="ENTER VOUCHER CODE...">
+            </div>
+            <button class="apply-btn" id="promoBtn">Apply</button>
+          </div>
+          <div class="promo-msg" id="promoMsg"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="sec-label"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Customer Profile<span class="link" id="registerNew">+ Register New</span></div>
+          <div class="input-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="customerInput" placeholder="Type name or scan phone...">
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="sec-label">Associate (Cashier)</div>
+          <div class="input-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <select id="cashierSelect">
+              <option>Shop Owner</option>
+              <option>Cashier 1</option>
+              <option>Cashier 2</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="sec-label"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>Payment Method</div>
+          <div class="input-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
-            <div class="pay-name">Cash</div>
-            <div class="pay-sub">Pay at counter</div>
-          </div>
-
-          <div class="pay-opt" data-pay="online">
-            <span class="check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg>
-            <div class="pay-name">Online Transfer</div>
-            <div class="pay-sub">Bank deposit</div>
-          </div>
-
-          <div class="pay-opt" data-pay="card">
-            <span class="check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-            <div class="pay-name">Card<span class="surcharge-tag">+3%</span></div>
-            <div class="pay-sub">Visa / Mastercard</div>
-          </div>
-
-          <div class="pay-opt" data-pay="koko">
-            <span class="check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M8 4v16M4 8h16M4 16h16"/></svg>
-            <div class="pay-name">KOKO</div>
-            <div class="pay-sub">QR / app payment</div>
+            <select id="paymentSelect">
+              <option value="cash">Cash Payment</option>
+              <option value="card">Card Payment (+3%)</option>
+              <option value="online">Online Transfer</option>
+              <option value="koko">KOKO QR</option>
+            </select>
           </div>
         </div>
 
-        <!-- Per-method notes -->
-        <div class="pay-note show" id="note-cash">
-          <b>Cash payment</b> — pay the total in Sri Lankan Rupees at the counter. Collect your invoice once payment is confirmed.
-        </div>
-        <div class="pay-note" id="note-online">
-          <b>Online / Bank Transfer</b>
-          <div class="ico-row"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg> Bank: Commercial Bank · Kandy Branch</div>
-          <div class="ico-row"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg> Acc No: <b>8000 1234 5678</b> · SOLO LAB MOBILE</div>
-          <div class="ico-row"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> WhatsApp the slip to <b>077 732 2237</b></div>
-        </div>
-        <div class="pay-note" id="note-card">
-          <b>Card payment</b> — a <b style="color:var(--danger)">3% surcharge</b> is automatically added to the total. Tap, swipe or insert your Visa / Mastercard at the counter terminal.
-        </div>
-        <div class="pay-note" id="note-koko">
-          <b>KOKO Payment</b> — scan the KOKO QR code at the counter, or pay to KOKO ID <b>sololab.mobile</b>. Show the confirmation to the cashier.
-        </div>
-
-        <        <!-- ===== TOTALS ===== -->
-        <div class="totals">
-          <div class="t-row"><span>Subtotal</span><b class="num" id="subTotal">Rs. 0</b></div>
-          <div class="t-row discount" id="discountRow" style="display:none"><span>Discount <span id="discountLabel"></span></span><b class="num" id="discountVal">− Rs. 0</b></div>
-          <div class="t-row surcharge" id="surchargeRow" style="display:none"><span>Card Surcharge (3%)</span><b class="num" id="surchargeVal">+ Rs. 0</b></div>
-          <div class="t-grand">
-            <span class="lbl">Total Payable</span>
-            <span class="val num"><small>LKR</small><span id="grandTotal">0</span></span>
+        <div class="panel-section" style="border-bottom:none">
+          <div class="sec-label">Cash Given</div>
+          <div class="cash-row">
+            <div class="input-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
+              <input type="number" id="cashGiven" placeholder="Rs. Enter cash given..." min="0" step="1">
+            </div>
+            <button class="exact-btn" id="exactBtn">Exact</button>
           </div>
+          <div class="change-row" id="changeRow"><span>CHANGE</span><span class="num" id="changeVal">Rs. 0.00</span></div>
         </div>
 
-        <button class="complete-btn" id="completeBtn" onclick="completeSale()">
-          <span class="spinner"></span>
-          <span class="btn-label">Complete Invoice</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <button class="complete-btn" id="completeBtn" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          COMPLETE &amp; PRINT
+          <span class="kbd">F2</span>
         </button>
-        <div class="hint">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
-          Invoice is generated instantly · Print or save as PDF after completion
-        </div>
-
-        <script>
-          function completeSale() {
-            // Get values from your page
-            const subTotalText = document.getElementById('subTotal').textContent;
-            const grandTotalText = document.getElementById('grandTotal').textContent;
-            const discountRow = document.getElementById('discountRow');
-            const surchargeRow = document.getElementById('surchargeRow');
-            
-            // Get cart items — make sure 'cart' variable matches your actual variable name!
-            const cartItems = window.cartItems || []; // ← update 'cartItems' to match your variable!
-            
-            // Get payment method
-            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'Cash';
-            
-            // Save sale data for invoice
-            localStorage.setItem('currentSale', JSON.stringify({
-              invoiceNo: 'SL-' + Date.now().toString().slice(-6),
-              date: new Date().toLocaleDateString('en-GB'),
-              items: cartItems,
-              subtotal: subTotalText,
-              discount: discountRow.style.display !== 'none' ? document.getElementById('discountVal').textContent : 'None',
-              surcharge: surchargeRow.style.display !== 'none' ? document.getElementById('surchargeVal').textContent : 'None',
-              total: grandTotalText,
-              paymentMethod: paymentMethod
-            }));
-            
-            // Save to sales history
-            const sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
-            sales.push({
-              invoiceNo: 'SL-' + Date.now().toString().slice(-6),
-              date: new Date().toLocaleDateString(),
-              items: cartItems,
-              total: grandTotalText.replace(/[^0-9.]/g, ''),
-              paymentMethod: paymentMethod,
-              timestamp: new Date().toISOString()
-            });
-            localStorage.setItem('shopSales', JSON.stringify(sales));
-            
-            // Open invoice in new tab
-            window.open('invoice.html', '_blank');
-            
-            // Optional: Clear cart after completion
-            // window.cartItems = [];
-            // location.reload();
-          }
-        </script>
-
+      </aside>
+    </div>
   </div>
 </div>
-
-<!-- ============ FOOTER ============ -->
-<footer class="foot">
-  <div class="foot-inner">
-    <div>
-      <div class="foot-brand">
-        <div class="brand-mark" style="width:36px;height:36px;border-radius:10px">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:#fff"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
-        </div>
-        <div class="brand-name" style="font-size:16px">SOLO LAB <small>Mobile</small></div>
-      </div>
-      <p style="font-size:12px;color:var(--muted);line-height:1.7;max-width:300px">Mobile phones &amp; accessories · Genuine products with warranty · Kandy, Sri Lanka.</p>
-    </div>
-    <div>
-      <h4>Visit / Contact</h4>
-      <div class="foot-line"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>23A, D.S. Senanayaka Veediya,<br>Kandy, Sri Lanka</span></div>
-      <div class="foot-line"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:0777322237"><b>077 732 2237</b></a></div>
-    </div>
-    <div>
-      <h4>Store Hours</h4>
-      <div class="foot-line"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Mon – Sat<br><b>9:00 AM – 8:00 PM</b></span></div>
-      <div class="foot-line"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Sun &amp; Poya Days<br><b>10:00 AM – 6:00 PM</b></span></div>
-    </div>
-  </div>
-  <div class="foot-bottom">
-    <span>© 2026 SOLO LAB MOBILE · All rights reserved</span>
-    <span>23A, D.S. Senanayaka Veediya, Kandy · 077 732 2237</span>
-  </div>
-</footer>
 
 <!-- ============ INVOICE OVERLAY ============ -->
 <div class="overlay" id="invoiceOverlay">
@@ -724,15 +605,22 @@ console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
     <div class="inv-meta">
       <div>Invoice No.<b class="num" id="invNo">SL-000000</b></div>
       <div style="text-align:right">Date<b id="invDate">—</b></div>
+      <div>Cashier<b id="invCashier">Shop Owner</b></div>
+      <div style="text-align:right">Customer<b id="invCustomer">Walk-in</b></div>
     </div>
     <div class="inv-items" id="invItems"></div>
     <div class="inv-totals">
       <div class="inv-t-row"><span>Subtotal</span><b class="num" id="invSub">Rs. 0</b></div>
-      <div class="inv-t-row disc" id="invDiscRow" style="display:none"><span>Discount <span id="invDiscLabel"></span></span><b class="num" id="invDisc">− Rs. 0</b></div>
+      <div class="inv-t-row disc" id="invPromoRow" style="display:none"><span>Promo Discount <span id="invPromoLabel"></span></span><b class="num" id="invPromo">− Rs. 0</b></div>
+      <div class="inv-t-row disc" id="invDiscRow" style="display:none"><span>Bill Discount</span><b class="num" id="invDisc">− Rs. 0</b></div>
       <div class="inv-t-row sur" id="invSurRow" style="display:none"><span>Card Surcharge (3%)</span><b class="num" id="invSur">+ Rs. 0</b></div>
       <div class="inv-grand"><span>Total</span><span class="amt num" id="invGrand">Rs. 0</span></div>
     </div>
-    <div class="inv-pay"><span>Payment Method</span><b id="invPay">Cash</b></div>
+    <div class="inv-pay">
+      <div class="row"><span>Payment Method</span><b id="invPay">Cash</b></div>
+      <div class="row" id="invCashRow" style="display:none"><span>Cash Given</span><b class="num" id="invCashGiven">Rs. 0</b></div>
+      <div class="row" id="invChangeRow" style="display:none"><span>Change</span><b class="num" id="invChange">Rs. 0</b></div>
+    </div>
     <div class="inv-thanks">
       Thank you for shopping with <b>SOLO LAB MOBILE</b>.<br>
       Please retain this invoice for warranty claims.<br>
@@ -753,120 +641,222 @@ console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
 
 <div class="toast" id="toast">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-  <span id="toastMsg">Add at least one item to complete the invoice</span>
+  <span id="toastMsg">Notification</span>
 </div>
 
 <script>
 (function(){
   "use strict";
 
-  /* ============ EDIT THESE ============ */
-  var cart = [
-    { id:1, name:"iPhone 15 Pro · 256GB", variant:"Natural Titanium · 1yr warranty", price:429000, qty:1, icon:"phone" },
-    { id:2, name:"Samsung Galaxy S24 Ultra", variant:"Titanium Black · 512GB", price:389000, qty:1, icon:"phone" },
-    { id:3, name:"AirPods Pro (2nd Gen)", variant:"USB-C · Sealed box", price:58500, qty:1, icon:"headphones" }
-  ];
-  var PROMOS = { "SOLO10": 0.10, "WELCOME5": 0.05 };
-  var CARD_SURCHARGE = 0.03; // 3%
-  /* =================================== */
-
+  var PRODUCTS = (window.ACCESSORIES && window.ACCESSORIES.length) ? window.ACCESSORIES : [];
+  var cart = [];                          // EMPTY by default — no default products
+  var showCost = false, showMin = false;
   var appliedPromo = null;
+  var PROMOS = { "SOLO10": 0.10, "WELCOME5": 0.05 };
+  var CARD_SURCHARGE = 0.03;
   var paymentMethod = "cash";
-  var orderState = "idle"; // idle | processing | done
-  var PAY_LABELS = { cash:"Cash", online:"Online Transfer", card:"Card (Visa/Mastercard)", koko:"KOKO" };
+  var cashier = "Shop Owner";
+  var customerName = "", customerPhone = "";
+  var billDiscount = 0;
+  var PAY_LABELS = { cash:"Cash", card:"Card (Visa/Mastercard)", online:"Online Transfer", koko:"KOKO QR" };
 
-  var fmt = function(n){ return "Rs. " + n.toLocaleString("en-LK"); };
+  var fmt  = function(n){ return "Rs. " + Number(n||0).toLocaleString("en-LK", {maximumFractionDigits:0}); };
+  var fmt2 = function(n){ return "Rs. " + Number(n||0).toLocaleString("en-LK", {minimumFractionDigits:2, maximumFractionDigits:2}); };
 
-  var phoneIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>';
-  var headphoneIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>';
-  var iconFor = function(k){ return k==="headphones" ? headphoneIcon : phoneIcon; };
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
 
-  /* ---------- Render cart ---------- */
-  var itemsList = document.getElementById("itemsList");
-  var emptyCart = document.getElementById("emptyCart");
+  /* ---------- Toast ---------- */
+  var toast = document.getElementById("toast"), toastTimer = null;
+  function showToast(msg){
+    document.getElementById("toastMsg").textContent = msg;
+    toast.classList.add("show");
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove("show"); }, 2600);
+  }
+
+  /* ---------- Product search & table ---------- */
+  var searchInput = document.getElementById("searchInput");
+  var resultsBody = document.getElementById("resultsBody");
+  var emptyState  = document.getElementById("emptyState");
+  var tableHead   = document.getElementById("tableHead");
+
+  function gridCols(){
+    var cols = "130px 1fr";
+    if(showCost) cols += " 95px";
+    if(showMin)  cols += " 95px";
+    cols += " 110px 80px";
+    return cols;
+  }
+  function renderHead(){
+    var html = "<div>CODE</div><div>NAME</div>";
+    if(showCost) html += "<div>COST</div>";
+    if(showMin)  html += "<div>MIN</div>";
+    html += "<div>PRICE</div><div>STOCK</div>";
+    tableHead.innerHTML = html;
+    tableHead.style.gridTemplateColumns = gridCols();
+  }
+
+  function doSearch(){
+    var q = searchInput.value.trim().toLowerCase();
+    resultsBody.innerHTML = "";
+    if(!q){ emptyState.style.display="block"; resultsBody.style.display="none"; return; }
+    emptyState.style.display="none"; resultsBody.style.display="block";
+    var matches = PRODUCTS.filter(function(p){
+      return (p.code||"").toLowerCase().indexOf(q)>-1 || (p.name||"").toLowerCase().indexOf(q)>-1;
+    }).slice(0, 40);
+    if(matches.length===0){
+      resultsBody.innerHTML = '<div class="no-results">No products found for &ldquo;'+escapeHtml(q)+'&rdquo;</div>';
+      return;
+    }
+    matches.forEach(function(p){
+      var row = document.createElement("div");
+      row.className = "product-row" + (p.stock<=0 ? " oos" : "");
+      row.style.gridTemplateColumns = gridCols();
+      var html = '<div class="p-code">'+escapeHtml(p.code)+'</div>'+
+        '<div class="p-name">'+escapeHtml(p.name)+'<small>'+escapeHtml(p.supplier||"")+'</small></div>';
+      if(showCost) html += '<div class="p-cost num">'+fmt(p.costPrice)+'</div>';
+      if(showMin)  html += '<div class="p-min num">'+fmt(p.costPrice)+'</div>';
+      html += '<div class="p-price num">'+fmt(p.retailPrice)+'</div>';
+      var cls = p.stock<=0 ? "no-stock" : (p.stock<=3 ? "low-stock" : "in-stock");
+      html += '<div class="p-stock '+cls+' num">'+(p.stock||0)+'</div>';
+      row.innerHTML = html;
+      row.addEventListener("click", function(){ addToCart(p); });
+      resultsBody.appendChild(row);
+    });
+  }
+
+  searchInput.addEventListener("input", doSearch);
+  searchInput.addEventListener("keydown", function(e){
+    if(e.key!=="Enter") return;
+    e.preventDefault();
+    var q = searchInput.value.trim().toLowerCase();
+    if(!q) return;
+    // Exact barcode/code match → add immediately (works with USB scanners)
+    var exact = PRODUCTS.find(function(p){ return (p.code||"").toLowerCase()===q; });
+    if(!exact){
+      var matches = PRODUCTS.filter(function(p){
+        return (p.code||"").toLowerCase().indexOf(q)>-1 || (p.name||"").toLowerCase().indexOf(q)>-1;
+      });
+      if(matches.length===1) exact = matches[0];
+    }
+    if(exact){ addToCart(exact); searchInput.value=""; doSearch(); searchInput.focus(); }
+  });
+
+  document.getElementById("costToggle").addEventListener("click", function(){
+    showCost = !showCost; this.classList.toggle("on", showCost); renderHead(); doSearch();
+  });
+  document.getElementById("minToggle").addEventListener("click", function(){
+    showMin = !showMin; this.classList.toggle("on", showMin); renderHead(); doSearch();
+  });
+
+  /* ---------- Cart ---------- */
+  var cartArea = document.getElementById("cartArea");
+  var trashSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+
+  function addToCart(p){
+    if(p.stock<=0){ showToast(p.name + " is out of stock."); return; }
+    var ex = cart.find(function(x){ return x.id===p.id; });
+    if(ex){
+      if(ex.qty >= p.stock){ showToast("Only " + p.stock + " unit(s) in stock for " + p.name + "."); return; }
+      ex.qty++;
+    } else {
+      cart.push({ id:p.id, code:p.code, name:p.name, price:p.retailPrice, qty:1, stock:p.stock });
+    }
+    renderCart();
+  }
 
   function renderCart(){
-    itemsList.innerHTML = "";
-    var totalQty = 0;
-    cart.forEach(function(it){
-      totalQty += it.qty;
-      var row = document.createElement("div");
-      row.className = "item";
-      row.innerHTML =
-        '<div class="item-thumb">'+ iconFor(it.icon) +'<span class="qty-badge num">'+it.qty+'</span></div>' +
-        '<div class="item-info">' +
-          '<div class="item-name">'+it.name+'</div>' +
-          '<div class="item-variant">'+it.variant+'</div>' +
-          '<div class="item-bottom">' +
-            '<div class="qty-ctl">' +
-              '<button data-act="dec" data-id="'+it.id+'" aria-label="Decrease">−</button>' +
-              '<span class="qty-val num">'+it.qty+'</span>' +
-              '<button data-act="inc" data-id="'+it.id+'" aria-label="Increase">+</button>' +
-            '</div>' +
-            '<span class="item-price num">'+fmt(it.price*it.qty)+'</span>' +
-            '<button class="item-remove" data-act="rm" data-id="'+it.id+'" aria-label="Remove">' +
-              '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
-            '</button>' +
-          '</div>' +
+    if(cart.length===0){
+      cartArea.innerHTML =
+        '<div class="empty-cart-box">'+
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>'+
+          '<div>Empty Cart</div>'+
         '</div>';
-      itemsList.appendChild(row);
-    });
-    document.getElementById("itemCountTag").textContent = totalQty + (totalQty===1?" item":" items");
-    emptyCart.style.display = cart.length ? "none" : "block";
+    } else {
+      cartArea.innerHTML = "";
+      cart.forEach(function(it){
+        var div = document.createElement("div");
+        div.className = "cart-item";
+        div.innerHTML =
+          '<div class="ci-info"><div class="ci-name">'+escapeHtml(it.name)+'</div><div class="ci-code">'+escapeHtml(it.code)+'</div></div>'+
+          '<div class="ci-qty"><button data-act="dec" data-id="'+it.id+'">−</button><span class="num">'+it.qty+'</span><button data-act="inc" data-id="'+it.id+'">+</button></div>'+
+          '<div class="ci-price num">'+fmt(it.price*it.qty)+'</div>'+
+          '<button class="ci-rm" data-act="rm" data-id="'+it.id+'" aria-label="Remove">'+trashSvg+'</button>';
+        cartArea.appendChild(div);
+      });
+    }
     recalc();
   }
 
-  itemsList.addEventListener("click", function(e){
+  cartArea.addEventListener("click", function(e){
     var btn = e.target.closest("button[data-act]");
     if(!btn) return;
     var id = parseInt(btn.getAttribute("data-id"),10);
     var act = btn.getAttribute("data-act");
-    var it = cart.find(function(x){return x.id===id;});
+    var it = cart.find(function(x){ return x.id===id; });
     if(!it) return;
-    if(act==="inc") it.qty = Math.min(9, it.qty+1);
-    if(act==="dec"){ it.qty--; if(it.qty<=0){ cart = cart.filter(function(x){return x.id!==id;}); } }
-    if(act==="rm"){ cart = cart.filter(function(x){return x.id!==id;}); }
+    if(act==="inc"){
+      if(it.qty >= it.stock){ showToast("Only " + it.stock + " unit(s) in stock."); return; }
+      it.qty++;
+    }
+    if(act==="dec"){ it.qty--; if(it.qty<=0){ cart = cart.filter(function(x){ return x.id!==id; }); } }
+    if(act==="rm"){ cart = cart.filter(function(x){ return x.id!==id; }); }
     renderCart();
   });
 
   /* ---------- Totals ---------- */
+  var completeBtn = document.getElementById("completeBtn");
+  var changeRow = document.getElementById("changeRow");
+  var changeVal = document.getElementById("changeVal");
+
   function recalc(){
-    var sub = cart.reduce(function(s,it){return s + it.price*it.qty;},0);
-    var discount = appliedPromo ? Math.round(sub * PROMOS[appliedPromo]) : 0;
-    var afterDiscount = sub - discount;
-    var surcharge = (paymentMethod==="card") ? Math.round(afterDiscount * CARD_SURCHARGE) : 0;
-    var grand = afterDiscount + surcharge;
+    var sub = cart.reduce(function(s,it){ return s + it.price*it.qty; }, 0);
+    var promoDisc = appliedPromo ? Math.round(sub * PROMOS[appliedPromo]) : 0;
+    var afterPromo = sub - promoDisc;
+    var bd = Math.min(billDiscount||0, afterPromo);
+    var afterDisc = afterPromo - bd;
+    var surcharge = (paymentMethod==="card") ? Math.round(afterDisc * CARD_SURCHARGE) : 0;
+    var grand = afterDisc + surcharge;
 
-    document.getElementById("subTotal").textContent = fmt(sub);
+    document.getElementById("subTotal").textContent = fmt2(sub);
+    document.getElementById("grandTotal").textContent = fmt2(grand);
 
-    var dRow = document.getElementById("discountRow");
-    if(appliedPromo){
-      dRow.style.display = "flex";
-      document.getElementById("discountLabel").textContent = "("+appliedPromo+" · "+Math.round(PROMOS[appliedPromo]*100)+"%)";
-      document.getElementById("discountVal").textContent = "− " + fmt(discount);
-    } else { dRow.style.display = "none"; }
+    // Cash change
+    var cashGiven = parseFloat(document.getElementById("cashGiven").value) || 0;
+    if(cashGiven > 0 && cart.length > 0){
+      var change = cashGiven - grand;
+      changeRow.classList.add("show");
+      changeRow.classList.toggle("bad", change < 0);
+      changeVal.textContent = (change<0 ? "− " : "") + fmt2(Math.abs(change));
+      changeRow.querySelector("span").textContent = change<0 ? "BALANCE DUE" : "CHANGE";
+    } else {
+      changeRow.classList.remove("show");
+    }
 
-    var sRow = document.getElementById("surchargeRow");
-    if(paymentMethod==="card"){
-      sRow.style.display = "flex";
-      document.getElementById("surchargeVal").textContent = "+ " + fmt(surcharge);
-    } else { sRow.style.display = "none"; }
+    completeBtn.classList.toggle("active", cart.length>0);
+    completeBtn.disabled = cart.length===0;
 
-    document.getElementById("grandTotal").textContent = grand.toLocaleString("en-LK");
-    return { sub:sub, discount:discount, surcharge:surcharge, grand:grand };
+    return { sub:sub, promoDisc:promoDisc, billDisc:bd, surcharge:surcharge, grand:grand, cashGiven:cashGiven };
   }
 
-  /* ---------- Payment selection ---------- */
-  document.querySelectorAll(".pay-opt").forEach(function(p){
-    p.addEventListener("click", function(){
-      document.querySelectorAll(".pay-opt").forEach(function(o){o.classList.remove("sel");});
-      p.classList.add("sel");
-      paymentMethod = p.getAttribute("data-pay");
-      document.querySelectorAll(".pay-note").forEach(function(n){n.classList.remove("show");});
-      var note = document.getElementById("note-"+paymentMethod);
-      if(note) note.classList.add("show");
-      recalc();
-    });
+  document.getElementById("billDiscountInput").addEventListener("input", function(){
+    billDiscount = parseFloat(this.value) || 0; recalc();
+  });
+  document.getElementById("cashGiven").addEventListener("input", recalc);
+  document.getElementById("exactBtn").addEventListener("click", function(){
+    var t = recalc();
+    document.getElementById("cashGiven").value = t.grand;
+    recalc();
+  });
+  document.getElementById("paymentSelect").addEventListener("change", function(){
+    paymentMethod = this.value; recalc();
+  });
+  document.getElementById("cashierSelect").addEventListener("change", function(){
+    cashier = this.value;
   });
 
   /* ---------- Promo ---------- */
@@ -874,11 +864,11 @@ console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
   var promoMsg = document.getElementById("promoMsg");
   document.getElementById("promoBtn").addEventListener("click", function(){
     var code = promoInput.value.trim().toUpperCase();
-    if(!code){ promoMsg.className="promo-msg bad"; promoMsg.textContent="Enter a promo code first."; return; }
+    if(!code){ promoMsg.className="promo-msg bad"; promoMsg.textContent="Enter a voucher code first."; return; }
     if(PROMOS[code]){
       appliedPromo = code;
       promoMsg.className="promo-msg ok";
-      promoMsg.textContent = "Applied: "+Math.round(PROMOS[code]*100)+"% off!";
+      promoMsg.textContent = "Applied: " + Math.round(PROMOS[code]*100) + "% off!";
     } else {
       appliedPromo = null;
       promoMsg.className="promo-msg bad";
@@ -887,58 +877,60 @@ console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
     recalc();
   });
 
-  /* ---------- Toast ---------- */
-  var toast = document.getElementById("toast");
-  var toastTimer = null;
-  function showToast(msg){
-    document.getElementById("toastMsg").textContent = msg;
-    toast.classList.add("show");
-    if(toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toast.classList.remove("show"); }, 3000);
-  }
-
-  /* ---------- Complete invoice ---------- */
-  var completeBtn = document.getElementById("completeBtn");
-  completeBtn.addEventListener("click", function(){
-    if(orderState!=="idle") return;
-    if(cart.length===0){ showToast("Add at least one item to complete the invoice."); return; }
-
-    orderState = "processing";
-    completeBtn.classList.add("loading");
-    completeBtn.disabled = true;
-    completeBtn.querySelector(".btn-label").textContent = "Generating…";
-
-    var start = performance.now(), duration = 1400;
-    function frame(now){
-      var p = Math.min(1, (now-start)/duration);
-      if(p<1){ requestAnimationFrame(frame); }
-      else {
-        orderState = "done";
-        completeBtn.classList.remove("loading");
-        completeBtn.disabled = false;
-        completeBtn.querySelector(".btn-label").textContent = "Complete Invoice";
-        showInvoice();
-        orderState = "idle";
-      }
-    }
-    requestAnimationFrame(frame);
+  /* ---------- Customer ---------- */
+  document.getElementById("registerNew").addEventListener("click", function(){
+    var name = prompt("Customer name:");
+    if(!name) return;
+    var phone = prompt("Phone number:") || "";
+    customerName = name; customerPhone = phone;
+    document.getElementById("customerInput").value = name + (phone ? " · " + phone : "");
+    showToast("Customer registered: " + name);
+  });
+  document.getElementById("customerInput").addEventListener("input", function(){
+    var parts = this.value.split("·");
+    customerName = (parts[0]||"").trim();
+    customerPhone = (parts[1]||"").trim();
   });
 
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, function(c){
-      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
-    });
-  }
+  /* ---------- Action buttons ---------- */
+  document.getElementById("clearBtn").addEventListener("click", function(){
+    if(cart.length===0){ showToast("Cart is already empty."); return; }
+    if(confirm("Clear all items from this invoice?")){ cart = []; renderCart(); showToast("Cart cleared."); }
+  });
+  document.getElementById("holdBtn").addEventListener("click", function(){
+    if(cart.length===0){ showToast("Cart is empty — nothing to hold."); return; }
+    try{
+      var held = JSON.parse(localStorage.getItem("heldBills")||"[]");
+      held.push({ items:cart, time:new Date().toISOString() });
+      localStorage.setItem("heldBills", JSON.stringify(held));
+    }catch(e){}
+    cart = []; renderCart(); showToast("Bill held (" + (held?held.length:1) + " total). Tap Held to recall.");
+  });
+  document.getElementById("heldBtn").addEventListener("click", function(){
+    try{
+      var held = JSON.parse(localStorage.getItem("heldBills")||"[]");
+      if(held.length===0){ showToast("No held bills."); return; }
+      var last = held.pop();
+      localStorage.setItem("heldBills", JSON.stringify(held));
+      cart = last.items || [];
+      renderCart();
+      showToast("Recalled last held bill (" + held.length + " remaining).");
+    }catch(e){ showToast("No held bills."); }
+  });
+  document.getElementById("drawerBtn").addEventListener("click", function(){
+    showToast("Cash drawer signal sent.");
+  });
 
+  /* ---------- Complete & invoice ---------- */
   function showInvoice(){
     var t = recalc();
     var orderNo = "SL-" + String(Math.floor(100000 + Math.random()*900000));
     document.getElementById("invNo").textContent = orderNo;
-
-    var d = new Date();
-    var pad = function(n){return (n<10?"0":"")+n;};
+    var d = new Date(), pad = function(n){ return (n<10?"0":"")+n; };
     document.getElementById("invDate").textContent =
       pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()+" · "+pad(d.getHours())+":"+pad(d.getMinutes());
+    document.getElementById("invCashier").textContent = cashier;
+    document.getElementById("invCustomer").textContent = customerName || "Walk-in";
 
     var invItems = document.getElementById("invItems");
     invItems.innerHTML = "";
@@ -946,46 +938,85 @@ console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
       var row = document.createElement("div");
       row.className = "inv-item";
       row.innerHTML =
-        '<span class="it-name">'+escapeHtml(it.name)+' <small>'+it.qty+' × '+fmt(it.price)+'</small></span>' +
+        '<span class="it-name">'+escapeHtml(it.name)+' <small>'+escapeHtml(it.code)+' · '+it.qty+' × '+fmt(it.price)+'</small></span>'+
         '<span class="it-amt num">'+fmt(it.price*it.qty)+'</span>';
       invItems.appendChild(row);
     });
 
     document.getElementById("invSub").textContent = fmt(t.sub);
-    var dRow = document.getElementById("invDiscRow");
+    var pr = document.getElementById("invPromoRow");
     if(appliedPromo){
-      dRow.style.display = "flex";
-      document.getElementById("invDiscLabel").textContent = "("+appliedPromo+")";
-      document.getElementById("invDisc").textContent = "− " + fmt(t.discount);
-    } else { dRow.style.display = "none"; }
-
-    var sRow = document.getElementById("invSurRow");
+      pr.style.display="flex";
+      document.getElementById("invPromoLabel").textContent = "("+appliedPromo+")";
+      document.getElementById("invPromo").textContent = "− " + fmt(t.promoDisc);
+    } else { pr.style.display="none"; }
+    var dr = document.getElementById("invDiscRow");
+    if(t.billDisc>0){
+      dr.style.display="flex";
+      document.getElementById("invDisc").textContent = "− " + fmt(t.billDisc);
+    } else { dr.style.display="none"; }
+    var sr = document.getElementById("invSurRow");
     if(paymentMethod==="card"){
-      sRow.style.display = "flex";
+      sr.style.display="flex";
       document.getElementById("invSur").textContent = "+ " + fmt(t.surcharge);
-    } else { sRow.style.display = "none"; }
-
+    } else { sr.style.display="none"; }
     document.getElementById("invGrand").textContent = fmt(t.grand);
     document.getElementById("invPay").textContent = PAY_LABELS[paymentMethod] || paymentMethod;
+
+    var cashRow = document.getElementById("invCashRow"), chgRow = document.getElementById("invChangeRow");
+    if(paymentMethod==="cash" && t.cashGiven>0){
+      cashRow.style.display="flex";
+      document.getElementById("invCashGiven").textContent = fmt(t.cashGiven);
+      var change = t.cashGiven - t.grand;
+      if(change>=0){
+        chgRow.style.display="flex";
+        document.getElementById("invChange").textContent = fmt(change);
+      } else { chgRow.style.display="none"; }
+    } else { cashRow.style.display="none"; chgRow.style.display="none"; }
+
+    // Save to sales history
+    try{
+      var sales = JSON.parse(localStorage.getItem("shopSales")||"[]");
+      sales.push({ invoiceNo:orderNo, date:new Date().toISOString(), items:cart, subtotal:t.sub, discount:t.promoDisc+t.billDisc, surcharge:t.surcharge, total:t.grand, paymentMethod:paymentMethod, cashier:cashier, customer:customerName });
+      localStorage.setItem("shopSales", JSON.stringify(sales));
+    }catch(e){}
 
     document.getElementById("invoiceOverlay").classList.add("show");
   }
 
+  completeBtn.addEventListener("click", function(){
+    if(cart.length===0){ showToast("Add at least one item to complete the invoice."); return; }
+    var t = recalc();
+    if(paymentMethod==="cash" && t.cashGiven>0 && t.cashGiven < t.grand){
+      if(!confirm("Cash given is less than the total. Continue anyway?")) return;
+    }
+    showInvoice();
+  });
+
+  document.addEventListener("keydown", function(e){
+    if(e.key==="F2"){ e.preventDefault(); completeBtn.click(); }
+  });
+
   document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
   document.getElementById("newInvBtn").addEventListener("click", function(){
     document.getElementById("invoiceOverlay").classList.remove("show");
-    // reset for a fresh invoice
-    appliedPromo = null;
-    promoInput.value = "";
-    promoMsg.className = "promo-msg";
-    promoMsg.textContent = "";
-    renderCart();
-    window.scrollTo({top:0, behavior:"smooth"});
+    cart = [];
+    appliedPromo = null; billDiscount = 0;
+    promoInput.value=""; promoMsg.className="promo-msg"; promoMsg.textContent="";
+    document.getElementById("billDiscountInput").value="0";
+    document.getElementById("cashGiven").value="";
+    document.getElementById("customerInput").value="";
+    customerName=""; customerPhone="";
+    searchInput.value="";
+    renderCart(); doSearch();
+    searchInput.focus();
   });
   document.getElementById("invoiceOverlay").addEventListener("click", function(e){
     if(e.target===this) this.classList.remove("show");
   });
 
+  /* ---------- Init ---------- */
+  renderHead();
   renderCart();
 })();
 </script>
