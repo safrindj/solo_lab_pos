@@ -33,7 +33,6 @@
     { title: "Main Hub", dot: "#dc2626", items: [
       { href: "index.html",              label: "Dashboard",           icon: I.dash },
       { href: "checkout.html",           label: "POS Billing",         icon: I.cart },
-      { href: "billing.html",            label: "Billing",             icon: I.bill },
       { href: "sale-history.html",       label: "Sales History",       icon: I.hist },
       { href: "customers.html",          label: "Customer Management", icon: I.cust },
       { href: "customer-return.html",    label: "Customer Returns",    icon: I.ret  },
@@ -46,7 +45,6 @@
     ]},
     { title: "Finance & Settings", dot: "#16a34a", items: [
       { href: "reports.html",            label: "Reports",             icon: I.rep  },
-      { href: "payments.html",           label: "Payments",            icon: I.pay  },
       { href: "payment-management.html", label: "Payment Management",  icon: I.paym },
       { href: "staff.html",              label: "Staff",               icon: I.staff},
       { href: "setting.html",            label: "Settings",            icon: I.set  }
