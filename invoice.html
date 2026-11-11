@@ -225,6 +225,65 @@
       }
     }
   </style>
+  <script>
+// ==========================================
+// Google Sheets Sync — SOLO LAB MOBILES
+// ==========================================
+const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdVCmtSvSo5deT_5Os6yXRp1EE7hroItOe6ufemZe-rgH-yzsM9xq02bLqWsSUjBPw/exec"; // ← PASTE YOUR URL HERE
+
+async function gsRead(tabName) {
+  try {
+    const res = await fetch(`${GS_WEB_APP_URL}?action=read&tab=${tabName}`);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    
+    // Convert sheet rows to objects (first row = headers)
+    const rows = json.data;
+    if (rows.length < 2) return [];
+    
+    const headers = rows[0].map(h => h.trim());
+    return rows.slice(1).map(row => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        let val = row[i];
+        // Convert numbers where possible
+        if (!isNaN(parseFloat(val)) && isFinite(val)) val = Number(val);
+        obj[h] = val;
+      });
+      return obj;
+    });
+  } catch (err) {
+    console.error('Google Sheets Read Error:', err);
+    alert('Could not load data: ' + err.message);
+    return [];
+  }
+}
+
+async function gsSave(tabName, objects, headers) {
+  try {
+    // Convert objects back to sheet rows
+    const rows = [headers];
+    objects.forEach(obj => {
+      rows.push(headers.map(h => obj[h] ?? ''));
+    });
+    
+    const res = await fetch(`${GS_WEB_APP_URL}?action=save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tab: tabName, data: rows })
+    });
+    
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error);
+    return true;
+  } catch (err) {
+    console.error('Google Sheets Save Error:', err);
+    alert('Could not save data: ' + err.message);
+    return false;
+  }
+}
+</script>
+
 </head>
 <body>
 
