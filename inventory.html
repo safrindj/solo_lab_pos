@@ -5,6 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inventory — SOLO LAB MOBILES</title>
   <script src="sidebar.js"></script>
+  <script>
+    // ==========================================
+    // Google Sheets Sync — SOLO LAB MOBILES
+    // ==========================================
+    const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdVCmtSvSo5deT_5Os6yXRp1EE7hroItOe6ufemZe-rgH-yzsM9xq02bLqWsSUjBPw/exec";
+
+    async function gsRead(tabName) {
+      try {
+        const res = await fetch(`${GS_WEB_APP_URL}?action=read&tab=${tabName}`);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        
+        const rows = json.data;
+        if (!rows || rows.length < 2) return [];
+        
+        const headers = rows[0].map(h => String(h || '').trim());
+        return rows.slice(1).map(row => {
+          const obj = {};
+          headers.forEach((h, i) => {
+            let val = row[i];
+            if (!isNaN(parseFloat(val)) && isFinite(val)) val = Number(val);
+            obj[h] = val;
+          });
+          return obj;
+        }).filter(p => p.id || p.code || p.name);
+      } catch (err) {
+        console.error('Google Sheets Read Error:', err);
+        return [];
+      }
+    }
+
+    async function gsSave(tabName, objects, headers) {
+      try {
+        const rows = [headers];
+        objects.forEach(obj => {
+          rows.push(headers.map(h => {
+            const val = obj[h];
+            return val !== undefined && val !== null ? val : '';
+          }));
+        });
+        
+        const res = await fetch(`${GS_WEB_APP_URL}?action=save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tab: tabName, data: rows })
+        });
+        
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        return true;
+      } catch (err) {
+        console.error('Google Sheets Save Error:', err);
+        alert('Could not save data: ' + err.message);
+        return false;
+      }
+    }
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #F9FAFB; padding: 20px; }
@@ -74,6 +131,7 @@
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: #424242; }
     .form-group input, .form-group select, .form-group textarea { width: 100%; }
+    .form-group input:disabled { background: #f5f5f5; color: #666; }
     .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
     textarea { width: 100%; min-height: 120px; padding: 10px; border: 2px solid #FFE0B2; border-radius: 6px; font-family: monospace; font-size: 12px; }
@@ -82,65 +140,6 @@
       .stats-row { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
-  <script>
-// ==========================================
-// Google Sheets Sync — SOLO LAB MOBILES
-// ==========================================
-const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdVCmtSvSo5deT_5Os6yXRp1EE7hroItOe6ufemZe-rgH-yzsM9xq02bLqWsSUjBPw/exec"; // ← PASTE YOUR URL HERE
-
-async function gsRead(tabName) {
-  try {
-    const res = await fetch(`${GS_WEB_APP_URL}?action=read&tab=${tabName}`);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    
-    // Convert sheet rows to objects (first row = headers)
-    const rows = json.data;
-    if (rows.length < 2) return [];
-    
-    const headers = rows[0].map(h => h.trim());
-    return rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((h, i) => {
-        let val = row[i];
-        // Convert numbers where possible
-        if (!isNaN(parseFloat(val)) && isFinite(val)) val = Number(val);
-        obj[h] = val;
-      });
-      return obj;
-    });
-  } catch (err) {
-    console.error('Google Sheets Read Error:', err);
-    alert('Could not load data: ' + err.message);
-    return [];
-  }
-}
-
-async function gsSave(tabName, objects, headers) {
-  try {
-    // Convert objects back to sheet rows
-    const rows = [headers];
-    objects.forEach(obj => {
-      rows.push(headers.map(h => obj[h] ?? ''));
-    });
-    
-    const res = await fetch(`${GS_WEB_APP_URL}?action=save`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tab: tabName, data: rows })
-    });
-    
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    return true;
-  } catch (err) {
-    console.error('Google Sheets Save Error:', err);
-    alert('Could not save data: ' + err.message);
-    return false;
-  }
-}
-</script>
-
 </head>
 <body>
 
@@ -188,11 +187,11 @@ async function gsSave(tabName, objects, headers) {
           <th>Cost</th>
           <th>Price</th>
           <th>Stock</th>
-          <th>Actions</th>
+          <th style="text-align: right;">Actions</th>
         </tr>
       </thead>
       <tbody id="productTableBody">
-        <tr><td colspan="7" class="empty">No products yet. Click "Add Product" to start!</td></tr>
+        <tr><td colspan="7" class="empty">Loading products...</td></tr>
       </tbody>
     </table>
   </div>
@@ -202,7 +201,7 @@ async function gsSave(tabName, objects, headers) {
       <h2 id="modalTitle">Add New Product</h2>
       <div class="form-group">
         <label for="pCode">Product Code *</label>
-        <input type="text" id="pCode" placeholder="e.g. PH001" required>
+        <input type="text" id="pCode" placeholder="Auto-generated" required>
       </div>
       <div class="form-group">
         <label for="pName">Product Name *</label>
@@ -257,51 +256,64 @@ async function gsSave(tabName, objects, headers) {
   </div>
 
   <script>
-    const STORAGE_KEY = 'sololab_products';
     let products = [];
     let editingId = null;
+    let isLoading = false;
 
-   async function loadData() {
-  products = await gsRead('products');
-  // Ensure all numeric fields are numbers
-  products = products.map(p => ({
-    ...p,
-    id: Number(p.id) || getNextId(),
-    cost: Number(p.cost) || 0,
-    price: Number(p.price) || 0,
-    stock: Number(p.stock) || 0
-  }));
-  updateStats();
-  updateCategoryFilter();
-  renderProducts();
-}
-
-
-    function isValidStoredProduct(product) {
-      return product &&
-        product.id !== undefined &&
-        typeof product.code === 'string' &&
-        typeof product.name === 'string' &&
-        typeof product.category === 'string';
+    // Get next auto-generated product code
+    function getNextProductCode() {
+      if (products.length === 0) return 'P001';
+      
+      const codes = products.map(p => {
+        const match = String(p.code || '').match(/P(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      });
+      const max = Math.max(0, ...codes);
+      return 'P' + String(max + 1).padStart(3, '0');
     }
-
-  async function saveData() {
-  const headers = ['id','code','name','category','cost','price','stock'];
-  const ok = await gsSave('products', products, headers);
-  if (!ok) return;
-  updateStats();
-  updateCategoryFilter();
-  renderProducts();
-}
-
 
     function getNextId() {
       const highestId = products.reduce((highest, product) => {
         const id = Number(product.id);
         return Number.isFinite(id) ? Math.max(highest, id) : highest;
       }, 0);
-
       return highestId + 1;
+    }
+
+    async function loadData() {
+      if (isLoading) return;
+      isLoading = true;
+      
+      try {
+        products = await gsRead('products');
+        products = products.map(p => ({
+          id: Number(p.id) || getNextId(),
+          code: String(p.code || '').trim(),
+          name: String(p.name || '').trim(),
+          category: String(p.category || '').trim(),
+          cost: Number(p.cost) || 0,
+          price: Number(p.price) || 0,
+          stock: Number(p.stock) || 0
+        }));
+      } catch (err) {
+        console.error('Load error:', err);
+        products = [];
+      }
+      
+      isLoading = false;
+      updateStats();
+      updateCategoryFilter();
+      renderProducts();
+    }
+
+    async function saveData() {
+      const headers = ['id','code','name','category','cost','price','stock'];
+      const ok = await gsSave('products', products, headers);
+      if (!ok) return false;
+      updateStats();
+      updateCategoryFilter();
+      renderProducts();
+      return true;
     }
 
     function updateStats() {
@@ -325,10 +337,12 @@ async function gsSave(tabName, objects, headers) {
         products.map(product => product.category.trim()).filter(Boolean)
       )].sort((a, b) => a.localeCompare(b));
 
-      select.replaceChildren(new Option('All Categories', ''));
-
+      select.innerHTML = '<option value="">All Categories</option>';
       categories.forEach(category => {
-        select.add(new Option(category, category));
+        const opt = document.createElement('option');
+        opt.value = category;
+        opt.textContent = category;
+        select.appendChild(opt);
       });
 
       if (categories.includes(previousValue)) {
@@ -349,7 +363,7 @@ async function gsSave(tabName, objects, headers) {
         return matchesSearch && matchesCategory;
       });
 
-      tbody.replaceChildren();
+      tbody.innerHTML = '';
 
       if (filteredProducts.length === 0) {
         const row = document.createElement('tr');
@@ -374,267 +388,19 @@ async function gsSave(tabName, objects, headers) {
           row.className = 'low-stock';
         }
 
-        [
+        const cells = [
           product.code,
           product.name,
           product.category,
           `LKR ${formatMoney(product.cost)}`,
           `LKR ${formatMoney(product.price)}`,
           String(stock)
-        ].forEach(value => {
+        ];
+
+        cells.forEach(value => {
           const cell = document.createElement('td');
           cell.textContent = value;
           row.appendChild(cell);
         });
 
-        const actions = document.createElement('td');
-        const editButton = document.createElement('button');
-        editButton.type = 'button';
-        editButton.className = 'btn-sm btn-primary';
-        editButton.dataset.edit = String(product.id);
-        editButton.textContent = 'Edit';
-
-        const deleteButton = document.createElement('button');
-        deleteButton.type = 'button';
-        deleteButton.className = 'btn-sm btn-danger';
-        deleteButton.dataset.delete = String(product.id);
-        deleteButton.textContent = 'Del';
-
-        actions.append(editButton, deleteButton);
-        row.appendChild(actions);
-        tbody.appendChild(row);
-      });
-    }
-
-    function formatMoney(value) {
-      const amount = Number(value);
-      return Number.isFinite(amount) ? amount.toFixed(2) : '0.00';
-    }
-
-    function openProductModal(product = null) {
-      editingId = product ? product.id : null;
-      document.getElementById('modalTitle').textContent = product
-        ? 'Edit Product'
-        : 'Add New Product';
-
-      document.getElementById('pCode').value = product ? product.code : '';
-      document.getElementById('pName').value = product ? product.name : '';
-      document.getElementById('pCat').value = product ? product.category : '';
-      document.getElementById('pCost').value = product ? product.cost : '';
-      document.getElementById('pPrice').value = product ? product.price : '';
-      document.getElementById('pStock').value = product ? product.stock : '';
-
-      document.getElementById('productModal').classList.add('active');
-      document.getElementById('pCode').focus();
-    }
-
-    function closeProductModal() {
-      document.getElementById('productModal').classList.remove('active');
-      editingId = null;
-    }
-
-    document.getElementById('btnAdd').addEventListener('click', () => {
-      openProductModal();
-    });
-
-    document.getElementById('closeModalBtn').addEventListener('click', closeProductModal);
-
-    document.getElementById('saveProductBtn').addEventListener('click', () => {
-      const code = document.getElementById('pCode').value.trim();
-      const name = document.getElementById('pName').value.trim();
-      const category = document.getElementById('pCat').value;
-      const costText = document.getElementById('pCost').value;
-      const priceText = document.getElementById('pPrice').value;
-      const stockText = document.getElementById('pStock').value;
-      const cost = Number(costText);
-      const price = Number(priceText);
-      const stock = Number(stockText);
-
-      if (
-        !code || !name || !category ||
-        costText === '' || priceText === '' || stockText === '' ||
-        !Number.isFinite(cost) || cost < 0 ||
-        !Number.isFinite(price) || price < 0 ||
-        !Number.isInteger(stock) || stock < 0
-      ) {
-        alert('Please enter valid values in all required fields. Prices and stock cannot be negative, and stock must be a whole number.');
-        return;
-      }
-
-      const duplicateCode = products.some(product =>
-        product.code.toLowerCase() === code.toLowerCase() &&
-        product.id !== editingId
-      );
-
-      if (duplicateCode) {
-        alert('A product with that code already exists.');
-        return;
-      }
-
-      if (editingId !== null) {
-        const index = products.findIndex(product => product.id === editingId);
-        if (index === -1) {
-          alert('The product could not be found.');
-          closeProductModal();
-          return;
-        }
-
-        products[index] = { id: editingId, code, name, category, cost, price, stock };
-      } else {
-        products.push({ id: getNextId(), code, name, category, cost, price, stock });
-      }
-
-      await saveData();
-      closeProductModal();
-    });
-
-    document.getElementById('btnBulk').addEventListener('click', () => {
-      document.getElementById('bulkData').value = '';
-      document.getElementById('bulkModal').classList.add('active');
-      document.getElementById('bulkData').focus();
-    });
-
-    document.getElementById('closeBulkBtn').addEventListener('click', () => {
-      document.getElementById('bulkModal').classList.remove('active');
-    });
-
-    document.getElementById('doBulkImport').addEventListener('click', () => {
-      const text = document.getElementById('bulkData').value.trim();
-
-      if (!text) {
-        alert('Please paste some data first.');
-        return;
-      }
-
-      let added = 0;
-      let skipped = 0;
-      const lines = text.split(/\r?\n/);
-
-      lines.forEach(line => {
-        const parts = line.split(',').map(part => part.trim());
-
-        if (parts.length !== 6) {
-          skipped++;
-          return;
-        }
-
-        const [code, name, category, costText, priceText, stockText] = parts;
-        const cost = Number(costText);
-        const price = Number(priceText);
-        const stock = Number(stockText);
-
-        const invalid = !code || !name || !category ||
-          costText === '' || priceText === '' || stockText === '' ||
-          !Number.isFinite(cost) || cost < 0 ||
-          !Number.isFinite(price) || price < 0 ||
-          !Number.isInteger(stock) || stock < 0;
-
-        const duplicate = products.some(product =>
-          product.code.toLowerCase() === code.toLowerCase()
-        );
-
-        if (invalid || duplicate) {
-          skipped++;
-          return;
-        }
-
-        products.push({
-          id: getNextId(),
-          code,
-          name,
-          category,
-          cost,
-          price,
-          stock
-        });
-        added++;
-      });
-
-     await saveData();
-      document.getElementById('bulkModal').classList.remove('active');
-      alert(`Import complete. Added: ${added} | Skipped (invalid rows or duplicate codes): ${skipped}`);
-    });
-
-    document.getElementById('btnExport').addEventListener('click', () => {
-      if (products.length === 0) {
-        alert('No products to export.');
-        return;
-      }
-
-      const escapeCsv = value =>
-        `"${String(value ?? '').replace(/"/g, '""')}"`;
-
-      const rows = [
-        ['Code', 'Name', 'Category', 'Cost Price', 'Retail Price', 'Stock'],
-        ...products.map(product => [
-          product.code,
-          product.name,
-          product.category,
-          product.cost,
-          product.price,
-          product.stock
-        ])
-      ];
-
-      const csv = rows.map(row => row.map(escapeCsv).join(',')).join('\r\n');
-      const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-
-      link.href = url;
-      link.download = `inventory-${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    });
-
-    document.getElementById('productTableBody').addEventListener('click', event => {
-      const editButton = event.target.closest('[data-edit]');
-      const deleteButton = event.target.closest('[data-delete]');
-
-      if (editButton) {
-        const product = products.find(item =>
-          String(item.id) === editButton.dataset.edit
-        );
-        if (product) openProductModal(product);
-        return;
-      }
-
-      if (deleteButton) {
-        const product = products.find(item =>
-          String(item.id) === deleteButton.dataset.delete
-        );
-
-        if (product && confirm(`Delete "${product.name}"?`)) {
-          products = products.filter(item => item.id !== product.id);
-         await saveData();
-        }
-      }
-    });
-
-    document.getElementById('searchInput').addEventListener('input', renderProducts);
-    document.getElementById('catFilter').addEventListener('change', renderProducts);
-
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-      overlay.addEventListener('click', event => {
-        if (event.target === overlay) {
-          overlay.classList.remove('active');
-          if (overlay.id === 'productModal') editingId = null;
-        }
-      });
-    });
-
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay.active').forEach(overlay => {
-          overlay.classList.remove('active');
-        });
-        editingId = null;
-      }
-    });
-
-    loadData();
-  </script>
-</body>
-</html>
+        const actions
