@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head><link rel="manifest" href="manifest.json">
+   
+   <!-- ✅ Load products data FIRST -->
+   <script>// ==========================================
+// SOLO LAB MOBILES — COMPLETE PRODUCT DATABASE
+// Generated from your Excel database
+// ==========================================
+
+const CATEGORIES = {
+  CABLES: 'USB Cables & Adapters',
+  CHARGERS: 'Chargers & Power Banks',
+  HEADPHONES: 'Headphones & Earbuds',
+  SPEAKERS: 'Speakers',
+  HOLDERS: 'Phone Holders & Mounts',
+  CASES: 'Phone Cases & Back Covers',
+  WATCH_ACCESSORIES: 'Apple Watch Accessories',
+  PROTECTION: 'Screen Protectors & Tempered Glass',
+  CAR_ACCESSORIES: 'Car Accessories',
+  MOBILE_PHONES: 'Pre-owned Mobile Phones'
+};
+
+// ==========================================
+// ACCESSORIES DATABASE
+// ==========================================
+const ACCESSORIES = [
+  // --- Cables ---
+  { id: 1, code: 'S01T', name: 'USB to TYPE C', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 79, retailPrice: 600, stock: 8, warranty: 'No' },
+  { id: 2, code: 'ML02P', name: 'USB to Lightning', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 79, retailPrice: 600, stock: 47, warranty: 'No' },
+  { id: 3, code: 'ML01A', name: 'USB to Micro', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 49, retailPrice: 350, stock: 45, warranty: 'No' },
+  { id: 4, code: 'TC2M C-L', name: 'TC2M C - L Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 399, retailPrice: 2000, stock: 2, warranty: '1 Month' },
+  { id: 5, code: 'TF1M USB-C', name: 'TF1M USB - C Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 249, retailPrice: 1500, stock: 5, warranty: '1 Month' },
+  { id: 6, code: 'TB1.5M C-C', name: 'TB1.5M C - C Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 329, retailPrice: 1500, stock: 1, warranty: '1 Month' },
+  { id: 7, code: 'M52 USB-C', name: 'M52 USB - C Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 349, retailPrice: 2000, stock: 5, warranty: '1 Month' },
+  { id: 8, code: 'M311 3in1', name: 'M311 3in1 Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 799, retailPrice: 1800, stock: 0, warranty: '1 Month' },
+  { id: 9, code: 'M34 3in1', name: 'M34 3in1 Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 399, retailPrice: 1400, stock: 1, warranty: '1 Month' },
+  { id: 10, code: 'Apple C-L Original', name: 'Apple Original C - L Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 4390, retailPrice: 7000, stock: 1, warranty: '1 Year' },
+  { id: 11, code: 'Apple C-C Original', name: 'Apple Original C - C Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 4790, retailPrice: 8000, stock: 2, warranty: '1 Year' },
+  { id: 12, code: 'Apple C-L Redington', name: 'Apple C - L Redington Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 380, retailPrice: 1500, stock: 10, warranty: 'No' },
+  { id: 13, code: 'Apple C-C Redington', name: 'Apple C - C Redington Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 440, retailPrice: 1500, stock: 15, warranty: 'No' },
+  { id: 14, code: 'MMAL008 A-L', name: 'MMAL008 A to L Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 120, retailPrice: 1000, stock: 4, warranty: 'No' },
+  { id: 15, code: 'MMAL002 A-L Braided', name: 'MMAL002 A to L Braided Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 340, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 16, code: 'Samsung C-C Data', name: 'Samsung C to C Data Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 580, retailPrice: 1800, stock: 5, warranty: 'No' },
+  { id: 17, code: 'Mikorean C-L Silicon', name: 'Mikorean C to L Silicon Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 380, retailPrice: 1700, stock: 6, warranty: 'No' },
+  { id: 18, code: 'Mikorean C-C Braided', name: 'Mikorean C to C Braided Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 680, retailPrice: 1700, stock: 2, warranty: 'No' },
+  { id: 19, code: 'Mikorean C-C Stand', name: 'Mikorean C to C Stand Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 1290, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 20, code: 'Apple C-L Safraz', name: 'Apple C - L Cable', category: CATEGORIES.CABLES, supplier: 'Safraz', costPrice: 490, retailPrice: 1700, stock: 9, warranty: 'No' },
+
+  // --- Chargers ---
+  { id: 21, code: 'JOYROOM PD20W', name: 'JOYROOM PD20W Adapter', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 1990, retailPrice: 4500, stock: 2, warranty: '2 Months' },
+  { id: 22, code: 'YG73 PD20W', name: 'YG73 PD20W Adapter', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 899, retailPrice: 2000, stock: 0, warranty: '2 Months' },
+  { id: 23, code: 'Apple 20W Original', name: 'Apple Original 20W Adapter', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 5550, retailPrice: 11000, stock: 5, warranty: '1 Year' },
+  { id: 24, code: 'Apple NFC 20W', name: 'Apple NFC 20W Adapter', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 3250, retailPrice: 6500, stock: 5, warranty: '1 Year' },
+  { id: 25, code: 'Apple 40W Original', name: 'Apple Original 40W Adapter', category: CATEGORIES.CHARGERS, supplier: 'Xmart', costPrice: 11550, retailPrice: 22000, stock: 1, warranty: '12 Months' },
+  { id: 26, code: 'Samsung 25W PD', name: 'Samsung 25W PD Adaptor', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 480, retailPrice: 2000, stock: 5, warranty: 'No' },
+  { id: 27, code: 'Earldom CC27 Car Charger', name: 'Earldom CC27 Car Charger', category: CATEGORIES.CAR_ACCESSORIES, supplier: 'XMART', costPrice: 1380, retailPrice: 2500, stock: 1, warranty: '1 Month' },
+  { id: 28, code: 'iWatch Magnetic Charger', name: 'iWatch Magnetic USB Fast Charger', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 1055, retailPrice: 17000, stock: 1, warranty: '1 Year' },
+
+  // --- Power Banks ---
+  { id: 29, code: 'PH80 10000mAh', name: 'PH80 1000mAh Power Bank', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 2250, retailPrice: 3250, stock: 0, warranty: '1 Week' },
+  { id: 30, code: 'PK66 10000mAh', name: 'PK66 1000mAh Power Bank', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 1650, retailPrice: 2700, stock: 0, warranty: '1 Week' },
+  { id: 31, code: 'Mikorean MGPL06', name: 'Mikorean MGPL06 20000mAh', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 2680, retailPrice: 5500, stock: 2, warranty: '2 Months' },
+  { id: 32, code: 'Remax RW108 3.5', name: 'Remax RW108 3.5 Headset', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 590, retailPrice: 1100, stock: 3, warranty: 'No' },
+  { id: 33, code: 'Remax FP37 10000mAh', name: 'Remax RW108 10000mAh FP37', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 6480, retailPrice: 12000, stock: 1, warranty: '3 Months' },
+  { id: 34, code: 'Mikorean MGPL029', name: 'Mikorean MGPL029 10000mAh', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 2430, retailPrice: 5000, stock: 0, warranty: '1 Month' },
+  { id: 35, code: 'Mikorean MGPL03', name: 'Mikorean MGPL03 10000mAh', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 1940, retailPrice: 4500, stock: 2, warranty: '1 Month' },
+  { id: 36, code: 'Mikorean MGPL014 Magsafe', name: 'Mikorean MGPL014 10000mAh Magsafe', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 3900, retailPrice: 6900, stock: 1, warranty: '1 Month' },
+  { id: 37, code: 'Mikorean MGPL07 FC', name: 'Mikorean MGPL07 FC 10000mAh', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 2650, retailPrice: 5300, stock: 2, warranty: '1 Month' },
+  { id: 38, code: 'OFYI PB13 FC 20000mah', name: 'OFYI PB13 FC Power Bank 20000mah', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 3190, retailPrice: 6700, stock: 2, warranty: '1 Month' },
+
+  // --- Headsets & Earbuds ---
+  { id: 39, code: 'G13T Type C Headset', name: 'G13T Type C Headset', category: CATEGORIES.HEADPHONES, supplier: 'iNGINEER', costPrice: 799, retailPrice: 1800, stock: 2, warranty: 'No' },
+  { id: 40, code: 'V11 3.5MM', name: 'V11 3.5MM Headset', category: CATEGORIES.HEADPHONES, supplier: 'iNGINEER', costPrice: 329, retailPrice: 1000, stock: 1, warranty: 'No' },
+  { id: 41, code: 'V15T C Headset', name: 'V15T C Headset', category: CATEGORIES.HEADPHONES, supplier: 'iNGINEER', costPrice: 499, retailPrice: 1000, stock: 3, warranty: 'No' },
+  { id: 42, code: 'BM3011', name: 'BM3011 Headset', category: CATEGORIES.HEADPHONES, supplier: 'iNGINEER', costPrice: 2790, retailPrice: 4800, stock: 2, warranty: '3 Month' },
+  { id: 43, code: 'Apple Type C Earpods', name: 'Apple Type C Earpods / Headset Redington', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 680, retailPrice: 2000, stock: 5, warranty: 'No' },
+  { id: 44, code: 'Apple Lightning Earpods', name: 'Apple Lightning Earpods / Headset Redington', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 980, retailPrice: 2000, stock: 5, warranty: 'No' },
+  { id: 45, code: 'E76 3.5 and Type C', name: 'E76 3.5mm and Type C Headset', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1100, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 46, code: 'Reddington AirPods Pro 2 ANC', name: 'Reddington AirPods Pro 2 ANC', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1880, retailPrice: 3500, stock: 5, warranty: '3 Days' },
+  { id: 47, code: 'Reddington Airpods 4 ANC', name: 'Reddington Airpods 4 ANC', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1880, retailPrice: 4500, stock: 2, warranty: 'No' },
+  { id: 48, code: 'Reddington Airpods Pro 3 ANC', name: 'Reddington Airpods Pro 3 ANC', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 2280, retailPrice: 5000, stock: 3, warranty: 'No' },
+  { id: 49, code: 'SoundCore R50i NC', name: 'SoundCore R50i NC Earbuds', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 5900, retailPrice: 8200, stock: 2, warranty: 'No' },
+  { id: 50, code: 'OFYI BHF07 RGB', name: 'OFYI BHF07 RGB Headphones', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 2680, retailPrice: 5500, stock: 2, warranty: '1 Month' },
+  { id: 51, code: 'MK 206 Wireless', name: 'MK 206 Wireless Headphone', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 3250, retailPrice: 6500, stock: 2, warranty: '1 Month' },
+  { id: 52, code: 'MMNH01 Sports', name: 'MMNH01 Sports Headphones', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1780, retailPrice: 2700, stock: 1, warranty: '1 Month' },
+  { id: 53, code: 'MMNH02 Sports', name: 'MMNH02 Sports Headphones', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1680, retailPrice: 2700, stock: 1, warranty: '1 Month' },
+  { id: 54, code: 'Anker Soundcore Space One Pro', name: 'Anker Soundcore Space One Pro', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 2900, retailPrice: 5500, stock: 0, warranty: 'No' },
+
+  // --- Speakers ---
+  { id: 55, code: 'X1 Mini Speaker', name: 'X1 Mini Speaker', category: CATEGORIES.SPEAKERS, supplier: 'iNGINEER', costPrice: 440, retailPrice: 1500, stock: 5, warranty: 'No' },
+  { id: 56, code: 'W83 Speaker', name: 'W83 Speaker', category: CATEGORIES.SPEAKERS, supplier: 'iNGINEER', costPrice: 3750, retailPrice: 6000, stock: 1, warranty: '1 Month' },
+  { id: 57, code: 'MK-T06', name: 'MK-T06 Speaker', category: CATEGORIES.SPEAKERS, supplier: 'XMART', costPrice: 1780, retailPrice: 4000, stock: 2, warranty: '1 Month' },
+  { id: 58, code: 'MK-T10', name: 'MK-T10 Speaker', category: CATEGORIES.SPEAKERS, supplier: 'XMART', costPrice: 1900, retailPrice: 4500, stock: 2, warranty: '1 Month' },
+
+  // --- Phone Holders ---
+  { id: 59, code: 'HD07 Phone Holder', name: 'HD07 Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'iNGINEER', costPrice: 830, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 60, code: 'HD02 Phone Holder', name: 'HD02 Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'iNGINEER', costPrice: 830, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 61, code: 'MMCH09 Car Holder', name: 'MMCH09 Car Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'XMART', costPrice: 680, retailPrice: 1800, stock: 2, warranty: 'No' },
+  { id: 62, code: 'MMH01/02 Bike Holder', name: 'MMH01 / 02 Bike Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'XMART', costPrice: 680, retailPrice: 1800, stock: 1, warranty: 'No' },
+  { id: 63, code: 'MMDH04 Desk Holder', name: 'MMDH04 Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'XMART', costPrice: 680, retailPrice: 1800, stock: 2, warranty: 'No' },
+
+  // --- Cases & Covers ---
+  { id: 64, code: 'Ringlight HX260', name: 'Ringlight HX260', category: 'Accessories', supplier: 'XMART', costPrice: 1260, retailPrice: 3000, stock: 2, warranty: 'No' },
+  { id: 65, code: 'Earldom WC80 Magnetic Charger', name: 'Earldom WC80 Magnetic Wireless Charger', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 1940, retailPrice: 3500, stock: 2, warranty: 'No' },
+  
+  // AirPods Cases
+  { id: 66, code: 'AirPods 1/2 Covers', name: 'Apple AirPods 1 / 2 Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 340, retailPrice: 1000, stock: 2, warranty: 'No' },
+  { id: 67, code: 'AirPods Pro 2 Covers', name: 'Apple AirPods Pro 2 Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 280, retailPrice: 1000, stock: 4, warranty: 'No' },
+  { id: 68, code: 'AirPods Pro 3 Covers', name: 'Apple AirPods Pro 3 Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 380, retailPrice: 1000, stock: 1, warranty: 'No' },
+  { id: 69, code: 'AirPods R50i NC Covers', name: 'Apple AirPods R50i NC Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 680, retailPrice: 1700, stock: 2, warranty: 'No' },
+  { id: 70, code: 'AirPods R50i Covers', name: 'Apple AirPods R50i Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 680, retailPrice: 1700, stock: 2, warranty: 'No' },
+  { id: 71, code: 'AirPods Pro 2 Rubber Case', name: 'Airpods Pro 2 Rubber Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 180, retailPrice: 1500, stock: 6, warranty: 'No' },
+  { id: 72, code: 'AirPods Pro 2 Character Bckcover', name: 'Aipods pro 2 Character Bckcover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 440, retailPrice: 1700, stock: 4, warranty: 'No' },
+
+  // Apple Watch Accessories
+  { id: 73, code: 'Apple Watch Straps 42-49MM', name: 'Apple Watch 42MM/44MM/45MM/49MM Straps', category: CATEGORIES.WATCH_ACCESSORIES, supplier: 'XMART', costPrice: 490, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 74, code: 'Apple Watch 42MM Tempered', name: 'Apple Watch 42MM Tempered / Cover', category: CATEGORIES.PROTECTION, supplier: 'XMART', costPrice: 320, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 75, code: 'Apple Watch 40MM Tempered', name: 'Apple Watch 40MM Tempered / Cover', category: CATEGORIES.PROTECTION, supplier: 'XMART', costPrice: 320, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 76, code: 'Apple Watch 46MM Tempered', name: 'Apple Watch 46MM Tempered / Cover', category: CATEGORIES.PROTECTION, supplier: 'XMART', costPrice: 320, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 77, code: 'Apple Watch 44MM Tempered', name: 'Apple Watch 44MM Tempered / Cover', category: CATEGORIES.PROTECTION, supplier: 'XMART', costPrice: 320, retailPrice: 1500, stock: 2, warranty: 'No' },
+
+  // Generic Phone Cases (So Cool / Jelly / Silicone / Creative / 360 / Belkin / AG Glass / iLike / 2-in-1)
+  // These are grouped by style — you can expand individually if needed
+  { id: 78, code: 'IP-TPU-7G-SE3', name: 'iPhone 7G/8G/SE2/SE3 TPU Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 120, retailPrice: 550, stock: 5, warranty: 'No' },
+  { id: 79, code: 'IP-Silicone-11', name: 'iPhone 11 Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 4, warranty: 'No' },
+  { id: 80, code: 'IP-Silicone-12PM', name: 'iPhone 12 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 81, code: 'IP-Silicone-13PM', name: 'iPhone 13 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 82, code: 'IP-Silicone-14PM', name: 'iPhone 14 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 4, warranty: 'No' },
+  { id: 83, code: 'IP-Silicone-15PM', name: 'iPhone 15 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 84, code: 'IP-Silicone-16PM', name: 'iPhone 16 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 85, code: 'IP-Silicone-17PM', name: 'iPhone 17 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 86, code: 'IP-Creative-11', name: 'iPhone 11 Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 87, code: 'IP-Creative-12PM', name: 'iPhone 12 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 88, code: 'IP-Creative-13PM', name: 'iPhone 13 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 89, code: 'IP-Creative-14PM', name: 'iPhone 14 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 90, code: 'IP-Creative-15PM', name: 'iPhone 15 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 91, code: 'IP-Creative-16PM', name: 'iPhone 16 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 92, code: 'IP-Creative-17PM', name: 'iPhone 17 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 93, code: 'IP-360-11', name: 'iPhone 11 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 94, code: 'IP-360-12PM', name: 'iPhone 12 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 95, code: 'IP-360-13PM', name: 'iPhone 13 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 96, code: 'IP-360-14PM', name: 'iPhone 14 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 97, code: 'IP-360-15PM', name: 'iPhone 15 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 0, warranty: 'No' },
+  { id: 98, code: 'IP-360-17PM', name: 'iPhone 17 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 99, code: 'IP-Belkin-11', name: 'iPhone 11 Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 2, warranty: 'No' },
+  { id: 100, code: 'IP-Belkin-12', name: 'iPhone 12 Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 2, warranty: 'No' },
+  { id: 101, code: 'IP-Belkin-13', name: 'iPhone 13 Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 2, warranty: 'No' },
+  { id: 102, code: 'IP-Belkin-14', name: 'iPhone 14 Pro Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 2, warranty: 'No' },
+  { id: 103, code: 'IP-Belkin-15', name: 'iPhone 15 Pro Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 4, warranty: 'No' },
+  { id: 104, code: 'IP-Belkin-16', name: 'iPhone 16 Pro Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 3, warranty: 'No' },
+  { id: 105, code: 'IP-Belkin-17', name: 'iPhone 17 Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 1, warranty: 'No' },
+  { id: 106, code: 'IP-AGGlass-11', name: 'iPhone 11 AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 0, warranty: 'No' },
+  { id: 107, code: 'IP-AGGlass-11PM', name: 'iPhone 11 PM AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 108, code: 'IP-AGGlass-12', name: 'iPhone 12 AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 109, code: 'IP-AGGlass-13', name: 'iPhone 13 AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 110, code: 'IP-AGGlass-14', name: 'iPhone 14 AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 111, code: 'IP-AGGlass-15', name: 'iPhone 15 Pro AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 112, code: 'IP-AGGlass-16', name: 'iPhone 16 Pro AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 113, code: 'IP-iLike-12PM', name: 'iPhone 12PM iLike Backcover', category: CATEGORIES.CASES, supplier: 'Aircel Supplier', costPrice: 750, retailPrice: 2000, stock: 1, warranty: 'No' },
+  { id: 114, code: 'IP-iLike-13Pro', name: 'iPhone 13 Pro iLike Backcover', category: CATEGORIES.CASES, supplier: 'Aircel Supplier', costPrice: 750, retailPrice: 2000, stock: 1, warranty: 'No' },
+  { id: 115, code: 'IP-SoCool-X', name: 'iPhone X So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 116, code: 'IP-SoCool-11', name: 'iPhone 11 So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 117, code: 'IP-SoCool-12PM', name: 'iPhone 12 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 118, code: 'IP-SoCool-13PM', name: 'iPhone 13 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 119, code: 'IP-SoCool-14PM', name: 'iPhone 14 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 120, code: 'IP-SoCool-15PM', name: 'iPhone 15 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 121, code: 'IP-SoCool-16PM', name: 'iPhone 16 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 122, code: 'IP-SoCool-17PM', name: 'iPhone 17 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 123, code: 'IP-2in1Eco-11', name: 'iPhone 11 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 124, code: 'IP-2in1Eco-12PM', name: 'iPhone 12 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 1, warranty: 'No' },
+  { id: 125, code: 'IP-2in1Eco-13PM', name: 'iPhone 13 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 126, code: 'IP-2in1Eco-14PM', name: 'iPhone 14 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 1, warranty: 'No' },
+  { id: 127, code: 'IP-2in1Eco-15PM', name: 'iPhone 15 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 128, code: 'IP-2in1Eco-16PM', name: 'iPhone 16 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 129, code: 'IP-2in1Eco-17PM', name: 'iPhone 17 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 130, code: 'IP-2in1Eco-18PM', name: 'iPhone 18 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 131, code: 'IP-CreativeSafraz-12PM', name: 'iPhone 12 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 132, code: 'IP-CreativeSafraz-13PM', name: 'iPhone 13 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 133, code: 'IP-CreativeSafraz-14PM', name: 'iPhone 14 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 134, code: 'IP-CreativeSafraz-15PM', name: 'iPhone 15 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 135, code: 'IP-CreativeSafraz-16PM', name: 'iPhone 16 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 136, code: 'IP-CreativeSafraz-17PM', name: 'iPhone 17 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+
+  // --- Other Accessories ---
+  { id: 137, code: 'Keephone 14 Pro', name: 'Keephone 14 Pro Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 900, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 138, code: 'LV Leather', name: 'LV Leather Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 640, retailPrice: 1700, stock: 2, warranty: 'No' },
+  { id: 139, code: 'Berlia 17', name: 'Berlia 17 Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 1100, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 140, code: 'Berlia 17 Pro', name: 'Berlia 17 Pro Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 1100, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 141, code: 'Berlia 17 Pro Max', name: 'Berlia 17 Pro Max Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 1100, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 142, code: 'Magnetic-Color-17Pro', name: 'Magnetic Color 17 Pro', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 143, code: 'Magnetic-Color-17PM', name: 'Magnetic Color 17 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 144, code: 'Magnetic-Color-15PM', name: 'Magnetic Color 15 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 145, code: 'Magnetic-Color-13PM', name: 'Magnetic Color 13 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 146, code: 'Magnetic-Color-14PM', name: 'Magnetic Color 14 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 147, code: 'Magnetic-Color-11PM', name: 'Magnetic Color 11 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 148, code: 'HC-11 USB A Adapter', name: 'HC-11 USB A Adapter', category: 'Adapters', supplier: 'XMART', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 149, code: 'Apple Adapter + Cable A-L', name: 'Apple Adapter and Cable A to L', category: 'Accessories', supplier: 'Safraz', costPrice: 850, retailPrice: 2000, stock: 4, warranty: 'No' },
+  { id: 150, code: 'iPhone Jelly-13/14', name: 'iPhone 13 / 14 Jelly Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice:
+// Make products available to ALL pages — multiple names to be safe
+window.products = ACCESSORIES;
+window.ACCESSORIES = ACCESSORIES;
+window.CATEGORIES = CATEGORIES;
+
+// Also create a simple 'allCategories' list if your page needs it
+window.allCategories = Object.entries(CATEGORIES).map(([key, value]) => ({
+  key: key,
+  name: value
+}));
+
+console.log('✅ Products loaded:', ACCESSORIES.length, 'items');
+console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
+</script>
+
+   
+   <title>SOLO LAB MOBILES — Dashboard</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   
+   <!-- Protect page with login -->
+   <script>
+     if (!localStorage.getItem('posLoggedIn') || localStorage.getItem('posLoggedIn') !== 'true') {
+       window.location.href = 'login.html';
+     }
+   </script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial;background:#f3f4f6;display:flex;min-height:100vh}
+
+    /* ===== LEFT SIDEBAR ===== */
+    .sidebar{width:220px;background:#fff;padding:20px 12px;box-shadow:2px 0 8px rgba(0,0,0,.05);flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:10px;padding:0 8px 20px;border-bottom:1px solid #f3f4f6;margin-bottom:15px}
+    .brand img{height:40px;width:40px;object-fit:contain;border-radius:8px}
+    .brand-name{font-size:14px;font-weight:bold;color:#111827;line-height:1.3}
+    .nav-link{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;color:#374151;text-decoration:none;font-size:14px;margin-bottom:4px;transition:all .2s}
+    .nav-link:hover{background:#fef2f2;color:#dc2626}
+    .nav-link.active{background:#dc2626;color:#fff;font-weight:bold}
+    .nav-icon{width:22px;text-align:center;font-size:16px}
+
+    /* ===== MAIN CONTENT ===== */
+    .main{flex:1;padding:25px;min-width:0}
+    .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .top-bar h1{font-size:24px;color:#111827}
+    .top-bar h1 span{color:#dc2626}
+    .admin-badge{display:flex;align-items:center;gap:8px;font-size:14px;color:#374151}
+    .admin-avatar{width:36px;height:36px;background:#dc2626;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold}
+
+    /* Greeting banner */
+    .greeting{background:linear-gradient(135deg,#fff 0%,#fef2f2 100%);border-radius:16px;padding:25px;margin-bottom:20px;border:1px solid #fee2e2}
+    .greeting h2{font-size:22px;margin-bottom:6px;color:#111827}
+    .greeting p{color:#6b7280;font-size:14px}
+
+    /* Stat cards row */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px}
+    .stat-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px}
+    .stat-label{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    .stat-value{font-size:24px;font-weight:bold;color:#111827}
+    .stat-sub{font-size:12px;color:#9ca3af;margin-top:4px}
+    .icon-blue{background:#dbeafe;color:#2563eb}
+    .icon-green{background:#dcfce7;color:#16a34a}
+    .icon-purple{background:#ede9fe;color:#7c3aed}
+    .icon-orange{background:#ffedd5;color:#ea580c}
+
+    /* Financial overview */
+    .section-title{font-size:18px;font-weight:bold;color:#111827;margin:25px 0 15px}
+    .fin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+    .fin-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .fin-card .fin-label{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+    .fin-card .fin-value{font-size:22px;font-weight:bold;color:#111827}
+    .fin-card .fin-desc{font-size:12px;color:#9ca3af;margin-top:8px}
+
+    /* Mobile: sidebar becomes top horizontal scroll */
+    @media(max-width:768px){
+      body{flex-direction:column}
+      .sidebar{width:100%;display:flex;overflow-x:auto;padding:10px;gap:6px}
+      .brand{display:none}
+      .nav-link{flex-shrink:0;margin-bottom:0;padding:10px 14px}
+      .main{padding:15px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== LEFT SIDEBAR NAVIGATION ===== -->
+  <div class="sidebar">
+    <div class="brand">
+      <img src="shop-logo.png" alt="Logo" onerror="this.style.display='none'">
+      <div class="brand-name">SOLO LAB MOBILES</div>
+    </div>
+    <a href="index.html" class="nav-link active"><span class="nav-icon">&#127968;</span> Dashboard</a>
+    <a href="checkout.html" class="nav-link"><span class="nav-icon">&#128722;</span> POS Billing</a>
+    <a href="inventory.html" class="nav-link"><span class="nav-icon">&#128230;</span> Inventory</a>
+    <a href="category-inventory.html" class="nav-link"><span class="nav-icon">&#128193;</span> Category Inventory</a>
+    <a href="purchase.html" class="nav-link"><span class="nav-icon">&#128203;</span> Purchase & Return</a>
+    <a href="supplier.html" class="nav-link"><span class="nav-icon">&#129309;</span> Suppliers</a>
+    <a href="sale-history.html" class="nav-link"><span class="nav-icon">&#128200;</span> Sale History</a>
+    <a href="customer-return.html" class="nav-link"><span class="nav-icon">&#8617;</span> Customer Return</a>
+    <a href="reports.html" class="nav-link"><span class="nav-icon">&#128202;</span> Reports</a>
+  </div>
+
+  <!-- ===== MAIN DASHBOARD CONTENT ===== -->
+  <div class="main">
+    <div class="top-bar">
+      <h1>Dash<span>board</span></h1>
+      <div class="admin-badge">
+        <span>Admin</span>
+        <div class="admin-avatar">A</div>
+      </div>
+    </div>
+
+    <div class="greeting">
+      <h2>Good morning &#9989;</h2>
+      <p>Welcome back. Here is your shop overview for today.</p>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-icon icon-blue">&#128221;</div>
+        <div class="stat-label">Today's Invoices</div>
+        <div class="stat-value" id="todayInvoices">0</div>
+        <div class="stat-sub">Completed sales today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-green">&#128176;</div>
+        <div class="stat-label">Today's Earnings</div>
+        <div class="stat-value">LKR <span id="todayEarnings">0.00</span></div>
+        <div class="stat-sub">Gross sales collected</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-purple">&#128230;</div>
+        <div class="stat-label">Total Products</div>
+        <div class="stat-value" id="totalProducts">0</div>
+        <div class="stat-sub">Items in inventory</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-orange">&#129309;</div>
+        <div class="stat-label">Suppliers</div>
+        <div class="stat-value" id="totalSuppliers">0</div>
+        <div class="stat-sub">Registered suppliers</div>
+      </div>
+    </div>
+
+    <!-- Financial overview -->
+    <div class="section-title">Financial Overview</div>
+    <div class="fin-grid">
+      <div class="fin-card">
+        <div class="fin-label">Gross Revenue (All Time)</div>
+        <div class="fin-value">LKR <span id="grossRevenue">0.00</span></div>
+        <div class="fin-desc">Total sales gross inflow</div>
+      </div>
+      <div class="fin-card">
+        <div class="fin-label">Total Purchase Cost</div>
+        <div class="fin-value">LKR <span id="purchaseCost">0.00</span></div>
+        <div class="fin-desc">From purchase bills</div>
+      </div>
+      <div class="fin-card">
+        <div class="fin-label">Supplier Returns</div>
+        <div class="fin-value">LKR <span id="supplierReturns">0.00</span></div>
+        <div class="fin-desc">Damaged / expired goods returned</div>
+      </div>
+      <div class="fin-card">
+        <div class="fin-label">Net Purchase</div>
+        <div class="fin-value">LKR <span id="netPurchase">0.00</span></div>
+        <div class="fin-desc">Purchase cost minus returns</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load real data from localStorage
+    function loadDashboard(){
+      const sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
+      const products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
+      const suppliers = JSON.parse(localStorage.getItem('shopSuppliers') || '[]');
+      const bills = JSON.parse(localStorage.getItem('allPurchaseBills') || '[]');
+      const returns = JSON.parse(localStorage.getItem('supplierReturns') || '[]');
+
+      const today = new Date().toLocaleDateString();
+      const todaySales = sales.filter(s => s.date === today);
+      const todayEarn = todaySales.reduce((sum, s) => sum + Number(s.total), 0);
+      const grossRev = sales.reduce((sum, s) => sum + Number(s.total), 0);
+      const purchaseTotal = bills.reduce((sum, b) => sum + Number(b.total), 0);
+      const returnTotal = returns.reduce((sum, r) => sum + Number(r.amount), 0);
+
+      document.getElementById('todayInvoices').textContent = todaySales.length;
+      document.getElementById('todayEarnings').textContent = todayEarn.toFixed(2);
+      document.getElementById('totalProducts').textContent = products.length;
+      document.getElementById('totalSuppliers').textContent = suppliers.length;
+      document.getElementById('grossRevenue').textContent = grossRev.toFixed(2);
+      document.getElementById('purchaseCost').textContent = purchaseTotal.toFixed(2);
+      document.getElementById('supplierReturns').textContent = returnTotal.toFixed(2);
+      document.getElementById('netPurchase').textContent = (purchaseTotal - returnTotal).toFixed(2);
+    }
+    loadDashboard();
+  </script>
+</body>
+</html>

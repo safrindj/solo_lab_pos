@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice — SOLO LAB MOBILE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    /* ===== A5 LANDSCAPE INVOICE CONTAINER ===== */
+    .invoice-container {
+      background: white;
+      width: 210mm;
+      min-height: 148mm;
+      margin: 0 auto;
+      padding: 18mm 15mm;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    /* ===== HEADER WITH LOGO ===== */
+    .header {
+      display: flex;
+      align-items: flex-start;
+      border-bottom: 2px dashed #333;
+      padding-bottom: 12px;
+      margin-bottom: 15px;
+    }
+
+    .logo-container {
+      flex-shrink: 0;
+      margin-right: 18px;
+    }
+
+    .logo-container img {
+      width: 55px;
+      height: 55px;
+      object-fit: contain;
+    }
+
+    .shop-info {
+      flex: 1;
+    }
+
+    .shop-name {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #111;
+    }
+
+    .shop-tagline {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #555;
+      margin: 3px 0;
+    }
+
+    .shop-address {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+
+    .invoice-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 8px 0;
+      border-bottom: 1px dashed #ccc;
+      margin-bottom: 12px;
+    }
+
+    /* ===== ITEMS TABLE ===== */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+    }
+
+    .items-table th {
+      background: #f9fafb;
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 13px;
+      color: #374151;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .items-table td {
+      padding: 8px 10px;
+      font-size: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+
+    /* ===== TOTALS ===== */
+    .totals-section {
+      margin-left: auto;
+      width: 280px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 14px;
+    }
+
+    .subtotal-row {
+      border-top: 1px dashed #ccc;
+      padding-top: 8px;
+      color: #444;
+    }
+
+    .grand-total {
+      font-size: 17px;
+      font-weight: bold;
+      border-top: 2px solid #333;
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    /* ===== PAYMENT METHOD ===== */
+    .payment-method {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+      border-top: 1px dashed #ccc;
+      margin-top: 10px;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      margin-top: 18px;
+      line-height: 1.6;
+    }
+
+    .provider {
+      font-size: 9px;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    /* ===== BUTTONS ===== */
+    .buttons {
+      width: 210mm;
+      max-width: 95%;
+      margin: 20px auto;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .btn-print {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-back {
+      background: #e5e7eb;
+      color: #333;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    /* ===== PRINT SETTINGS — A5 LANDSCAPE ===== */
+    @media print {
+      @page {
+        size: A5 landscape;
+        margin: 0;
+      }
+
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .invoice-container {
+        width: 100%;
+        box-shadow: none;
+        margin: 0;
+      }
+
+      .buttons {
+        display: none;
+      }
+    }
+
+    /* ===== MOBILE PREVIEW ===== */
+    @media (max-width: 768px) {
+      .invoice-container {
+        width: 100%;
+        padding: 20px;
+      }
+      .totals-section {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="invoice-container" id="invoiceArea">
+
+    <!-- ===== HEADER: LOGO LEFT + SHOP INFO ===== -->
+    <div class="header">
+      <div class="logo-container">
+        <img src="shop-logo.png" alt="SOLO LAB MOBILE" onerror="this.style.display='none'">
+      </div>
+      <div class="shop-info">
+        <div class="shop-name">SOLO LAB MOBILE</div>
+        <div class="shop-tagline">P H O N E S · A C C E S S O R I E S</div>
+        <div class="shop-address">
+          23A, D.S. Senanayaka Veediya, Kandy &nbsp;|&nbsp; Tel: 077 732 2237
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INVOICE NUMBER & DATE ===== -->
+    <div class="invoice-info">
+      <div><strong>Invoice No:</strong> <span id="invNo">SL-000001</span></div>
+      <div><strong>Date:</strong> <span id="invDate">10/11/2026</span></div>
+    </div>
+
+    <!-- ===== ITEMS TABLE ===== -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th style="width: 50%;">Description</th>
+          <th class="text-center" style="width: 15%;">Qty</th>
+          <th class="text-right" style="width: 15%;">Price</th>
+          <th class="text-right" style="width: 20%;">Total</th>
+        </tr>
+      </thead>
+      <tbody id="invoiceItems">
+        <!-- Items will be inserted here -->
+      </tbody>
+    </table>
+
+    <!-- ===== TOTALS ===== -->
+    <div class="totals-section">
+      <div class="total-row subtotal-row">
+        <span>Subtotal</span>
+        <span id="subtotal">Rs. 0.00</span>
+      </div>
+      <div class="total-row grand-total">
+        <span>Total</span>
+        <span id="grandTotal">Rs. 0.00</span>
+      </div>
+    </div>
+
+    <!-- ===== PAYMENT METHOD ===== -->
+    <div class="payment-method">
+      <span><strong>Payment Method:</strong> <span id="payMethod">Cash</span></span>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+      Thank you for shopping with SOLO LAB MOBILE. Please retain this invoice for warranty claims. Enquiries: 077 732 2237
+      <div class="provider">Provided by CTDotz | 077 277 9161 / 072 777 9161</div>
+    </div>
+
+  </div>
+
+  <!-- ===== BUTTONS ===== -->
+  <div class="buttons">
+    <button class="btn-back" onclick="goBack()">← Back to Billing</button>
+    <button class="btn-print" onclick="window.print()">🖨️ Print Invoice</button>
+  </div>
+
+  <script>
+    function loadInvoice() {
+      const sale = JSON.parse(localStorage.getItem('currentSale') || '{}');
+      
+      // Invoice info
+      document.getElementById('invNo').textContent = sale.invoiceNo || 'SL-' + Date.now().toString().slice(-6);
+      document.getElementById('invDate').textContent = sale.date || new Date().toLocaleDateString('en-GB');
+      document.getElementById('payMethod').textContent = sale.paymentMethod || 'Cash';
+      
+      // Items table
+      const itemsBody = document.getElementById('invoiceItems');
+      itemsBody.innerHTML = '';
+      let subtotal = 0;
+      
+      if (sale.items && sale.items.length > 0) {
+        sale.items.forEach(item => {
+          const itemTotal = item.price * item.qty;
+          subtotal += itemTotal;
+          
+          itemsBody.innerHTML += `
+            <tr>
+              <td>${item.name}</td>
+              <td class="text-center">${item.qty}</td>
+              <td class="text-right">Rs. ${item.price.toLocaleString()}</td>
+              <td class="text-right">Rs. ${itemTotal.toLocaleString()}</td>
+            </tr>
+          `;
+        });
+      } else {
+        // Sample preview data
+        itemsBody.innerHTML = `
+          <tr>
+            <td>iPhone 15 Pro - 256GB</td>
+            <td class="text-center">1</td>
+            <td class="text-right">Rs. 429,000</td>
+            <td class="text-right">Rs. 429,000</td>
+          </tr>
+          <tr>
+            <td>Samsung Galaxy S24 Ultra</td>
+            <td class="text-center">1</td>
+            <td class="text-right">Rs. 389,000</td>
+            <td class="text-right">Rs. 389,000</td>
+          </tr>
+          <tr>
+            <td>AirPods Pro (2nd Gen)</td>
+            <td class="text-center">1</td>
+            <td class="text-right">Rs. 58,500</td>
+            <td class="text-right">Rs. 58,500</td>
+          </tr>
+        `;
+        subtotal = 876500;
+      }
+      
+      document.getElementById('subtotal').textContent = 'Rs. ' + subtotal.toLocaleString();
+      document.getElementById('grandTotal').textContent = 'Rs. ' + subtotal.toLocaleString();
+    }
+
+    function goBack() {
+      window.location.href = 'checkout.html';
+    }
+
+    window.onload = loadInvoice;
+  </script>
+</body>
+</html>

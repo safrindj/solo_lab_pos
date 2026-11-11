@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#dc2626">
+  <title>Sale History — SOLO LAB MOBILE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="sidebar.js"></script>
+  <style>
+    body { font-family: Arial; background: #f3f4f6; margin: 0; }
+    .page-content { padding: 20px; }
+    .header { text-align: center; margin-bottom: 25px; }
+    .logo { height: 60px; margin-bottom: 8px; }
+    .shopName { font-size: 20px; font-weight: bold; color: #111827; }
+    
+    .top-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; align-items: center; }
+    input, select { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+    .search-input { flex: 1; min-width: 200px; }
+    .filter-select { min-width: 150px; }
+    
+    .sale-card { background: white; border: 1px solid #e5e7eb; padding: 16px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+    .sale-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+    .sale-id { font-size: 12px; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 4px; }
+    .sale-customer { font-size: 16px; font-weight: 600; color: #111827; }
+    .sale-items { font-size: 14px; color: #374151; margin: 6px 0; line-height: 1.5; }
+    .sale-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f3f4f6; }
+    .sale-total { font-size: 18px; font-weight: bold; color: #dc2626; }
+    .sale-date { font-size: 13px; color: #6b7280; }
+    
+    .btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-delete:hover { background: #fecaca; }
+    .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
+    .back-link { display: inline-block; margin-top: 20px; color: #2563eb; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="page-content">
+    <div class="header">
+      <img src="shop-logo.png" alt="Shop Logo" class="logo" onerror="this.style.display='none'">
+      <div class="shopName">SOLO LAB MOBILE</div>
+      <h2 style="margin-top:10px; font-size:18px; color:#4b5563;">Sale History</h2>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="top-bar">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search by customer name or items..." oninput="loadSales()">
+      <select id="saleFilter" class="filter-select" onchange="loadSales()">
+        <option value="">All Customers</option>
+      </select>
+      <select id="dateFilter" class="filter-select" onchange="loadSales()">
+        <option value="">All Time</option>
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+      </select>
+    </div>
+
+    <!-- Sale List -->
+    <div id="saleList"></div>
+
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+  </div>
+
+  <script>
+    // Set default master password if not exists
+    if (!localStorage.getItem('masterPassword')) {
+      localStorage.setItem('masterPassword', 'admin123');
+    }
+
+    function loadSales() {
+      const sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      const filterCustomer = document.getElementById('saleFilter').value;
+      const dateRange = document.getElementById('dateFilter').value;
+      const container = document.getElementById('saleList');
+      container.innerHTML = '';
+
+      // Populate customer dropdown
+      const uniqueCustomers = [...new Set(sales.map(s => s.customer).filter(c => c))].sort();
+      const filterSelect = document.getElementById('saleFilter');
+      filterSelect.innerHTML = '<option value="">All Customers</option>';
+      uniqueCustomers.forEach(c => {
+        filterSelect.innerHTML += `<option value="${c}">${c}</option>`;
+      });
+      filterSelect.value = filterCustomer;
+
+      // Date filter logic
+      let fromDate = null;
+      const now = new Date();
+      if (dateRange === 'today') {
+        fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      } else if (dateRange === 'week') {
+        fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (dateRange === 'month') {
+        fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      }
+
+      // Apply all filters
+      let filtered = sales.filter(sale => {
+        const matchSearch = !searchTerm || 
+          sale.customer?.toLowerCase().includes(searchTerm) ||
+          sale.items?.toLowerCase().includes(searchTerm);
+        const matchCustomer = !filterCustomer || sale.customer === filterCustomer;
+        const matchDate = !fromDate || (sale.dateObj && new Date(sale.dateObj) >= fromDate);
+        return matchSearch && matchCustomer && matchDate;
+      });
+
+      // Sort: newest first
+      filtered.sort((a, b) => new Date(b.dateObj || b.date) - new Date(a.dateObj || a.date));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p class="empty-state">No sale records found</p>`;
+        return;
+      }
+
+      filtered.forEach(sale => {
+        container.innerHTML += `
+          <div class="sale-card">
+            <div class="sale-header">
+              <div>
+                <div class="sale-customer">${sale.customer || 'Walk-in Customer'}</div>
+                <div class="sale-id">Receipt: ${sale.id || 'N/A'}</div>
+              </div>
+              <button class="btn btn-delete" onclick="deleteSale('${sale.id}')">🗑️ Delete</button>
+            </div>
+            <div class="sale-items">${sale.items || '—'}</div>
+            <div class="sale-footer">
+              <div class="sale-date">${sale.date || '—'}</div>
+              <div class="sale-total">LKR ${(sale.total || 0).toLocaleString()}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Delete function with MASTER PASSWORD protection
+    function deleteSale(saleId) {
+      if (!saleId) return;
+      
+      const masterPass = localStorage.getItem('masterPassword') || 'admin123';
+      const enteredPass = prompt('⚠️ DELETE SALE RECORD\n\nThis action cannot be undone.\nEnter Master Password to continue:');
+      
+      if (enteredPass === null) return; // User cancelled
+      
+      if (enteredPass === masterPass) {
+        if (confirm('⚠️ Are you sure you want to delete this sale record?\n\nThis cannot be undone!')) {
+          let sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
+          sales = sales.filter(s => s.id !== saleId);
+          localStorage.setItem('shopSales', JSON.stringify(sales));
+          loadSales();
+          alert('✅ Sale deleted successfully');
+        }
+      } else {
+        alert('❌ INCORRECT PASSWORD\n\nSale record was NOT deleted.');
+      }
+    }
+
+    loadSales();
+  </script>
+</body>
+</html>

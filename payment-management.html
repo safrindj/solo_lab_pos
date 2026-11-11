@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Management — SOLO LAB MOBILE</title>
+  <script src="sidebar.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f3f4f6; }
+    .page-content { padding: 25px; }
+    h1 { font-size: 24px; color: #111827; margin-bottom: 8px; }
+    .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; background: #e5e7eb; color: #374151; font-weight: 500; }
+    .tab-btn.active { background: #dc2626; color: white; }
+    
+    .btn { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; }
+    .btn-primary { background: #dc2626; color: white; }
+    .btn-primary:hover { background: #b91c1c; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    .btn-secondary:hover { background: #d1d5db; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .search-filter { display: flex; gap: 10px; flex-wrap: wrap; }
+    input, select { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+    
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .hidden-section { display: none; }
+    .hidden-section.show { display: block; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #f3f4f6; font-size: 14px; vertical-align: top; }
+    th { background: #f9fafb; font-weight: 600; color: #374151; }
+    tr:hover { background: #fefefe; }
+    .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
+    
+    .method-cash { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .method-cheque { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .method-both { background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .method-credit { background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 24px; width: 100%; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .modal h3 { font-size: 18px; margin-bottom: 18px; color: #111827; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; color: #374151; margin-bottom: 6px; }
+    .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 70px; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    
+    .balance-info { margin-top: 10px; padding: 10px; background: #f9fafb; border-radius: 6px; font-size: 14px; }
+    .summary-row { display: flex; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f3f4f6; font-weight: 600; margin-top: 10px; font-size: 16px; }
+    .delete-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-size: 12px; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="page-content">
+    <h1>💰 Payment Management</h1>
+    <p class="subtitle">Payments to suppliers and payments received from buyers</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tabSupplier" onclick="switchTab('supplier')">📤 Payments to Suppliers</button>
+      <button class="tab-btn" id="tabReceived" onclick="switchTab('received')">📥 Received Payments</button>
+    </div>
+
+    <!-- SUPPLIER SECTION -->
+    <div id="supplierSection" class="hidden-section show">
+      <div class="top-bar">
+        <div class="search-filter">
+          <input type="text" id="supplierSearch" placeholder="🔍 Search supplier..." oninput="renderSupplierPayments()">
+          <select id="supplierFilter" onchange="renderSupplierPayments()">
+            <option value="">All Methods</option>
+            <option value="cash">Cash</option>
+            <option value="cheque">Cheque</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="openSupplierModal()">➕ Record a Payment</button>
+      </div>
+      
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Supplier Name</th>
+              <th>Total Amount</th>
+              <th>Payment Details</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="supplierTableBody">
+            <tr><td colspan="5" class="empty-state">No payments recorded yet</td></tr>
+          </tbody>
+        </table>
+        <div class="summary-row">
+          <span>Total Paid</span>
+          <span id="supplierTotal">LKR 0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIVED SECTION -->
+    <div id="receivedSection" class="hidden-section">
+      <div class="top-bar">
+        <div class="search-filter">
+          <input type="text" id="receivedSearch" placeholder="🔍 Search buyer..." oninput="renderReceivedPayments()">
+          <select id="receivedFilter" onchange="renderReceivedPayments()">
+            <option value="">All Methods</option>
+            <option value="cash">Cash</option>
+            <option value="cheque">Cheque</option>
+            <option value="both">Both</option>
+            <option value="credit">Credit</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="openReceivedModal()">➕ Record a Payment</button>
+      </div>
+      
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Buyer / Company</th>
+              <th>Total Amount</th>
+              <th>Payment Details</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="receivedTableBody">
+            <tr><td colspan="5" class="empty-state">No payments recorded yet</td></tr>
+          </tbody>
+        </table>
+        <div class="summary-row">
+          <span>Total Received</span>
+          <span id="receivedTotal">LKR 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPPLIER MODAL POPUP -->
+  <div class="modal-overlay" id="supplierModal">
+    <div class="modal">
+      <h3 id="supplierModalTitle">Record Payment to Supplier</h3>
+      <form id="supplierForm" onsubmit="return saveSupplierPayment(event)">
+        <input type="hidden" id="supplierPaymentId">
+        <div class="form-group">
+          <label>Supplier Name *</label>
+          <input type="text" id="supplierName" required placeholder="e.g. ABC Distributors">
+        </div>
+        <div class="form-group">
+          <label>Total Amount (LKR) *</label>
+          <input type="number" id="supplierTotalAmount" required placeholder="0.00" step="0.01" oninput="calcSupplierSplit()">
+        </div>
+        <div class="form-group">
+          <label>Payment Date</label>
+          <input type="date" id="supplierDate">
+        </div>
+        <div class="form-group">
+          <label>💵 Cash Amount</label>
+          <input type="number" id="supplierCash" placeholder="0.00" step="0.01" oninput="calcSupplierSplit()">
+        </div>
+        <div class="form-group">
+          <label>🏦 Cheque Amount</label>
+          <input type="number" id="supplierCheque" placeholder="0.00" step="0.01" oninput="calcSupplierSplit()">
+        </div>
+        <div class="form-group">
+          <label>Bank Name</label>
+          <input type="text" id="supplierBank" placeholder="e.g. Bank of Ceylon">
+        </div>
+        <div class="form-group">
+          <label>Cheque Number</label>
+          <input type="text" id="supplierChequeNo" placeholder="e.g. 12345678">
+        </div>
+        <div class="form-group">
+          <label>Cheque Date</label>
+          <input type="date" id="supplierChequeDate">
+        </div>
+        <div class="balance-info">
+          <strong>Allocated: </strong><span id="supplierAllocated">LKR 0.00</span>
+          <span id="supplierBalance" style="color:#dc2626; margin-left:10px;"></span>
+        </div>
+        <div class="form-group" style="margin-top:14px;">
+          <label>Notes</label>
+          <textarea id="supplierNotes" placeholder="Description..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeSupplierModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- RECEIVED MODAL POPUP -->
+  <div class="modal-overlay" id="receivedModal">
+    <div class="modal">
+      <h3 id="receivedModalTitle">Record Received Payment</h3>
+      <form id="receivedForm" onsubmit="return saveReceivedPayment(event)">
+        <input type="hidden" id="receivedPaymentId">
+        <div class="form-group">
+          <label>Buyer / Company Name *</label>
+          <input type="text" id="receivedName" required placeholder="e.g. Tech Solutions">
+        </div>
+        <div class="form-group">
+          <label>Total Amount (LKR) *</label>
+          <input type="number" id="receivedTotalAmount" required placeholder="0.00" step="0.01" oninput="calcReceivedSplit()">
+        </div>
+        <div class="form-group">
+          <label>Payment Date</label>
+          <input type="date" id="receivedDate">
+        </div>
+        <div class="form-group">
+          <label>💵 Cash Amount</label>
+          <input type="number" id="receivedCash" placeholder="0.00" step="0.01" oninput="calcReceivedSplit()">
+        </div>
+        <div class="form-group">
+          <label>🏦 Cheque Amount</label>
+          <input type="number" id="receivedCheque" placeholder="0.00" step="0.01" oninput="calcReceivedSplit()">
+        </div>
+        <div class="form-group">
+          <label>Bank Name</label>
+          <input type="text" id="receivedBank" placeholder="e.g. Sampath Bank">
+        </div>
+        <div class="form-group">
+          <label>Cheque Number</label>
+          <input type="text" id="receivedChequeNo" placeholder="e.g. 87654321">
+        </div>
+        <div class="form-group">
+          <label>Cheque Date</label>
+          <input type="date" id="receivedChequeDate">
+        </div>
+        <div class="balance-info">
+          <strong>Allocated: </strong><span id="receivedAllocated">LKR 0.00</span>
+          <span id="receivedBalance" style="color:#dc2626; margin-left:10px;"></span>
+        </div>
+        <div class="form-group" style="margin-top:14px;">
+          <label>Reference / Notes</label>
+          <textarea id="receivedNotes" placeholder="Invoice #, details..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeReceivedModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let supplierPayments = JSON.parse(localStorage.getItem('supplierPayments')) || [];
+    let receivedPayments = JSON.parse(localStorage.getItem('receivedPayments')) || [];
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    function switchTab(tab) {
+      document.getElementById('tabSupplier').classList.remove('active');
+      document.getElementById('tabReceived').classList.remove('active');
+      document.getElementById(tab === 'supplier' ? 'tabSupplier' : 'tabReceived').classList.add('active');
+      
+      if (tab === 'supplier') {
+        document.getElementById('supplierSection').classList.add('show');
+        document.getElementById('receivedSection').classList.remove('show');
+        renderSupplierPayments();
+      } else {
+        document.getElementById('supplierSection').classList.remove('show');
+        document.getElementById('receivedSection').classList.add('show');
+        renderReceivedPayments();
+      }
+    }
+
+    // === SUPPLIER FUNCTIONS ===
+    function calcSupplierSplit() {
+      const total = parseFloat(document.getElementById('supplierTotalAmount').value) || 0;
+      const cash = parseFloat(document.getElementById('supplierCash').value) || 0;
+      const cheque = parseFloat(document.getElementById('supplierCheque').value) || 0;
+      const allocated = cash + cheque;
+      document.getElementById('supplierAllocated').textContent = 'LKR ' + allocated.toFixed(2);
+      document.getElementById('supplierBalance').textContent = allocated < total ? '(Remaining: LKR ' + (total - allocated).toFixed(2) + ')' : '';
+    }
+
+    function openSupplierModal() {
+      document.getElementById('supplierModalTitle').textContent = 'Record Payment to Supplier';
+      document.getElementById('supplierForm').reset();
+      document.getElementById('supplierPaymentId').value = '';
+      document.getElementById('supplierDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('supplierChequeDate').value = '';
+      calcSupplierSplit();
+      document.getElementById('supplierModal').classList.add('show');
+    }
+
+    function closeSupplierModal() {
+      document.getElementById('supplierModal').classList.remove('show');
+    }
+
+    function saveSupplierPayment(e) {
+      e.preventDefault();
+      const id = document.getElementById('supplierPaymentId').value;
+      const payment = {
+        id: id || 'SP-' + Date.now().toString().slice(-8),
+        name: document.getElementById('supplierName').value.trim(),
+        total: parseFloat(document.getElementById('supplierTotalAmount').value),
+        date: document.getElementById('supplierDate').value,
+        cash: parseFloat(document.getElementById('supplierCash').value) || 0,
+        cheque: parseFloat(document.getElementById('supplierCheque').value) || 0,
+        bank: document.getElementById('supplierBank').value.trim(),
+        chequeNo

@@ -1,0 +1,377 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suppliers — SOLO LAB MOBILES</title>
+  <script src="sidebar.js"></script>
+  <style>
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .search-box { flex: 1; min-width: 220px; }
+    
+    .supplier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    
+    .supplier-card {
+      background: white;
+      border-left: 4px solid #F57C00;
+      border-radius: 10px;
+      padding: 18px;
+      transition: transform 0.2s ease;
+    }
+    .supplier-card:hover {
+      transform: translateY(-3px);
+    }
+    .supplier-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: #212121;
+      margin-bottom: 8px;
+    }
+    .supplier-info {
+      font-size: 14px;
+      color: #616161;
+      margin-bottom: 4px;
+    }
+    .supplier-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #FFE0B2;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-val {
+      font-weight: 700;
+      color: #E65100;
+      font-size: 16px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #757575;
+    }
+    .supplier-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .modal h3 {
+      margin-top: 0;
+      color: #212121;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #424242;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+    .btn-secondary {
+      background: #E0E0E0;
+      color: #212121;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #757575;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>🏪 Supplier Management</h1>
+    <p>Manage your suppliers and purchase history</p>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search suppliers by name or contact..." oninput="renderSuppliers()">
+    <button class="btn btn-primary" onclick="openModal()">➕ Add New Supplier</button>
+  </div>
+
+  <!-- Supplier Grid -->
+  <div id="supplierGrid" class="supplier-grid">
+    <p class="empty-state">Loading...</p>
+  </div>
+
+  <!-- Add/Edit Supplier Modal -->
+  <div class="modal-overlay" id="supplierModal">
+    <div class="modal">
+      <h3 id="modalTitle">Add New Supplier</h3>
+      <form id="supplierForm">
+        <input type="hidden" id="supplierId">
+        
+        <div class="form-group">
+          <label>Company / Supplier Name *</label>
+          <input type="text" id="supplierName" required placeholder="Enter supplier name">
+        </div>
+        
+        <div class="form-group">
+          <label>Contact Person</label>
+          <input type="text" id="contactPerson" placeholder="Primary contact name">
+        </div>
+        
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" id="supplierPhone" required placeholder="07XXXXXXXX">
+        </div>
+        
+        <div class="form-group">
+          <label>Alternative Phone</label>
+          <input type="tel" id="altPhone" placeholder="Optional contact number">
+        </div>
+        
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="supplierAddress" placeholder="Business address">
+        </div>
+        
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="supplierEmail" placeholder="email@example.com">
+        </div>
+        
+        <div class="form-group">
+          <label>Notes / Reference</label>
+          <input type="text" id="supplierNotes" placeholder="Payment terms, categories, etc.">
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Supplier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let suppliers = [];
+    
+    function loadSuppliers() {
+      suppliers = JSON.parse(localStorage.getItem('shopSuppliers') || '[]');
+      renderSuppliers();
+    }
+    
+    function renderSuppliers() {
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const container = document.getElementById('supplierGrid');
+      
+      let filtered = suppliers;
+      if (search) {
+        filtered = suppliers.filter(s => 
+          s.name.toLowerCase().includes(search) || 
+          s.phone.includes(search) ||
+          (s.contactPerson || '').toLowerCase().includes(search)
+        );
+      }
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1;">
+            <p style="font-size:40px; margin-bottom:10px;">🏪</p>
+            <p>${suppliers.length === 0 ? 'No suppliers added yet.' : 'No matching suppliers found.'}</p>
+            <p style="font-size:13px; margin-top:5px;">Click "Add New Supplier" to get started</p>
+          </div>`;
+        return;
+      }
+      
+      // Get purchase data for stats
+      const purchases = JSON.parse(localStorage.getItem('shopPurchases') || '[]');
+      const payments = JSON.parse(localStorage.getItem('payments-supplier') || '[]');
+      
+      container.innerHTML = filtered.map(s => {
+        const supplierPurchases = purchases.filter(p => 
+          p.supplierName.toLowerCase() === s.name.toLowerCase()
+        );
+        const totalPurchased = supplierPurchases.reduce((sum, p) => {
+          return sum + (p.items ? p.items.reduce((si, i) => si + (i.qty * i.cost), 0) : 0);
+        }, 0);
+        const totalPaid = payments.filter(p => 
+          p.partyName.toLowerCase() === s.name.toLowerCase()
+        ).reduce((sum, p) => sum + p.amount, 0);
+        
+        return `
+          <div class="supplier-card">
+            <div class="supplier-name">${escapeHtml(s.name)}</div>
+            ${s.contactPerson ? `<div class="supplier-info">👤 ${escapeHtml(s.contactPerson)}</div>` : ''}
+            <div class="supplier-info">📞 ${escapeHtml(s.phone)}</div>
+            ${s.altPhone ? `<div class="supplier-info">📞 ${escapeHtml(s.altPhone)}</div>` : ''}
+            ${s.address ? `<div class="supplier-info">📍 ${escapeHtml(s.address)}</div>` : ''}
+            ${s.email ? `<div class="supplier-info">✉️ ${escapeHtml(s.email)}</div>` : ''}
+            
+            <div class="supplier-stats">
+              <div class="stat-item">
+                <div class="stat-val">${supplierPurchases.length}</div>
+                <div class="stat-label">Orders</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">LKR ${totalPurchased.toLocaleString()}</div>
+                <div class="stat-label">Bought</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">LKR ${totalPaid.toLocaleString()}</div>
+                <div class="stat-label">Paid</div>
+              </div>
+            </div>
+            
+            <div class="supplier-actions">
+              <button class="btn btn-secondary btn-sm" onclick="viewPurchases('${s.id}')">📋 Orders</button>
+              <button class="btn btn-primary btn-sm" onclick="editSupplier('${s.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function openModal() {
+      document.getElementById('modalTitle').textContent = 'Add New Supplier';
+      document.getElementById('supplierForm').reset();
+      document.getElementById('supplierId').value = '';
+      document.getElementById('supplierModal').classList.add('show');
+    }
+    
+    function closeModal() {
+      document.getElementById('supplierModal').classList.remove('show');
+    }
+    
+    function editSupplier(id) {
+      const s = suppliers.find(x => x.id === id);
+      if (!s) return;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Supplier';
+      document.getElementById('supplierId').value = id;
+      document.getElementById('supplierName').value = s.name;
+      document.getElementById('contactPerson').value = s.contactPerson || '';
+      document.getElementById('supplierPhone').value = s.phone;
+      document.getElementById('altPhone').value = s.altPhone || '';
+      document.getElementById('supplierAddress').value = s.address || '';
+      document.getElementById('supplierEmail').value = s.email || '';
+      document.getElementById('supplierNotes').value = s.notes || '';
+      document.getElementById('supplierModal').classList.add('show');
+    }
+    
+    function deleteSupplier(id) {
+      if (!confirm('Delete this supplier? Purchase history will NOT be deleted.')) return;
+      suppliers = suppliers.filter(s => s.id !== id);
+      localStorage.setItem('shopSuppliers', JSON.stringify(suppliers));
+      renderSuppliers();
+    }
+    
+    function viewPurchases(id) {
+      const s = suppliers.find(x => x.id === id);
+      if (!s) return;
+      alert('📋 ' + s.name + '\n\nPurchase history is shown on the Purchases page.\nClick OK to go there.');
+      window.location.href = 'purchase.html';
+    }
+    
+    document.getElementById('supplierForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('supplierName').value.trim();
+      const phone = document.getElementById('supplierPhone').value.trim();
+      const contactPerson = document.getElementById('contactPerson').value.trim();
+      const altPhone = document.getElementById('altPhone').value.trim();
+      const address = document.getElementById('supplierAddress').value.trim();
+      const email = document.getElementById('supplierEmail').value.trim();
+      const notes = document.getElementById('supplierNotes').value.trim();
+      const editId = document.getElementById('supplierId').value;
+      
+      // Check duplicate name/phone
+      const existing = suppliers.find(s => 
+        (s.phone === phone || s.name.toLowerCase() === name.toLowerCase()) && s.id !== editId
+      );
+      if (existing) {
+        alert('A supplier with this name or phone already exists!');
+        return;
+      }
+      
+      if (editId) {
+        // Update existing
+        const idx = suppliers.findIndex(s => s.id === editId);
+        if (idx !== -1) {
+          suppliers[idx] = { ...suppliers[idx], name, phone, contactPerson, altPhone, address, email, notes };
+        }
+      } else {
+        // Add new
+        suppliers.unshift({
+          id: 'SUPP-' + Date.now(),
+          name,
+          phone,
+          contactPerson,
+          altPhone,
+          address,
+          email,
+          notes,
+          createdAt: new Date().toISOString()
+        });
+      }
+      
+      localStorage.setItem('shopSuppliers', JSON.stringify(suppliers));
+      closeModal();
+      renderSuppliers();
+      alert('✅ Supplier saved successfully!');
+    });
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+    
+    loadSuppliers();
+  </script>
+</body>
+</html>

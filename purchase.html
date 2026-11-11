@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchases — SOLO LAB MOBILES</title>
+  <script src="sidebar.js"></script>
+  <style>
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .search-box { flex: 1; min-width: 220px; }
+    
+    .purchase-card {
+      background: white;
+      border-left: 4px solid #F57C00;
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .purchase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .supplier-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: #212121;
+    }
+    .purchase-ref {
+      font-size: 13px;
+      color: #757575;
+    }
+    .purchase-date {
+      font-size: 13px;
+      color: #757575;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+    }
+    .items-table th {
+      background: #FFF3E0;
+      color: #E65100;
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 13px;
+    }
+    .items-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #FFE0B2;
+      font-size: 14px;
+    }
+    .total-row {
+      text-align: right;
+      font-size: 18px;
+      font-weight: 700;
+      color: #E65100;
+      margin-top: 8px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-pending { background: #FFF3E0; color: #E65100; }
+    .status-received { background: #E8F5E9; color: #2E7D32; }
+    .status-cancelled { background: #FFEBEE; color: #C62828; }
+    
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h3 {
+      margin-top: 0;
+      color: #212121;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #424242;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+    .btn-secondary {
+      background: #E0E0E0;
+      color: #212121;
+    }
+    
+    .item-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 40px;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #757575;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>📥 Purchase Orders & Stock In</h1>
+    <p>Record stock purchases from suppliers</p>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by supplier or reference..." oninput="renderPurchases()">
+    <button class="btn btn-primary" onclick="openModal()">➕ New Purchase</button>
+  </div>
+
+  <!-- Purchase List -->
+  <div id="purchaseList"></div>
+
+  <!-- New Purchase Modal -->
+  <div class="modal-overlay" id="purchaseModal">
+    <div class="modal">
+      <h3>New Purchase Order</h3>
+      <form id="purchaseForm">
+        <div class="form-group">
+          <label>Supplier Name *</label>
+          <input type="text" id="supplierName" required placeholder="Enter supplier name">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Reference No.</label>
+            <input type="text" id="refNo" placeholder="Invoice / Order No.">
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="purchaseDate">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Items Purchased</label>
+          <div id="itemContainer">
+            <div class="item-row">
+              <input type="text" placeholder="Product name" class="item-name" required>
+              <input type="number" placeholder="Qty" class="item-qty" min="1" value="1" required>
+              <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" required>
+              <button type="button" class="btn btn-danger" style="padding:6px; width:32px; height:32px;" onclick="removeItem(this)">×</button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="margin-top:8px; width:100%;" onclick="addItemRow()">+ Add Item</button>
+        </div>
+        
+        <div class="form-group">
+          <label>Status</label>
+          <select id="purchaseStatus">
+            <option value="pending" selected>Pending / Ordered</option>
+            <option value="received">✅ Items Received</option>
+            <option value="cancelled">❌ Cancelled</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="purchaseNotes" placeholder="Delivery info, payment terms, etc." style="width:100%; padding:10px; border:2px solid #FFE0B2; border-radius:6px; min-height:60px; box-sizing:border-box;"></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Purchase</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let purchases = [];
+    
+    // Set today's date
+    document.getElementById('purchaseDate').valueAsDate = new Date();
+    
+    function loadPurchases() {
+      purchases = JSON.parse(localStorage.getItem('shopPurchases') || '[]');
+      renderPurchases();
+    }
+    
+    function renderPurchases() {
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const container = document.getElementById('purchaseList');
+      
+      let filtered = purchases;
+      if (search) {
+        filtered = purchases.filter(p => 
+          p.supplierName.toLowerCase().includes(search) ||
+          (p.refNo || '').toLowerCase().includes(search)
+        );
+      }
+      
+      // Sort: newest first
+      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p style="font-size:40px; margin-bottom:10px;">📦</p>
+            <p>${purchases.length === 0 ? 'No purchase orders yet.' : 'No matching purchases found.'}</p>
+            <p style="font-size:13px; margin-top:5px;">Click "New Purchase" to record stock received</p>
+          </div>`;
+        return;
+      }
+      
+      container.innerHTML = filtered.map(p => {
+        const statusClass = p.status === 'received' ? 'status-received' :
+                            p.status === 'cancelled' ? 'status-cancelled' : 'status-pending';
+        const total = p.items.reduce((sum, i) => sum + (i.qty * i.cost), 0);
+        
+        return `
+          <div class="purchase-card">
+            <div class="purchase-header">
+              <div>
+                <div class="supplier-name">${escapeHtml(p.supplierName)}</div>
+                <div class="purchase-ref">Ref: ${escapeHtml(p.refNo || '—')}</div>
+                <div class="purchase-date">📅 ${p.date}</div>
+              </div>
+              <span class="status-badge ${statusClass}">${p.status.charAt(0).toUpperCase() + p.status.slice(1)}</span>
+            </div>
+            <table class="items-table">
+              <thead>
+                <tr><th>Item</th><th>Qty</th><th>Cost Each</th><th>Subtotal</th></tr>
+              </thead>
+              <tbody>
+                ${p.items.map(i => `
+                  <tr>
+                    <td>${escapeHtml(i.name)}</td>
+                    <td>${i.qty}</td>
+                    <td>LKR ${i.cost.toLocaleString()}</td>
+                    <td>LKR ${(i.qty * i.cost).toLocaleString()}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <div class="total-row">Total: LKR ${total.toLocaleString()}</div>
+            ${p.notes ? `<div style="margin-top:10px; font-size:13px; color:#616161;"><strong>Notes:</strong> ${escapeHtml(p.notes)}</div>` : ''}
+            <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:12px;">
+              <button class="btn btn-secondary btn-sm" onclick="editPurchase('${p.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function addItemRow() {
+      const container = document.getElementById('itemContainer');
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Product name" class="item-name" required>
+        <input type="number" placeholder="Qty" class="item-qty" min="1" value="1" required>
+        <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" required>
+        <button type="button" class="btn btn-danger" style="padding:6px; width:32px; height:32px;" onclick="removeItem(this)">×</button>
+      `;
+      container.appendChild(row);
+    }
+    
+    function removeItem(btn) {
+      const rows = document.querySelectorAll('.item-row');
+      if (rows.length > 1) {
+        btn.parentElement.remove();
+      } else {
+        alert('At least one item is required');
+      }
+    }
+    
+    function openModal() {
+      document.getElementById('purchaseForm').reset();
+      document.getElementById('purchaseDate').valueAsDate = new Date();
+      document.getElementById('purchaseStatus').value = 'pending';
+      document.getElementById('itemContainer').innerHTML = `
+        <div class="item-row">
+          <input type="text" placeholder="Product name" class="item-name" required>
+          <input type="number" placeholder="Qty" class="item-qty" min="1" value="1" required>
+          <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" required>
+          <button type="button" class="btn btn-danger" style="padding:6px; width:32px; height:32px;" onclick="removeItem(this)">×</button>
+        </div>
+      `;
+      document.getElementById('purchaseModal').classList.add('show');
+    }
+    
+    function closeModal() {
+      document.getElementById('purchaseModal').classList.remove('show');
+      delete document.getElementById('purchaseForm').dataset.editId;
+    }
+    
+    function editPurchase(id) {
+      const p = purchases.find(x => x.id === id);
+      if (!p) return;
+      
+      document.getElementById('supplierName').value = p.supplierName;
+      document.getElementById('refNo').value = p.refNo || '';
+      document.getElementById('purchaseDate').value = p.date;
+      document.getElementById('purchaseStatus').value = p.status;
+      document.getElementById('purchaseNotes').value = p.notes || '';
+      
+      // Load items
+      const container = document.getElementById('itemContainer');
+      container.innerHTML = '';
+      p.items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.innerHTML = `
+          <input type="text" placeholder="Product name" class="item-name" value="${escapeHtml(item.name)}" required>
+          <input type="number" placeholder="Qty" class="item-qty" min="1" value="${item.qty}" required>
+          <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" value="${item.cost}" required>
+          <button type="button" class="btn btn-danger" style="padding:6px; width:32px; height:32px;" onclick="removeItem(this)">×</button>
+        `;
+        container.appendChild(row);
+      });
+      
+      document.getElementById('purchaseForm').dataset.editId = id;
+      document.getElementById('purchaseModal').classList.add('show');
+    }
+    
+    function deletePurchase(id) {
+      if (!confirm('Delete this purchase record?')) return;
+      purchases = purchases.filter(p => p.id !== id);
+      localStorage.setItem('shopPurchases', JSON.stringify(purchases));
+      renderPurchases();
+    }
+    
+    document.getElementById('purchaseForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const editId = this.dataset.editId;
+      
+      // Collect items
+      const itemRows = document.querySelectorAll('.item-row');
+      const items = [];
+      let valid = true;
+      itemRows.forEach(row => {
+        const name = row.querySelector('.item-name').value.trim();
+        const qty = parseFloat(row.querySelector('.item-qty').value);
+        const cost = parseFloat(row.querySelector('.item-cost').value);
+        if (name && qty > 0 && cost >= 0) {
+          items.push({ name, qty, cost });
+        }
+      });
+      
+      if (items.length === 0) {
+        alert('Please add at least one item');
+        return;
+      }
+      
+      const purchaseData = {
+        id: editId || 'PO-' + Date.now(),
+        supplierName: document.getElementById('supplierName').value.trim(),
+        refNo: document.getElementById('refNo').value.trim(),
+        date: document.getElementById('purchaseDate').value,
+        items: items,
+        status: document.getElementById('purchaseStatus').value,
+        notes: document.getElementById('purchaseNotes').value.trim(),
+        createdAt: editId ? purchases.find(p=>p.id===editId).createdAt : new Date().toISOString()
+      };
+      
+      if (editId) {
+        const idx = purchases.findIndex(p => p.id === editId);
+        if (idx !== -1) purchases[idx] = purchaseData;
+        delete this.dataset.editId;
+      } else {
+        purchases.unshift(purchaseData);
+      }
+      
+      localStorage.setItem('shopPurchases', JSON.stringify(purchases));
+      closeModal();
+      renderPurchases();
+      alert('✅ Purchase saved successfully!');
+    });
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Management — SOLO LAB MOBILE</title>
+  <script src="sidebar.js" defer></script>
+
+  <script>
+    // Client-side access check only; production authorization must be enforced
+    // by a server.
+    (() => {
+      let currentUser = null;
+
+      try {
+        currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      } catch {
+        // Treat malformed stored data as an unauthenticated session.
+      }
+
+      if (!currentUser) {
+        window.location.replace('login.html');
+        return;
+      }
+
+      if (!['Admin', 'Manager'].includes(currentUser.role)) {
+        window.location.replace('index.html');
+        return;
+      }
+
+      document.documentElement.classList.add('authorized');
+    })();
+  </script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: none;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+    }
+
+    html.authorized body { display: block; }
+
+    .page-content { padding: 25px; }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    h1 { font-size: 24px; color: #111827; }
+
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-primary { background: #dc2626; color: white; }
+    .btn-primary:hover { background: #b91c1c; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .search-bar { margin-bottom: 20px; }
+
+    .search-bar input {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+    }
+    th { background: #f9fafb; font-weight: 600; color: #374151; }
+    tbody tr:hover { background: #fefefe; }
+    .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal h2 { font-size: 18px; margin-bottom: 18px; color: #111827; }
+    .form-group { margin-bottom: 14px; }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .role-badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .role-admin { background: #fef3c7; color: #92400e; }
+    .role-manager { background: #dbeafe; color: #1e40af; }
+    .role-staff { background: #d1fae5; color: #065f46; }
+
+    @media (max-width: 600px) {
+      .page-content { padding: 16px; }
+      .card { padding: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-content">
+    <div class="page-header">
+      <h1>👤 Staff Management</h1>
+      <button type="button" class="btn btn-primary" id="addStaffButton">
+        ➕ Add New Staff
+      </button>
+    </div>
+
+    <div class="search-bar">
+      <label for="searchInput">Search staff</label>
+      <input
+        type="search"
+        id="searchInput"
+        placeholder="Search by name, username, or role..."
+        autocomplete="off"
+      >
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Username</th>
+              <th scope="col">Role</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Status</th>
+              <th scope="col" style="text-align: right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div
+    class="modal-overlay"
+    id="staffModal"
+    aria-hidden="true"
+  >
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <h2 id="modalTitle">Add New Staff</h2>
+
+      <form id="staffForm">
+        <input type="hidden" id="staffId">
+
+        <div class="form-group">
+          <label for="staffName">Full Name *</label>
+          <input type="text" id="staffName" required autocomplete="name">
+        </div>
+
+        <div class="form-group">
+          <label for="staffUsername">Username *</label>
+          <input type="text" id="staffUsername" required autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="staffPassword">Password *</label>
+          <input
+            type="password"
+            id="staffPassword"
+            minlength="8"
+            autocomplete="new-password"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="staffRole">Role *</label>
+          <select id="staffRole" required>
+            <option value="">Select Role</option>
+            <option value="Staff">Staff</option>
+            <option value="Manager">Manager</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="staffPhone">Phone</label>
+          <input type="tel" id="staffPhone" autocomplete="tel">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancelButton">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Save Staff</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      // Do not run the page application after an authentication redirect.
+      if (!document.documentElement.classList.contains('authorized')) return;
+
+      const STORAGE_KEY = 'shopStaff';
+      const form = document.getElementById('staffForm');
+      const modal = document.getElementById('staffModal');
+      const passwordInput = document.getElementById('staffPassword');
+      const tbody = document.getElementById('staffTableBody');
+
+      const defaultStaff = [{
+        id: 'STAFF-001',
+        name: 'Admin User',
+        username: 'admin',
+        password: 'admin123',
+        role: 'Admin',
+        phone: '',
+        active: true
+      }];
+
+      function readStaff() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          const parsed = stored ? JSON.parse(stored) : defaultStaff;
+          return Array.isArray(parsed) ? parsed : defaultStaff;
+        } catch {
+          return defaultStaff;
+        }
+      }
+
+      let staffList = readStaff();
+      let previousFocus = null;
+
+      function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[character]);
+      }
+
+      function saveStaff() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(staffList));
+          renderStaff();
+          return true;
+        } catch {
+          alert('Unable to save staff data in this browser.');
+          return false;
+        }
+      }
+
+      function renderStaff() {
+        const searchTerm = document
+          .getElementById('searchInput')
+          .value.toLowerCase()
+          .trim();
+
+        const filtered = staffList.filter(staff => {
+          const name = String(staff.name || '').toLowerCase();
+          const username = String(staff.username || '').toLowerCase();
+          const role = String(staff.role || '').toLowerCase();
+
+          return !searchTerm ||
+            name.includes(searchTerm) ||
+            username.includes(searchTerm) ||
+            role.includes(searchTerm);
+        });
+
+        if (filtered.length === 0) {
+          const message = searchTerm
+            ? 'No matching staff found.'
+            : 'No staff members yet. Click "Add New Staff" to get started.';
+
+          tbody.innerHTML =
+            `<tr><td colspan="6" class="empty-state">${escapeHtml(message)}</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(staff => {
+          const role = ['Admin', 'Manager', 'Staff'].includes(staff.role)
+            ? staff.role
+            : 'Staff';
+          const active = staff.active !== false;
+          const roleClass = `role-${role.toLowerCase()}`;
+
+          return `
+            <tr>
+              <td><strong>${escapeHtml(staff.name)}</strong></td>
+              <td>${escapeHtml(staff.username)}</td>
+              <td><span class="role-badge ${roleClass}">${escapeHtml(role)}</span></td>
+              <td>${staff.phone
+                ? escapeHtml(staff.phone)
+                : '<span style="color:#9ca3af">—</span>'}</td>
+              <td>${active
+                ? '<span style="color:#16a34a">✅ Active</span>'
+                : '<span style="color:#dc2626">❌ Inactive</span>'}</td>
+              <td style="text-align:right">
+                <button type="button" class="btn btn-secondary btn-sm"
+                  data-action="edit" data-id="${escapeHtml(staff.id)}">
+                  ✏️ Edit
+                </button>
+                <button type="button" class="btn btn-danger btn-sm"
+                  data-action="toggle" data-id="${escapeHtml(staff.id)}">
+                  ${active ? '🚫 Deactivate' : '✅ Activate'}
+                </button>
+              </td>
+            </tr>`;
+        }).join('');
+      }
+
+      function openModal(staff = null) {
+        previousFocus = document.activeElement;
+        form.reset();
+
+        document.getElementById('staffId').value = staff ? staff.id : '';
+        document.getElementById('modalTitle').textContent =
+          staff ? 'Edit Staff' : 'Add New Staff';
+        document.getElementById('staffName').value = staff?.name || '';
+        document.getElementById('staffUsername').value = staff?.username || '';
+        document.getElementById('staffRole').value = staff?.role || '';
+        document.getElementById('staffPhone').value = staff?.phone || '';
+
+        passwordInput.value = '';
+        passwordInput.required = !staff;
+        passwordInput.placeholder = staff
+          ? 'Leave blank to keep the current password'
+          : 'At least 8 characters';
+
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        document.getElementById('staffName').focus();
+      }
+
+      function closeModal() {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+        previousFocus?.focus();
+      }
+
+      function createId() {
+        let id;
+        do {
+          id = `STAFF-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        } while (staffList.some(staff => staff.id === id));
+        return id;
+      }
+
+      document.getElementById('addStaffButton')
+        .addEventListener('click', () => openModal());
+
+      document.getElementById('cancelButton')
+        .addEventListener('click', closeModal);
+
+      document.getElementById('searchInput')
+        .addEventListener('input', renderStaff);
+
+      tbody.addEventListener('click', event => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+
+        const staff = staffList.find(item => item.id === button.dataset.id);
+        if (!staff) return;
+
+        if (button.dataset.action === 'edit') {
+          openModal(staff);
+        } else if (button.dataset.action === 'toggle') {
+          staff.active = staff.active === false;
+          saveStaff();
+        }
+      });
+
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+
+        const id = document.getElementById('staffId').value;
+        const name = document.getElementById('staffName').value.trim();
+        const username = document.getElementById('staffUsername').value.trim();
+        const password = passwordInput.value;
+        const role = document.getElementById('staffRole').value;
+        const phone = document.getElementById('staffPhone').value.trim();
+
+        const duplicate = staffList.some(staff =>
+          staff.username.toLowerCase() === username.toLowerCase() &&
+          staff.id !== id
+        );
+
+        if (duplicate) {
+          alert('That username is already in use.');
+          return;
+        }
+
+        if (id) {
+          const staff = staffList.find(item => item.id === id);
+          if (!staff) {
+            alert('This staff member could not be found.');
+            closeModal();
+            return;
+          }
+
+          staff.name = name;
+          staff.username = username;
+          staff.role = role;
+          staff.phone = phone;
+          if (password) staff.password = password;
+        } else {
+          staffList.push({
+            id: createId(),
+            name,
+            username,
+            password,
+            role,
+            phone,
+            active: true
+          });
+        }
+
+        if (saveStaff()) closeModal();
+      });
+
+      modal.addEventListener('click', event => {
+        if (event.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && modal.classList.contains('show')) {
+          closeModal();
+        }
+      });
+
+      renderStaff();
+    })();
+  </script>
+</body>
+</html>

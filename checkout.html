@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="manifest.json">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOLO LAB MOBILE — Complete Invoice</title>
+   <script>// ==========================================
+// SOLO LAB MOBILES — COMPLETE PRODUCT DATABASE
+// Generated from your Excel database
+// ==========================================
+
+const CATEGORIES = {
+  CABLES: 'USB Cables & Adapters',
+  CHARGERS: 'Chargers & Power Banks',
+  HEADPHONES: 'Headphones & Earbuds',
+  SPEAKERS: 'Speakers',
+  HOLDERS: 'Phone Holders & Mounts',
+  CASES: 'Phone Cases & Back Covers',
+  WATCH_ACCESSORIES: 'Apple Watch Accessories',
+  PROTECTION: 'Screen Protectors & Tempered Glass',
+  CAR_ACCESSORIES: 'Car Accessories',
+  MOBILE_PHONES: 'Pre-owned Mobile Phones'
+};
+
+// ==========================================
+// ACCESSORIES DATABASE
+// ==========================================
+const ACCESSORIES = [
+  // --- Cables ---
+  { id: 1, code: 'S01T', name: 'USB to TYPE C', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 79, retailPrice: 600, stock: 8, warranty: 'No' },
+  { id: 2, code: 'ML02P', name: 'USB to Lightning', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 79, retailPrice: 600, stock: 47, warranty: 'No' },
+  { id: 3, code: 'ML01A', name: 'USB to Micro', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 49, retailPrice: 350, stock: 45, warranty: 'No' },
+  { id: 4, code: 'TC2M C-L', name: 'TC2M C - L Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 399, retailPrice: 2000, stock: 2, warranty: '1 Month' },
+  { id: 5, code: 'TF1M USB-C', name: 'TF1M USB - C Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 249, retailPrice: 1500, stock: 5, warranty: '1 Month' },
+  { id: 6, code: 'TB1.5M C-C', name: 'TB1.5M C - C Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 329, retailPrice: 1500, stock: 1, warranty: '1 Month' },
+  { id: 7, code: 'M52 USB-C', name: 'M52 USB - C Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 349, retailPrice: 2000, stock: 5, warranty: '1 Month' },
+  { id: 8, code: 'M311 3in1', name: 'M311 3in1 Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 799, retailPrice: 1800, stock: 0, warranty: '1 Month' },
+  { id: 9, code: 'M34 3in1', name: 'M34 3in1 Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 399, retailPrice: 1400, stock: 1, warranty: '1 Month' },
+  { id: 10, code: 'Apple C-L Original', name: 'Apple Original C - L Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 4390, retailPrice: 7000, stock: 1, warranty: '1 Year' },
+  { id: 11, code: 'Apple C-C Original', name: 'Apple Original C - C Cable', category: CATEGORIES.CABLES, supplier: 'iNGINEER', costPrice: 4790, retailPrice: 8000, stock: 2, warranty: '1 Year' },
+  { id: 12, code: 'Apple C-L Redington', name: 'Apple C - L Redington Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 380, retailPrice: 1500, stock: 10, warranty: 'No' },
+  { id: 13, code: 'Apple C-C Redington', name: 'Apple C - C Redington Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 440, retailPrice: 1500, stock: 15, warranty: 'No' },
+  { id: 14, code: 'MMAL008 A-L', name: 'MMAL008 A to L Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 120, retailPrice: 1000, stock: 4, warranty: 'No' },
+  { id: 15, code: 'MMAL002 A-L Braided', name: 'MMAL002 A to L Braided Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 340, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 16, code: 'Samsung C-C Data', name: 'Samsung C to C Data Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 580, retailPrice: 1800, stock: 5, warranty: 'No' },
+  { id: 17, code: 'Mikorean C-L Silicon', name: 'Mikorean C to L Silicon Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 380, retailPrice: 1700, stock: 6, warranty: 'No' },
+  { id: 18, code: 'Mikorean C-C Braided', name: 'Mikorean C to C Braided Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 680, retailPrice: 1700, stock: 2, warranty: 'No' },
+  { id: 19, code: 'Mikorean C-C Stand', name: 'Mikorean C to C Stand Cable', category: CATEGORIES.CABLES, supplier: 'XMART', costPrice: 1290, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 20, code: 'Apple C-L Safraz', name: 'Apple C - L Cable', category: CATEGORIES.CABLES, supplier: 'Safraz', costPrice: 490, retailPrice: 1700, stock: 9, warranty: 'No' },
+
+  // --- Chargers ---
+  { id: 21, code: 'JOYROOM PD20W', name: 'JOYROOM PD20W Adapter', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 1990, retailPrice: 4500, stock: 2, warranty: '2 Months' },
+  { id: 22, code: 'YG73 PD20W', name: 'YG73 PD20W Adapter', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 899, retailPrice: 2000, stock: 0, warranty: '2 Months' },
+  { id: 23, code: 'Apple 20W Original', name: 'Apple Original 20W Adapter', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 5550, retailPrice: 11000, stock: 5, warranty: '1 Year' },
+  { id: 24, code: 'Apple NFC 20W', name: 'Apple NFC 20W Adapter', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 3250, retailPrice: 6500, stock: 5, warranty: '1 Year' },
+  { id: 25, code: 'Apple 40W Original', name: 'Apple Original 40W Adapter', category: CATEGORIES.CHARGERS, supplier: 'Xmart', costPrice: 11550, retailPrice: 22000, stock: 1, warranty: '12 Months' },
+  { id: 26, code: 'Samsung 25W PD', name: 'Samsung 25W PD Adaptor', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 480, retailPrice: 2000, stock: 5, warranty: 'No' },
+  { id: 27, code: 'Earldom CC27 Car Charger', name: 'Earldom CC27 Car Charger', category: CATEGORIES.CAR_ACCESSORIES, supplier: 'XMART', costPrice: 1380, retailPrice: 2500, stock: 1, warranty: '1 Month' },
+  { id: 28, code: 'iWatch Magnetic Charger', name: 'iWatch Magnetic USB Fast Charger', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 1055, retailPrice: 17000, stock: 1, warranty: '1 Year' },
+
+  // --- Power Banks ---
+  { id: 29, code: 'PH80 10000mAh', name: 'PH80 1000mAh Power Bank', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 2250, retailPrice: 3250, stock: 0, warranty: '1 Week' },
+  { id: 30, code: 'PK66 10000mAh', name: 'PK66 1000mAh Power Bank', category: CATEGORIES.CHARGERS, supplier: 'iNGINEER', costPrice: 1650, retailPrice: 2700, stock: 0, warranty: '1 Week' },
+  { id: 31, code: 'Mikorean MGPL06', name: 'Mikorean MGPL06 20000mAh', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 2680, retailPrice: 5500, stock: 2, warranty: '2 Months' },
+  { id: 32, code: 'Remax RW108 3.5', name: 'Remax RW108 3.5 Headset', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 590, retailPrice: 1100, stock: 3, warranty: 'No' },
+  { id: 33, code: 'Remax FP37 10000mAh', name: 'Remax RW108 10000mAh FP37', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 6480, retailPrice: 12000, stock: 1, warranty: '3 Months' },
+  { id: 34, code: 'Mikorean MGPL029', name: 'Mikorean MGPL029 10000mAh', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 2430, retailPrice: 5000, stock: 0, warranty: '1 Month' },
+  { id: 35, code: 'Mikorean MGPL03', name: 'Mikorean MGPL03 10000mAh', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 1940, retailPrice: 4500, stock: 2, warranty: '1 Month' },
+  { id: 36, code: 'Mikorean MGPL014 Magsafe', name: 'Mikorean MGPL014 10000mAh Magsafe', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 3900, retailPrice: 6900, stock: 1, warranty: '1 Month' },
+  { id: 37, code: 'Mikorean MGPL07 FC', name: 'Mikorean MGPL07 FC 10000mAh', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 2650, retailPrice: 5300, stock: 2, warranty: '1 Month' },
+  { id: 38, code: 'OFYI PB13 FC 20000mah', name: 'OFYI PB13 FC Power Bank 20000mah', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 3190, retailPrice: 6700, stock: 2, warranty: '1 Month' },
+
+  // --- Headsets & Earbuds ---
+  { id: 39, code: 'G13T Type C Headset', name: 'G13T Type C Headset', category: CATEGORIES.HEADPHONES, supplier: 'iNGINEER', costPrice: 799, retailPrice: 1800, stock: 2, warranty: 'No' },
+  { id: 40, code: 'V11 3.5MM', name: 'V11 3.5MM Headset', category: CATEGORIES.HEADPHONES, supplier: 'iNGINEER', costPrice: 329, retailPrice: 1000, stock: 1, warranty: 'No' },
+  { id: 41, code: 'V15T C Headset', name: 'V15T C Headset', category: CATEGORIES.HEADPHONES, supplier: 'iNGINEER', costPrice: 499, retailPrice: 1000, stock: 3, warranty: 'No' },
+  { id: 42, code: 'BM3011', name: 'BM3011 Headset', category: CATEGORIES.HEADPHONES, supplier: 'iNGINEER', costPrice: 2790, retailPrice: 4800, stock: 2, warranty: '3 Month' },
+  { id: 43, code: 'Apple Type C Earpods', name: 'Apple Type C Earpods / Headset Redington', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 680, retailPrice: 2000, stock: 5, warranty: 'No' },
+  { id: 44, code: 'Apple Lightning Earpods', name: 'Apple Lightning Earpods / Headset Redington', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 980, retailPrice: 2000, stock: 5, warranty: 'No' },
+  { id: 45, code: 'E76 3.5 and Type C', name: 'E76 3.5mm and Type C Headset', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1100, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 46, code: 'Reddington AirPods Pro 2 ANC', name: 'Reddington AirPods Pro 2 ANC', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1880, retailPrice: 3500, stock: 5, warranty: '3 Days' },
+  { id: 47, code: 'Reddington Airpods 4 ANC', name: 'Reddington Airpods 4 ANC', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1880, retailPrice: 4500, stock: 2, warranty: 'No' },
+  { id: 48, code: 'Reddington Airpods Pro 3 ANC', name: 'Reddington Airpods Pro 3 ANC', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 2280, retailPrice: 5000, stock: 3, warranty: 'No' },
+  { id: 49, code: 'SoundCore R50i NC', name: 'SoundCore R50i NC Earbuds', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 5900, retailPrice: 8200, stock: 2, warranty: 'No' },
+  { id: 50, code: 'OFYI BHF07 RGB', name: 'OFYI BHF07 RGB Headphones', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 2680, retailPrice: 5500, stock: 2, warranty: '1 Month' },
+  { id: 51, code: 'MK 206 Wireless', name: 'MK 206 Wireless Headphone', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 3250, retailPrice: 6500, stock: 2, warranty: '1 Month' },
+  { id: 52, code: 'MMNH01 Sports', name: 'MMNH01 Sports Headphones', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1780, retailPrice: 2700, stock: 1, warranty: '1 Month' },
+  { id: 53, code: 'MMNH02 Sports', name: 'MMNH02 Sports Headphones', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 1680, retailPrice: 2700, stock: 1, warranty: '1 Month' },
+  { id: 54, code: 'Anker Soundcore Space One Pro', name: 'Anker Soundcore Space One Pro', category: CATEGORIES.HEADPHONES, supplier: 'XMART', costPrice: 2900, retailPrice: 5500, stock: 0, warranty: 'No' },
+
+  // --- Speakers ---
+  { id: 55, code: 'X1 Mini Speaker', name: 'X1 Mini Speaker', category: CATEGORIES.SPEAKERS, supplier: 'iNGINEER', costPrice: 440, retailPrice: 1500, stock: 5, warranty: 'No' },
+  { id: 56, code: 'W83 Speaker', name: 'W83 Speaker', category: CATEGORIES.SPEAKERS, supplier: 'iNGINEER', costPrice: 3750, retailPrice: 6000, stock: 1, warranty: '1 Month' },
+  { id: 57, code: 'MK-T06', name: 'MK-T06 Speaker', category: CATEGORIES.SPEAKERS, supplier: 'XMART', costPrice: 1780, retailPrice: 4000, stock: 2, warranty: '1 Month' },
+  { id: 58, code: 'MK-T10', name: 'MK-T10 Speaker', category: CATEGORIES.SPEAKERS, supplier: 'XMART', costPrice: 1900, retailPrice: 4500, stock: 2, warranty: '1 Month' },
+
+  // --- Phone Holders ---
+  { id: 59, code: 'HD07 Phone Holder', name: 'HD07 Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'iNGINEER', costPrice: 830, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 60, code: 'HD02 Phone Holder', name: 'HD02 Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'iNGINEER', costPrice: 830, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 61, code: 'MMCH09 Car Holder', name: 'MMCH09 Car Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'XMART', costPrice: 680, retailPrice: 1800, stock: 2, warranty: 'No' },
+  { id: 62, code: 'MMH01/02 Bike Holder', name: 'MMH01 / 02 Bike Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'XMART', costPrice: 680, retailPrice: 1800, stock: 1, warranty: 'No' },
+  { id: 63, code: 'MMDH04 Desk Holder', name: 'MMDH04 Phone Holder', category: CATEGORIES.HOLDERS, supplier: 'XMART', costPrice: 680, retailPrice: 1800, stock: 2, warranty: 'No' },
+
+  // --- Cases & Covers ---
+  { id: 64, code: 'Ringlight HX260', name: 'Ringlight HX260', category: 'Accessories', supplier: 'XMART', costPrice: 1260, retailPrice: 3000, stock: 2, warranty: 'No' },
+  { id: 65, code: 'Earldom WC80 Magnetic Charger', name: 'Earldom WC80 Magnetic Wireless Charger', category: CATEGORIES.CHARGERS, supplier: 'XMART', costPrice: 1940, retailPrice: 3500, stock: 2, warranty: 'No' },
+  
+  // AirPods Cases
+  { id: 66, code: 'AirPods 1/2 Covers', name: 'Apple AirPods 1 / 2 Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 340, retailPrice: 1000, stock: 2, warranty: 'No' },
+  { id: 67, code: 'AirPods Pro 2 Covers', name: 'Apple AirPods Pro 2 Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 280, retailPrice: 1000, stock: 4, warranty: 'No' },
+  { id: 68, code: 'AirPods Pro 3 Covers', name: 'Apple AirPods Pro 3 Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 380, retailPrice: 1000, stock: 1, warranty: 'No' },
+  { id: 69, code: 'AirPods R50i NC Covers', name: 'Apple AirPods R50i NC Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 680, retailPrice: 1700, stock: 2, warranty: 'No' },
+  { id: 70, code: 'AirPods R50i Covers', name: 'Apple AirPods R50i Covers', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 680, retailPrice: 1700, stock: 2, warranty: 'No' },
+  { id: 71, code: 'AirPods Pro 2 Rubber Case', name: 'Airpods Pro 2 Rubber Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 180, retailPrice: 1500, stock: 6, warranty: 'No' },
+  { id: 72, code: 'AirPods Pro 2 Character Bckcover', name: 'Aipods pro 2 Character Bckcover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 440, retailPrice: 1700, stock: 4, warranty: 'No' },
+
+  // Apple Watch Accessories
+  { id: 73, code: 'Apple Watch Straps 42-49MM', name: 'Apple Watch 42MM/44MM/45MM/49MM Straps', category: CATEGORIES.WATCH_ACCESSORIES, supplier: 'XMART', costPrice: 490, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 74, code: 'Apple Watch 42MM Tempered', name: 'Apple Watch 42MM Tempered / Cover', category: CATEGORIES.PROTECTION, supplier: 'XMART', costPrice: 320, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 75, code: 'Apple Watch 40MM Tempered', name: 'Apple Watch 40MM Tempered / Cover', category: CATEGORIES.PROTECTION, supplier: 'XMART', costPrice: 320, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 76, code: 'Apple Watch 46MM Tempered', name: 'Apple Watch 46MM Tempered / Cover', category: CATEGORIES.PROTECTION, supplier: 'XMART', costPrice: 320, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 77, code: 'Apple Watch 44MM Tempered', name: 'Apple Watch 44MM Tempered / Cover', category: CATEGORIES.PROTECTION, supplier: 'XMART', costPrice: 320, retailPrice: 1500, stock: 2, warranty: 'No' },
+
+  // Generic Phone Cases (So Cool / Jelly / Silicone / Creative / 360 / Belkin / AG Glass / iLike / 2-in-1)
+  // These are grouped by style — you can expand individually if needed
+  { id: 78, code: 'IP-TPU-7G-SE3', name: 'iPhone 7G/8G/SE2/SE3 TPU Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 120, retailPrice: 550, stock: 5, warranty: 'No' },
+  { id: 79, code: 'IP-Silicone-11', name: 'iPhone 11 Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 4, warranty: 'No' },
+  { id: 80, code: 'IP-Silicone-12PM', name: 'iPhone 12 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 81, code: 'IP-Silicone-13PM', name: 'iPhone 13 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 82, code: 'IP-Silicone-14PM', name: 'iPhone 14 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 4, warranty: 'No' },
+  { id: 83, code: 'IP-Silicone-15PM', name: 'iPhone 15 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 84, code: 'IP-Silicone-16PM', name: 'iPhone 16 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 85, code: 'IP-Silicone-17PM', name: 'iPhone 17 PM Silicone Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 86, code: 'IP-Creative-11', name: 'iPhone 11 Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 87, code: 'IP-Creative-12PM', name: 'iPhone 12 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 88, code: 'IP-Creative-13PM', name: 'iPhone 13 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 89, code: 'IP-Creative-14PM', name: 'iPhone 14 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 90, code: 'IP-Creative-15PM', name: 'iPhone 15 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 91, code: 'IP-Creative-16PM', name: 'iPhone 16 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 92, code: 'IP-Creative-17PM', name: 'iPhone 17 PM Creative Case', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 93, code: 'IP-360-11', name: 'iPhone 11 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 94, code: 'IP-360-12PM', name: 'iPhone 12 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 95, code: 'IP-360-13PM', name: 'iPhone 13 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 96, code: 'IP-360-14PM', name: 'iPhone 14 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 97, code: 'IP-360-15PM', name: 'iPhone 15 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 0, warranty: 'No' },
+  { id: 98, code: 'IP-360-17PM', name: 'iPhone 17 PM 360 Back Cover', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 480, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 99, code: 'IP-Belkin-11', name: 'iPhone 11 Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 2, warranty: 'No' },
+  { id: 100, code: 'IP-Belkin-12', name: 'iPhone 12 Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 2, warranty: 'No' },
+  { id: 101, code: 'IP-Belkin-13', name: 'iPhone 13 Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 2, warranty: 'No' },
+  { id: 102, code: 'IP-Belkin-14', name: 'iPhone 14 Pro Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 2, warranty: 'No' },
+  { id: 103, code: 'IP-Belkin-15', name: 'iPhone 15 Pro Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 4, warranty: 'No' },
+  { id: 104, code: 'IP-Belkin-16', name: 'iPhone 16 Pro Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 3, warranty: 'No' },
+  { id: 105, code: 'IP-Belkin-17', name: 'iPhone 17 Belkin TPU', category: CATEGORIES.CASES, supplier: 'XMART', costPrice: 840, retailPrice: 2000, stock: 1, warranty: 'No' },
+  { id: 106, code: 'IP-AGGlass-11', name: 'iPhone 11 AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 0, warranty: 'No' },
+  { id: 107, code: 'IP-AGGlass-11PM', name: 'iPhone 11 PM AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 108, code: 'IP-AGGlass-12', name: 'iPhone 12 AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 109, code: 'IP-AGGlass-13', name: 'iPhone 13 AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 110, code: 'IP-AGGlass-14', name: 'iPhone 14 AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 111, code: 'IP-AGGlass-15', name: 'iPhone 15 Pro AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 112, code: 'IP-AGGlass-16', name: 'iPhone 16 Pro AG Glass Backcover', category: CATEGORIES.CASES, supplier: 'Shafraz', costPrice: 800, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 113, code: 'IP-iLike-12PM', name: 'iPhone 12PM iLike Backcover', category: CATEGORIES.CASES, supplier: 'Aircel Supplier', costPrice: 750, retailPrice: 2000, stock: 1, warranty: 'No' },
+  { id: 114, code: 'IP-iLike-13Pro', name: 'iPhone 13 Pro iLike Backcover', category: CATEGORIES.CASES, supplier: 'Aircel Supplier', costPrice: 750, retailPrice: 2000, stock: 1, warranty: 'No' },
+  { id: 115, code: 'IP-SoCool-X', name: 'iPhone X So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 116, code: 'IP-SoCool-11', name: 'iPhone 11 So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 117, code: 'IP-SoCool-12PM', name: 'iPhone 12 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 118, code: 'IP-SoCool-13PM', name: 'iPhone 13 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 1, warranty: 'No' },
+  { id: 119, code: 'IP-SoCool-14PM', name: 'iPhone 14 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 120, code: 'IP-SoCool-15PM', name: 'iPhone 15 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 121, code: 'IP-SoCool-16PM', name: 'iPhone 16 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 122, code: 'IP-SoCool-17PM', name: 'iPhone 17 PM So Cool Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 325, retailPrice: 1500, stock: 2, warranty: 'No' },
+  { id: 123, code: 'IP-2in1Eco-11', name: 'iPhone 11 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 124, code: 'IP-2in1Eco-12PM', name: 'iPhone 12 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 1, warranty: 'No' },
+  { id: 125, code: 'IP-2in1Eco-13PM', name: 'iPhone 13 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 126, code: 'IP-2in1Eco-14PM', name: 'iPhone 14 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 1, warranty: 'No' },
+  { id: 127, code: 'IP-2in1Eco-15PM', name: 'iPhone 15 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 128, code: 'IP-2in1Eco-16PM', name: 'iPhone 16 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 129, code: 'IP-2in1Eco-17PM', name: 'iPhone 17 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 130, code: 'IP-2in1Eco-18PM', name: 'iPhone 18 PM 2 in 1 Eco Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 890, retailPrice: 2200, stock: 2, warranty: 'No' },
+  { id: 131, code: 'IP-CreativeSafraz-12PM', name: 'iPhone 12 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 132, code: 'IP-CreativeSafraz-13PM', name: 'iPhone 13 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 133, code: 'IP-CreativeSafraz-14PM', name: 'iPhone 14 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 134, code: 'IP-CreativeSafraz-15PM', name: 'iPhone 15 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 135, code: 'IP-CreativeSafraz-16PM', name: 'iPhone 16 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+  { id: 136, code: 'IP-CreativeSafraz-17PM', name: 'iPhone 17 PM Creative Case', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice: 1100, retailPrice: 2500, stock: 2, warranty: 'No' },
+
+  // --- Other Accessories ---
+  { id: 137, code: 'Keephone 14 Pro', name: 'Keephone 14 Pro Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 900, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 138, code: 'LV Leather', name: 'LV Leather Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 640, retailPrice: 1700, stock: 2, warranty: 'No' },
+  { id: 139, code: 'Berlia 17', name: 'Berlia 17 Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 1100, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 140, code: 'Berlia 17 Pro', name: 'Berlia 17 Pro Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 1100, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 141, code: 'Berlia 17 Pro Max', name: 'Berlia 17 Pro Max Case', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 1100, retailPrice: 2500, stock: 1, warranty: 'No' },
+  { id: 142, code: 'Magnetic-Color-17Pro', name: 'Magnetic Color 17 Pro', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 143, code: 'Magnetic-Color-17PM', name: 'Magnetic Color 17 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 144, code: 'Magnetic-Color-15PM', name: 'Magnetic Color 15 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 145, code: 'Magnetic-Color-13PM', name: 'Magnetic Color 13 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 146, code: 'Magnetic-Color-14PM', name: 'Magnetic Color 14 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 147, code: 'Magnetic-Color-11PM', name: 'Magnetic Color 11 Pro Max', category: CATEGORIES.CASES, supplier: 'Xmart', costPrice: 220, retailPrice: 1250, stock: 1, warranty: 'No' },
+  { id: 148, code: 'HC-11 USB A Adapter', name: 'HC-11 USB A Adapter', category: 'Adapters', supplier: 'XMART', costPrice: 290, retailPrice: 1500, stock: 3, warranty: 'No' },
+  { id: 149, code: 'Apple Adapter + Cable A-L', name: 'Apple Adapter and Cable A to L', category: 'Accessories', supplier: 'Safraz', costPrice: 850, retailPrice: 2000, stock: 4, warranty: 'No' },
+  { id: 150, code: 'iPhone Jelly-13/14', name: 'iPhone 13 / 14 Jelly Backcover', category: CATEGORIES.CASES, supplier: 'Safraz', costPrice:
+// Make products available to ALL pages — multiple names to be safe
+window.products = ACCESSORIES;
+window.ACCESSORIES = ACCESSORIES;
+window.CATEGORIES = CATEGORIES;
+
+// Also create a simple 'allCategories' list if your page needs it
+window.allCategories = Object.entries(CATEGORIES).map(([key, value]) => ({
+  key: key,
+  name: value
+}));
+
+console.log('✅ Products loaded:', ACCESSORIES.length, 'items');
+console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lucide@1/dist/umd/lucide.min.js"></script>
+<style>
+  :root{
+    --bg:#202024; --card:#2a2a2f; --card-2:#242429; --text:#e8e5df; --muted:#9a978f;
+    --accent:#c47046; --accent-soft:rgba(196,112,70,.14); --accent2:#7ba8b8;
+    --accent2-soft:rgba(123,168,184,.14); --border:rgba(232,229,223,.12);
+    --danger:#d9605a; --ok:#6fbf8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Sora',system-ui,sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; line-height:1.55; -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, rgba(196,112,70,.10), transparent 60%),
+      radial-gradient(700px 420px at -10% 20%, rgba(123,168,184,.08), transparent 55%);
+  }
+  .num{font-variant-numeric:tabular-nums}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input{font-family:inherit;font-size:14px;color:var(--text)}
+
+  /* ---------- Header ---------- */
+  .topbar{
+    border-bottom:1px solid var(--border); background:rgba(32,32,36,.85);
+    backdrop-filter:blur(10px); position:sticky; top:0; z-index:30;
+  }
+  .topbar-inner{
+    max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;
+    justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{
+    width:42px;height:42px;border-radius:12px;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--accent),#8a4a28);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 18px rgba(196,112,70,.35);
+  }
+  .brand-mark svg{width:22px;height:22px;color:#fff}
+  .brand-name{font-weight:800;font-size:18px;letter-spacing:.5px;line-height:1.1}
+  .brand-name small{display:block;font-weight:400;font-size:10.5px;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase}
+  .top-contact{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .top-contact a{color:var(--text);font-weight:600;display:flex;align-items:center;gap:6px}
+  .top-contact a:hover{color:var(--accent)}
+  .inv-badge{
+    display:flex;align-items:center;gap:7px;font-size:12px;color:var(--accent2);
+    border:1px solid rgba(123,168,184,.35);padding:6px 12px;border-radius:999px;
+    background:var(--accent2-soft);
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 60px}
+  .page-head{margin-bottom:24px;text-align:center}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2.5px;
+    text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px;
+  }
+  .eyebrow::before,.eyebrow::after{content:"";width:28px;height:1px;background:var(--accent)}
+  h1{font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-.5px}
+  h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .page-sub{color:var(--muted);font-size:13.5px;margin-top:8px}
+  .page-sub b{color:var(--text)}
+
+  .grid{display:grid;grid-template-columns:1.25fr 1fr;gap:24px;align-items:start}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:18px;
+    padding:24px; margin-bottom:18px;
+  }
+  .card-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;margin-bottom:16px}
+  .card-title .ico{
+    width:32px;height:32px;border-radius:9px;background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  }
+  .card-title .ico svg{width:16px;height:16px}
+  .card-title .tag{margin-left:auto;font-size:11px;color:var(--muted);font-weight:400}
+
+  /* ---------- Items ---------- */
+  .items{max-height:340px;overflow-y:auto;padding-right:4px}
+  .items::-webkit-scrollbar{width:5px}
+  .items::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  .item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .item:last-child{border-bottom:none}
+  .item-thumb{
+    width:52px;height:52px;border-radius:10px;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--card-2),#1e1e23);
+    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+    color:var(--accent2);position:relative;
+  }
+  .item-thumb svg{width:24px;height:24px}
+  .item-thumb .qty-badge{
+    position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;
+    background:var(--accent);color:#fff;font-size:11px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .item-info{flex:1;min-width:0}
+  .item-name{font-size:13.5px;font-weight:600;line-height:1.35}
+  .item-variant{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .item-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
+  .qty-ctl{display:flex;align-items:center;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .qty-ctl button{
+    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);transition:background .15s,color .15s;font-size:15px;font-weight:600;
+  }
+  .qty-ctl button:hover{background:var(--accent-soft);color:var(--accent)}
+  .qty-ctl .qty-val{min-width:28px;text-align:center;font-size:13px;font-weight:600}
+  .item-price{font-size:13.5px;font-weight:700;white-space:nowrap}
+  .item-remove{color:var(--muted);padding:4px;display:flex;align-items:center;border-radius:6px;transition:color .15s}
+  .item-remove:hover{color:var(--danger)}
+  .item-remove svg{width:14px;height:14px}
+  .empty-cart{text-align:center;padding:30px 10px;color:var(--muted);font-size:13.5px}
+  .empty-cart svg{width:40px;height:40px;margin:0 auto 12px;opacity:.4;display:block}
+
+  .promo{display:flex;gap:8px;margin-top:14px}
+  .promo input{
+    flex:1;background:var(--card-2);border:1px solid var(--border);border-radius:10px;
+    padding:11px 14px;outline:none;font-size:13px;transition:border-color .2s;text-transform:uppercase;
+  }
+  .promo input:focus{border-color:var(--accent)}
+  .promo button{
+    padding:0 18px;border-radius:10px;background:var(--accent2-soft);color:var(--accent2);
+    font-weight:600;font-size:13px;border:1px solid transparent;transition:all .2s;white-space:nowrap;
+  }
+  .promo button:hover{border-color:var(--accent2)}
+  .promo-msg{font-size:12px;margin:8px 0 0;display:none}
+  .promo-msg.ok{display:block;color:var(--ok)}
+  .promo-msg.bad{display:block;color:var(--danger)}
+
+  /* ---------- Payment methods ---------- */
+  .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:420px){.pay-grid{grid-template-columns:1fr}}
+  .pay-opt{
+    padding:16px 12px;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;
+    background:var(--card-2);text-align:center;transition:border-color .2s,background .2s,transform .15s;
+    position:relative;
+  }
+  .pay-opt:hover{border-color:rgba(196,112,70,.4);transform:translateY(-2px)}
+  .pay-opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .pay-opt svg{width:24px;height:24px;margin:0 auto 8px;color:var(--accent2)}
+  .pay-opt.sel svg{color:var(--accent)}
+  .pay-opt .pay-name{font-size:13px;font-weight:700}
+  .pay-opt .pay-sub{font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.3px}
+  .pay-opt.sel .pay-sub{color:var(--accent)}
+  .pay-opt .check{
+    position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;
+    background:var(--accent);color:#fff;display:none;align-items:center;justify-content:center;
+  }
+  .pay-opt.sel .check{display:flex}
+  .pay-opt .check svg{width:11px;height:11px;color:#fff;margin:0}
+
+  .pay-note{
+    display:none;margin-top:14px;padding:14px 16px;border-radius:12px;background:var(--card-2);
+    border:1px dashed var(--border);font-size:12.5px;color:var(--muted);line-height:1.75;
+  }
+  .pay-note.show{display:block;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .pay-note b{color:var(--text);font-weight:600}
+  .pay-note .ico-row{display:flex;align-items:flex-start;gap:9px;margin-top:5px}
+  .pay-note .ico-row svg{width:14px;height:14px;color:var(--accent);flex:0 0 auto;margin-top:3px}
+  .surcharge-tag{
+    display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
+    background:rgba(217,96,90,.15);color:var(--danger);margin-left:6px;letter-spacing:.5px;
+  }
+
+  /* ---------- Totals ---------- */
+  .totals{border-top:1px solid var(--border);padding-top:14px;margin-top:6px}
+  .t-row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:var(--muted)}
+  .t-row b{color:var(--text);font-weight:600}
+  .t-row.discount{color:var(--ok)}
+  .t-row.discount b{color:var(--ok)}
+  .t-row.surcharge{color:var(--danger)}
+  .t-row.surcharge b{color:var(--danger)}
+  .t-grand{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-top:12px;padding-top:14px;border-top:1px solid var(--border);
+  }
+  .t-grand .lbl{font-size:14px;font-weight:700}
+  .t-grand .val{font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--accent)}
+  .t-grand .val small{font-size:13px;font-weight:500;color:var(--muted);margin-right:3px}
+
+  .complete-btn{
+    width:100%;margin-top:18px;padding:16px;border-radius:12px;font-size:15px;font-weight:700;
+    background:linear-gradient(135deg,var(--accent),#a85a35);color:#fff;letter-spacing:.5px;
+    display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s,box-shadow .2s,opacity .2s;
+    box-shadow:0 6px 22px rgba(196,112,70,.35);
+  }
+  .complete-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(196,112,70,.45)}
+  .complete-btn:active{transform:translateY(0)}
+  .complete-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+  .complete-btn .spinner{
+    width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;
+    border-radius:50%;animation:spin .7s linear infinite;display:none;
+  }
+  .complete-btn.loading .spinner{display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .hint{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;font-size:11.5px;color:var(--muted);text-align:center}
+  .hint svg{width:13px;height:13px;color:var(--ok);flex:0 0 auto}
+
+  /* ---------- Footer ---------- */
+  footer{border-top:1px solid var(--border);margin-top:16px;background:rgba(28,28,32,.6)}
+  .foot-inner{max-width:1080px;margin:0 auto;padding:30px 24px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px}
+  @media (max-width:720px){.foot-inner{grid-template-columns:1fr}}
+  .foot-brand{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .foot h4{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;font-weight:600}
+  .foot-line{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--muted);margin-bottom:9px;line-height:1.6}
+  .foot-line svg{width:14px;height:14px;color:var(--accent);flex:0 0 auto;margin-top:3px}
+  .foot-line b{color:var(--text);font-weight:600}
+  .foot-line a:hover{color:var(--accent)}
+  .foot-bottom{
+    max-width:1080px;margin:0 auto;padding:14px 24px;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);
+  }
+
+  /* ---------- Invoice overlay ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(15,15,18,.88);backdrop-filter:blur(8px);
+    display:none;align-items:flex-start;justify-content:center;z-index:50;padding:24px 16px;overflow-y:auto;
+  }
+  .overlay.show{display:flex;animation:fadeIn .3s ease}
+  .invoice{
+    background:#faf8f4;color:#1c1c1c;max-width:440px;width:100%;border-radius:6px;
+    padding:30px 28px;margin:auto 0;box-shadow:0 30px 80px rgba(0,0,0,.5);
+    animation:pop .4s cubic-bezier(.2,.9,.3,1.15);position:relative;
+    font-family:'Sora',system-ui,sans-serif;
+  }
+  @keyframes pop{from{transform:scale(.9) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+  .inv-head{text-align:center;padding-bottom:16px;border-bottom:2px dashed #d8d2c4}
+  .inv-shop{font-weight:800;font-size:19px;letter-spacing:.5px}
+  .inv-shop small{display:block;font-weight:500;font-size:9.5px;letter-spacing:3px;text-transform:uppercase;color:#8a8378;margin-top:2px}
+  .inv-addr{font-size:11px;color:#6b6558;margin-top:8px;line-height:1.6}
+  .inv-addr b{color:#3a3630;font-weight:600}
+  .inv-meta{
+    display:flex;justify-content:space-between;font-size:11px;color:#6b6558;
+    padding:12px 0;border-bottom:1px solid #e5dfd0;margin-top:2px;
+  }
+  .inv-meta b{color:#1c1c1c;display:block;font-size:12px;margin-top:2px;font-weight:700}
+  .inv-items{padding:14px 0;border-bottom:2px dashed #d8d2c4}
+  .inv-item{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;line-height:1.4}
+  .inv-item .it-name{flex:1;padding-right:10px}
+  .inv-item .it-name small{display:block;color:#8a8378;font-size:10.5px}
+  .inv-item .it-amt{font-weight:600;white-space:nowrap}
+  .inv-totals{padding-top:12px;font-size:12.5px}
+  .inv-t-row{display:flex;justify-content:space-between;padding:3px 0;color:#6b6558}
+  .inv-t-row b{color:#1c1c1c;font-weight:600}
+  .inv-t-row.disc b{color:#1a7a4a}
+  .inv-t-row.sur b{color:#b34038}
+  .inv-grand{
+    display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;
+    padding-top:10px;border-top:1px solid #e5dfd0;font-weight:800;font-size:17px;
+  }
+  .inv-grand .amt{color:#a85a35}
+  .inv-pay{
+    margin-top:14px;padding:10px 14px;background:#f0ece2;border-radius:6px;
+    display:flex;justify-content:space-between;align-items:center;font-size:12px;
+  }
+  .inv-pay span{color:#6b6558}
+  .inv-pay b{font-weight:700;color:#1c1c1c}
+  .inv-thanks{text-align:center;font-size:11px;color:#8a8378;margin-top:16px;line-height:1.7}
+  .inv-thanks b{color:#3a3630}
+  .inv-actions{display:flex;gap:10px;margin-top:18px}
+  .inv-btn{
+    flex:1;padding:12px;border-radius:8px;font-size:13px;font-weight:600;display:flex;
+    align-items:center;justify-content:center;gap:7px;transition:opacity .2s;
+  }
+  .inv-btn.print{background:#1c1c1c;color:#fff}
+  .inv-btn.new{background:transparent;color:#1c1c1c;border:1.5px solid #c9c2b0}
+  .inv-btn:hover{opacity:.85}
+  .inv-btn svg{width:15px;height:15px}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--card);border:1px solid var(--border);border-left:3px solid var(--danger);
+    padding:12px 20px;border-radius:10px;font-size:13px;z-index:60;opacity:0;pointer-events:none;
+    transition:opacity .25s,transform .25s;display:flex;align-items:center;gap:10px;max-width:90vw;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast svg{width:16px;height:16px;color:var(--danger);flex:0 0 auto}
+
+  @media print{
+    body *{visibility:hidden !important}
+    .overlay.show,.overlay.show .invoice,.overlay.show .invoice *{visibility:visible !important}
+    .overlay.show{position:static;background:none;padding:0;overflow:visible;display:block !important}
+    .invoice{box-shadow:none;max-width:100%;margin:0;animation:none;border-radius:0}
+    .inv-actions{display:none !important}
+  }
+</style><script src="sidebar.js"></script>
+
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+      </div>
+      <div class="brand-name">SOLO LAB <small>Mobile · Kandy</small></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+      <div class="top-contact">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <a href="tel:0777322237">077 732 2237</a>
+      </div>
+      <div class="inv-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
+        Counter Invoice
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">Quick Checkout</div>
+    <h1>Complete your <span>invoice</span></h1>
+    <p class="page-sub">Review items, pick a payment method, and finish — no sign-up needed. Call <b>077 732 2237</b> for assistance.</p>
+  </div>
+
+  <div class="grid">
+    <!-- ============ LEFT: ORDER ITEMS ============ -->
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">
+        <span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span>
+        Items
+        <span class="tag num" id="itemCountTag">3 items</span>
+      </div>
+
+      <div class="items" id="itemsList"></div>
+      <div class="empty-cart" id="emptyCart" style="display:none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+        No items in this invoice.
+      </div>
+
+      <div class="promo">
+        <input type="text" id="promoInput" placeholder="Promo code (try SOLO10)">
+        <button id="promoBtn">Apply</button>
+      </div>
+      <div class="promo-msg" id="promoMsg"></div>
+    </div>
+
+    <!-- ============ RIGHT: PAYMENT + TOTALS ============ -->
+    <div>
+      <div class="card">
+        <div class="card-title">
+          <span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></span>
+          Payment Method
+        </div>
+
+        <div class="pay-grid">
+          <div class="pay-opt sel" data-pay="cash">
+            <span class="check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+            <div class="pay-name">Cash</div>
+            <div class="pay-sub">Pay at counter</div>
+          </div>
+
+          <div class="pay-opt" data-pay="online">
+            <span class="check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg>
+            <div class="pay-name">Online Transfer</div>
+            <div class="pay-sub">Bank deposit</div>
+          </div>
+
+          <div class="pay-opt" data-pay="card">
+            <span class="check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            <div class="pay-name">Card<span class="surcharge-tag">+3%</span></div>
+            <div class="pay-sub">Visa / Mastercard</div>
+          </div>
+
+          <div class="pay-opt" data-pay="koko">
+            <span class="check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M8 4v16M4 8h16M4 16h16"/></svg>
+            <div class="pay-name">KOKO</div>
+            <div class="pay-sub">QR / app payment</div>
+          </div>
+        </div>
+
+        <!-- Per-method notes -->
+        <div class="pay-note show" id="note-cash">
+          <b>Cash payment</b> — pay the total in Sri Lankan Rupees at the counter. Collect your invoice once payment is confirmed.
+        </div>
+        <div class="pay-note" id="note-online">
+          <b>Online / Bank Transfer</b>
+          <div class="ico-row"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg> Bank: Commercial Bank · Kandy Branch</div>
+          <div class="ico-row"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg> Acc No: <b>8000 1234 5678</b> · SOLO LAB MOBILE</div>
+          <div class="ico-row"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> WhatsApp the slip to <b>077 732 2237</b></div>
+        </div>
+        <div class="pay-note" id="note-card">
+          <b>Card payment</b> — a <b style="color:var(--danger)">3% surcharge</b> is automatically added to the total. Tap, swipe or insert your Visa / Mastercard at the counter terminal.
+        </div>
+        <div class="pay-note" id="note-koko">
+          <b>KOKO Payment</b> — scan the KOKO QR code at the counter, or pay to KOKO ID <b>sololab.mobile</b>. Show the confirmation to the cashier.
+        </div>
+
+        <        <!-- ===== TOTALS ===== -->
+        <div class="totals">
+          <div class="t-row"><span>Subtotal</span><b class="num" id="subTotal">Rs. 0</b></div>
+          <div class="t-row discount" id="discountRow" style="display:none"><span>Discount <span id="discountLabel"></span></span><b class="num" id="discountVal">− Rs. 0</b></div>
+          <div class="t-row surcharge" id="surchargeRow" style="display:none"><span>Card Surcharge (3%)</span><b class="num" id="surchargeVal">+ Rs. 0</b></div>
+          <div class="t-grand">
+            <span class="lbl">Total Payable</span>
+            <span class="val num"><small>LKR</small><span id="grandTotal">0</span></span>
+          </div>
+        </div>
+
+        <button class="complete-btn" id="completeBtn" onclick="completeSale()">
+          <span class="spinner"></span>
+          <span class="btn-label">Complete Invoice</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+        <div class="hint">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+          Invoice is generated instantly · Print or save as PDF after completion
+        </div>
+
+        <script>
+          function completeSale() {
+            // Get values from your page
+            const subTotalText = document.getElementById('subTotal').textContent;
+            const grandTotalText = document.getElementById('grandTotal').textContent;
+            const discountRow = document.getElementById('discountRow');
+            const surchargeRow = document.getElementById('surchargeRow');
+            
+            // Get cart items — make sure 'cart' variable matches your actual variable name!
+            const cartItems = window.cartItems || []; // ← update 'cartItems' to match your variable!
+            
+            // Get payment method
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'Cash';
+            
+            // Save sale data for invoice
+            localStorage.setItem('currentSale', JSON.stringify({
+              invoiceNo: 'SL-' + Date.now().toString().slice(-6),
+              date: new Date().toLocaleDateString('en-GB'),
+              items: cartItems,
+              subtotal: subTotalText,
+              discount: discountRow.style.display !== 'none' ? document.getElementById('discountVal').textContent : 'None',
+              surcharge: surchargeRow.style.display !== 'none' ? document.getElementById('surchargeVal').textContent : 'None',
+              total: grandTotalText,
+              paymentMethod: paymentMethod
+            }));
+            
+            // Save to sales history
+            const sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
+            sales.push({
+              invoiceNo: 'SL-' + Date.now().toString().slice(-6),
+              date: new Date().toLocaleDateString(),
+              items: cartItems,
+              total: grandTotalText.replace(/[^0-9.]/g, ''),
+              paymentMethod: paymentMethod,
+              timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('shopSales', JSON.stringify(sales));
+            
+            // Open invoice in new tab
+            window.open('invoice.html', '_blank');
+            
+            // Optional: Clear cart after completion
+            // window.cartItems = [];
+            // location.reload();
+          }
+        </script>
+
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="foot">
+  <div class="foot-inner">
+    <div>
+      <div class="foot-brand">
+        <div class="brand-mark" style="width:36px;height:36px;border-radius:10px">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:#fff"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+        </div>
+        <div class="brand-name" style="font-size:16px">SOLO LAB <small>Mobile</small></div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.7;max-width:300px">Mobile phones &amp; accessories · Genuine products with warranty · Kandy, Sri Lanka.</p>
+    </div>
+    <div>
+      <h4>Visit / Contact</h4>
+      <div class="foot-line"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>23A, D.S. Senanayaka Veediya,<br>Kandy, Sri Lanka</span></div>
+      <div class="foot-line"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:0777322237"><b>077 732 2237</b></a></div>
+    </div>
+    <div>
+      <h4>Store Hours</h4>
+      <div class="foot-line"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Mon – Sat<br><b>9:00 AM – 8:00 PM</b></span></div>
+      <div class="foot-line"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Sun &amp; Poya Days<br><b>10:00 AM – 6:00 PM</b></span></div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 SOLO LAB MOBILE · All rights reserved</span>
+    <span>23A, D.S. Senanayaka Veediya, Kandy · 077 732 2237</span>
+  </div>
+</footer>
+
+<!-- ============ INVOICE OVERLAY ============ -->
+<div class="overlay" id="invoiceOverlay">
+  <div class="invoice" id="invoicePrint">
+    <div class="inv-head">
+      <div class="inv-shop">SOLO LAB MOBILE<small>Phones · Accessories · Kandy</small></div>
+      <div class="inv-addr">23A, D.S. Senanayaka Veediya, Kandy<br>Tel: <b>077 732 2237</b></div>
+    </div>
+    <div class="inv-meta">
+      <div>Invoice No.<b class="num" id="invNo">SL-000000</b></div>
+      <div style="text-align:right">Date<b id="invDate">—</b></div>
+    </div>
+    <div class="inv-items" id="invItems"></div>
+    <div class="inv-totals">
+      <div class="inv-t-row"><span>Subtotal</span><b class="num" id="invSub">Rs. 0</b></div>
+      <div class="inv-t-row disc" id="invDiscRow" style="display:none"><span>Discount <span id="invDiscLabel"></span></span><b class="num" id="invDisc">− Rs. 0</b></div>
+      <div class="inv-t-row sur" id="invSurRow" style="display:none"><span>Card Surcharge (3%)</span><b class="num" id="invSur">+ Rs. 0</b></div>
+      <div class="inv-grand"><span>Total</span><span class="amt num" id="invGrand">Rs. 0</span></div>
+    </div>
+    <div class="inv-pay"><span>Payment Method</span><b id="invPay">Cash</b></div>
+    <div class="inv-thanks">
+      Thank you for shopping with <b>SOLO LAB MOBILE</b>.<br>
+      Please retain this invoice for warranty claims.<br>
+      Enquiries: <b>077 732 2237</b>
+    </div>
+    <div class="inv-actions">
+      <button class="inv-btn print" id="printBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+        Print / Save PDF
+      </button>
+      <button class="inv-btn new" id="newInvBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        New Invoice
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+  <span id="toastMsg">Add at least one item to complete the invoice</span>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ EDIT THESE ============ */
+  var cart = [
+    { id:1, name:"iPhone 15 Pro · 256GB", variant:"Natural Titanium · 1yr warranty", price:429000, qty:1, icon:"phone" },
+    { id:2, name:"Samsung Galaxy S24 Ultra", variant:"Titanium Black · 512GB", price:389000, qty:1, icon:"phone" },
+    { id:3, name:"AirPods Pro (2nd Gen)", variant:"USB-C · Sealed box", price:58500, qty:1, icon:"headphones" }
+  ];
+  var PROMOS = { "SOLO10": 0.10, "WELCOME5": 0.05 };
+  var CARD_SURCHARGE = 0.03; // 3%
+  /* =================================== */
+
+  var appliedPromo = null;
+  var paymentMethod = "cash";
+  var orderState = "idle"; // idle | processing | done
+  var PAY_LABELS = { cash:"Cash", online:"Online Transfer", card:"Card (Visa/Mastercard)", koko:"KOKO" };
+
+  var fmt = function(n){ return "Rs. " + n.toLocaleString("en-LK"); };
+
+  var phoneIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>';
+  var headphoneIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>';
+  var iconFor = function(k){ return k==="headphones" ? headphoneIcon : phoneIcon; };
+
+  /* ---------- Render cart ---------- */
+  var itemsList = document.getElementById("itemsList");
+  var emptyCart = document.getElementById("emptyCart");
+
+  function renderCart(){
+    itemsList.innerHTML = "";
+    var totalQty = 0;
+    cart.forEach(function(it){
+      totalQty += it.qty;
+      var row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML =
+        '<div class="item-thumb">'+ iconFor(it.icon) +'<span class="qty-badge num">'+it.qty+'</span></div>' +
+        '<div class="item-info">' +
+          '<div class="item-name">'+it.name+'</div>' +
+          '<div class="item-variant">'+it.variant+'</div>' +
+          '<div class="item-bottom">' +
+            '<div class="qty-ctl">' +
+              '<button data-act="dec" data-id="'+it.id+'" aria-label="Decrease">−</button>' +
+              '<span class="qty-val num">'+it.qty+'</span>' +
+              '<button data-act="inc" data-id="'+it.id+'" aria-label="Increase">+</button>' +
+            '</div>' +
+            '<span class="item-price num">'+fmt(it.price*it.qty)+'</span>' +
+            '<button class="item-remove" data-act="rm" data-id="'+it.id+'" aria-label="Remove">' +
+              '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      itemsList.appendChild(row);
+    });
+    document.getElementById("itemCountTag").textContent = totalQty + (totalQty===1?" item":" items");
+    emptyCart.style.display = cart.length ? "none" : "block";
+    recalc();
+  }
+
+  itemsList.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-act]");
+    if(!btn) return;
+    var id = parseInt(btn.getAttribute("data-id"),10);
+    var act = btn.getAttribute("data-act");
+    var it = cart.find(function(x){return x.id===id;});
+    if(!it) return;
+    if(act==="inc") it.qty = Math.min(9, it.qty+1);
+    if(act==="dec"){ it.qty--; if(it.qty<=0){ cart = cart.filter(function(x){return x.id!==id;}); } }
+    if(act==="rm"){ cart = cart.filter(function(x){return x.id!==id;}); }
+    renderCart();
+  });
+
+  /* ---------- Totals ---------- */
+  function recalc(){
+    var sub = cart.reduce(function(s,it){return s + it.price*it.qty;},0);
+    var discount = appliedPromo ? Math.round(sub * PROMOS[appliedPromo]) : 0;
+    var afterDiscount = sub - discount;
+    var surcharge = (paymentMethod==="card") ? Math.round(afterDiscount * CARD_SURCHARGE) : 0;
+    var grand = afterDiscount + surcharge;
+
+    document.getElementById("subTotal").textContent = fmt(sub);
+
+    var dRow = document.getElementById("discountRow");
+    if(appliedPromo){
+      dRow.style.display = "flex";
+      document.getElementById("discountLabel").textContent = "("+appliedPromo+" · "+Math.round(PROMOS[appliedPromo]*100)+"%)";
+      document.getElementById("discountVal").textContent = "− " + fmt(discount);
+    } else { dRow.style.display = "none"; }
+
+    var sRow = document.getElementById("surchargeRow");
+    if(paymentMethod==="card"){
+      sRow.style.display = "flex";
+      document.getElementById("surchargeVal").textContent = "+ " + fmt(surcharge);
+    } else { sRow.style.display = "none"; }
+
+    document.getElementById("grandTotal").textContent = grand.toLocaleString("en-LK");
+    return { sub:sub, discount:discount, surcharge:surcharge, grand:grand };
+  }
+
+  /* ---------- Payment selection ---------- */
+  document.querySelectorAll(".pay-opt").forEach(function(p){
+    p.addEventListener("click", function(){
+      document.querySelectorAll(".pay-opt").forEach(function(o){o.classList.remove("sel");});
+      p.classList.add("sel");
+      paymentMethod = p.getAttribute("data-pay");
+      document.querySelectorAll(".pay-note").forEach(function(n){n.classList.remove("show");});
+      var note = document.getElementById("note-"+paymentMethod);
+      if(note) note.classList.add("show");
+      recalc();
+    });
+  });
+
+  /* ---------- Promo ---------- */
+  var promoInput = document.getElementById("promoInput");
+  var promoMsg = document.getElementById("promoMsg");
+  document.getElementById("promoBtn").addEventListener("click", function(){
+    var code = promoInput.value.trim().toUpperCase();
+    if(!code){ promoMsg.className="promo-msg bad"; promoMsg.textContent="Enter a promo code first."; return; }
+    if(PROMOS[code]){
+      appliedPromo = code;
+      promoMsg.className="promo-msg ok";
+      promoMsg.textContent = "Applied: "+Math.round(PROMOS[code]*100)+"% off!";
+    } else {
+      appliedPromo = null;
+      promoMsg.className="promo-msg bad";
+      promoMsg.textContent = "Invalid code. Try SOLO10 or WELCOME5.";
+    }
+    recalc();
+  });
+
+  /* ---------- Toast ---------- */
+  var toast = document.getElementById("toast");
+  var toastTimer = null;
+  function showToast(msg){
+    document.getElementById("toastMsg").textContent = msg;
+    toast.classList.add("show");
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove("show"); }, 3000);
+  }
+
+  /* ---------- Complete invoice ---------- */
+  var completeBtn = document.getElementById("completeBtn");
+  completeBtn.addEventListener("click", function(){
+    if(orderState!=="idle") return;
+    if(cart.length===0){ showToast("Add at least one item to complete the invoice."); return; }
+
+    orderState = "processing";
+    completeBtn.classList.add("loading");
+    completeBtn.disabled = true;
+    completeBtn.querySelector(".btn-label").textContent = "Generating…";
+
+    var start = performance.now(), duration = 1400;
+    function frame(now){
+      var p = Math.min(1, (now-start)/duration);
+      if(p<1){ requestAnimationFrame(frame); }
+      else {
+        orderState = "done";
+        completeBtn.classList.remove("loading");
+        completeBtn.disabled = false;
+        completeBtn.querySelector(".btn-label").textContent = "Complete Invoice";
+        showInvoice();
+        orderState = "idle";
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function showInvoice(){
+    var t = recalc();
+    var orderNo = "SL-" + String(Math.floor(100000 + Math.random()*900000));
+    document.getElementById("invNo").textContent = orderNo;
+
+    var d = new Date();
+    var pad = function(n){return (n<10?"0":"")+n;};
+    document.getElementById("invDate").textContent =
+      pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()+" · "+pad(d.getHours())+":"+pad(d.getMinutes());
+
+    var invItems = document.getElementById("invItems");
+    invItems.innerHTML = "";
+    cart.forEach(function(it){
+      var row = document.createElement("div");
+      row.className = "inv-item";
+      row.innerHTML =
+        '<span class="it-name">'+escapeHtml(it.name)+' <small>'+it.qty+' × '+fmt(it.price)+'</small></span>' +
+        '<span class="it-amt num">'+fmt(it.price*it.qty)+'</span>';
+      invItems.appendChild(row);
+    });
+
+    document.getElementById("invSub").textContent = fmt(t.sub);
+    var dRow = document.getElementById("invDiscRow");
+    if(appliedPromo){
+      dRow.style.display = "flex";
+      document.getElementById("invDiscLabel").textContent = "("+appliedPromo+")";
+      document.getElementById("invDisc").textContent = "− " + fmt(t.discount);
+    } else { dRow.style.display = "none"; }
+
+    var sRow = document.getElementById("invSurRow");
+    if(paymentMethod==="card"){
+      sRow.style.display = "flex";
+      document.getElementById("invSur").textContent = "+ " + fmt(t.surcharge);
+    } else { sRow.style.display = "none"; }
+
+    document.getElementById("invGrand").textContent = fmt(t.grand);
+    document.getElementById("invPay").textContent = PAY_LABELS[paymentMethod] || paymentMethod;
+
+    document.getElementById("invoiceOverlay").classList.add("show");
+  }
+
+  document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
+  document.getElementById("newInvBtn").addEventListener("click", function(){
+    document.getElementById("invoiceOverlay").classList.remove("show");
+    // reset for a fresh invoice
+    appliedPromo = null;
+    promoInput.value = "";
+    promoMsg.className = "promo-msg";
+    promoMsg.textContent = "";
+    renderCart();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+  document.getElementById("invoiceOverlay").addEventListener("click", function(e){
+    if(e.target===this) this.classList.remove("show");
+  });
+
+  renderCart();
+})();
+</script>
+</body>
+</html>

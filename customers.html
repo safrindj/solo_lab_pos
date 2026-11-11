@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Management — SOLO LAB MOBILE</title>
+  <script src="sidebar.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f3f4f6; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    h1 { font-size: 24px; color: #111827; }
+    .btn { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; }
+    .btn-primary { background: #dc2626; color: white; }
+    .btn-primary:hover { background: #b91c1c; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    
+    .search-bar { margin-bottom: 20px; }
+    .search-bar input { width: 100%; max-width: 400px; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; }
+    
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    
+    /* Form Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { font-size: 18px; margin-bottom: 18px; color: #111827; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; color: #374151; margin-bottom: 6px; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    
+    /* Table */
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+    th { background: #f9fafb; font-weight: 600; color: #374151; }
+    tr:hover { background: #fefefe; }
+    .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
+    .customer-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: white; padding: 16px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .stat-value { font-size: 22px; font-weight: bold; color: #dc2626; }
+    .stat-label { font-size: 12px; color: #6b7280; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div style="padding: 25px;">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>👥 Customer Management</h1>
+      <button class="btn btn-primary" onclick="openModal()">➕ Add New Customer</button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="customer-stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalCustomers">0</div>
+        <div class="stat-label">Total Customers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalSpent">Rs. 0</div>
+        <div class="stat-label">Total Purchases</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="recentCustomers">0</div>
+        <div class="stat-label">New This Month</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Search customers by name, phone or email..." oninput="renderCustomers()">
+    </div>
+
+    <!-- Customer List -->
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Total Spent</th>
+              <th>Last Visit</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="customerTableBody">
+            <tr><td colspan="6" class="empty-state">No customers yet. Click "Add New Customer" to get started!</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Customer Modal -->
+  <div class="modal-overlay" id="customerModal">
+    <div class="modal">
+      <h3 id="modalTitle">Add New Customer</h3>
+      <form id="customerForm">
+        <input type="hidden" id="customerId">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="customerName" required placeholder="e.g. John Perera">
+        </div>
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" id="customerPhone" required placeholder="e.g. 0771234567">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="customerEmail" placeholder="email@example.com">
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <textarea id="customerAddress" placeholder="Optional"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Customer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let customers = JSON.parse(localStorage.getItem('shopCustomers')) || [];
+    let editMode = false;
+
+    // Save to localStorage
+    function saveCustomers() {
+      localStorage.setItem('shopCustomers', JSON.stringify(customers));
+      updateStats();
+      renderCustomers();
+    }
+
+    // Update dashboard stats
+    function updateStats() {
+      document.getElementById('totalCustomers').textContent = customers.length;
+      
+      const total = customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+      document.getElementById('totalSpent').textContent = 'Rs. ' + total.toLocaleString();
+      
+      const thisMonth = customers.filter(c => {
+        if (!c.createdAt) return false;
+        const created = new Date(c.createdAt);
+        const now = new Date();
+        return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+      }).length;
+      document.getElementById('recentCustomers').textContent = thisMonth;
+    }
+
+    // Render customer list
+    function renderCustomers() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      const tbody = document.getElementById('customerTableBody');
+      
+      let filtered = customers.filter(c => {
+        return !searchTerm || 
+          c.name.toLowerCase().includes(searchTerm) ||
+          c.phone.includes(searchTerm) ||
+          (c.email && c.email.toLowerCase().includes(searchTerm));
+      });
+      
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${searchTerm ? 'No matching customers found' : 'No customers yet. Click "Add New Customer" to get started!'}</td></tr>`;
+        return;
+      }
+      
+      tbody.innerHTML = filtered.map(c => `
+        <tr>
+          <td><strong>${escapeHtml(c.name)}</strong></td>
+          <td>${escapeHtml(c.phone)}</td>
+          <td>${c.email ? escapeHtml(c.email) : '<span style="color:#9ca3af">—</span>'}</td>
+          <td style="font-weight:500">Rs. ${(c.totalSpent || 0).toLocaleString()}</td>
+          <td>${c.lastVisit ? new Date(c.lastVisit).toLocaleDateString('en-GB') : '<span style="color:#9ca3af">—</span>'}</td>
+          <td style="text-align:right">
+            <button class="btn btn-secondary btn-sm" onclick="editCustomer('${c.id}')">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${c.id}')">🗑️ Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Open modal
+    function openModal() {
+      editMode = false;
+      document.getElementById('modalTitle').textContent = 'Add New Customer';
+      document.getElementById('customerForm').reset();
+      document.getElementById('customerId').value = '';
+      document.getElementById('customerModal').classList.add('show');
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('customerModal').classList.remove('show');
+    }
+
+    // Edit customer
+    function editCustomer(id) {
+      const customer = customers.find(c => c.id === id);
+      if (!customer) return;
+      
+      editMode = true;
+      document.getElementById('modalTitle').textContent = 'Edit Customer';
+      document.getElementById('customerId').value = customer.id;
+      document.getElementById('customerName').value = customer.name;
+      document.getElementById('customerPhone').value = customer.phone;
+      document.getElementById('customerEmail').value = customer.email || '';
+      document.getElementById('customerAddress').value = customer.address || '';
+      document.getElementById('customerModal').classList.add('show');
+    }
+
+    // Save customer
+    document.getElementById('customerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('customerPhone').value.trim();
+      const email = document.getElementById('customerEmail').value.trim();
+      const address = document.getElementById('customerAddress').value.trim();
+      
+      if (editMode) {
+        // Update existing
+        const id = document.getElementById('customerId').value;
+        const index = customers.findIndex(c => c.id === id);
+        if (index !== -1) {
+          customers[index] = {
+            ...customers[index],
+            name,
+            phone,
+            email,
+            address,
+            updatedAt: new Date().toISOString()
+          };
+        }
+      } else {
+        // Add new
+        customers.unshift({
+          id: 'CUST-' + Date.now().toString().slice(-8),
+          name,
+          phone,
+          email,
+          address,
+          totalSpent: 0,
+          createdAt: new Date().toISOString(),
+          lastVisit: null
+        });
+      }
+      
+      saveCustomers();
+      closeModal();
+    });
+
+    // Delete customer
+    function deleteCustomer(id) {
+      if (!confirm('Are you sure you want to delete this customer?')) return;
+      customers = customers.filter(c => c.id !== id);
+      saveCustomers();
+    }
+
+    // Helper: escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('customerModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // Initialize
+    updateStats();
+    renderCustomers();
+  </script>
+</body>
+</html>

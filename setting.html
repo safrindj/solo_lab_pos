@@ -1,0 +1,25 @@
+<div class="card">
+  <h3>🔐 Security Settings</h3>
+  <div class="form-group">
+    <label>Master Password (for deleting history)</label>
+    <input type="text" id="masterPasswordDisplay" value="••••••••" readonly style="background:#f3f4f6;">
+    <button class="btn btn-secondary btn-sm" onclick="setMasterPassword()">Change Master Password</button>
+  </div>
+</div>
+
+<script>
+  function setMasterPassword() {
+    const newPass = prompt('Enter new Master Password:');
+    if (newPass && newPass.length >= 4) {
+      localStorage.setItem('masterPassword', newPass);
+      alert('✅ Master password set successfully!');
+    } else if (newPass) {
+      alert('❌ Password must be at least 4 characters');
+    }
+  }
+  
+  // Set default on first run if none exists
+  if (!localStorage.getItem('masterPassword')) {
+    localStorage.setItem('masterPassword', 'admin123');
+  }
+</script>

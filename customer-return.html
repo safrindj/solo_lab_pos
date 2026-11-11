@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Returns — SOLO LAB MOBILES</title>
+  <script src="sidebar.js"></script>
+  <style>
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .search-box { flex: 1; min-width: 220px; }
+    
+    .return-card {
+      background: white;
+      border-left: 4px solid #F57C00;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .return-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .cust-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: #212121;
+    }
+    .return-date {
+      font-size: 13px;
+      color: #757575;
+    }
+    .return-details {
+      background: #FFF8F0;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+    }
+    .reason-box {
+      border-left: 3px solid #FFB74D;
+      padding-left: 10px;
+      margin-top: 6px;
+      font-size: 14px;
+      color: #424242;
+    }
+    .refund-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: #E65100;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 450px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h3 {
+      margin-top: 0;
+      color: #212121;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #424242;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #FFE0B2;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      box-sizing: border-box;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #F57C00;
+      box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.12);
+    }
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #FFE0B2;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+    }
+    select:focus {
+      outline: none;
+      border-color: #F57C00;
+    }
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+    .btn-secondary {
+      background: #E0E0E0;
+      color: #212121;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #757575;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-pending { background: #FFF3E0; color: #E65100; }
+    .status-refunded { background: #E8F5E9; color: #2E7D32; }
+    .status-rejected { background: #FFEBEE; color: #C62828; }
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>↩️ Customer Returns</h1>
+    <p>Record and manage product returns from customers</p>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by customer or product..." oninput="renderReturns()">
+    <button class="btn btn-primary" onclick="openModal()">➕ New Return</button>
+  </div>
+
+  <!-- Return List -->
+  <div id="returnList"></div>
+
+  <!-- Add Return Modal -->
+  <div class="modal-overlay" id="returnModal">
+    <div class="modal">
+      <h3>Record Product Return</h3>
+      <form id="returnForm">
+        <div class="form-group">
+          <label>Customer Name *</label>
+          <input type="text" id="custName" required placeholder="Enter customer name">
+        </div>
+        
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="custPhone" placeholder="Customer contact number">
+        </div>
+        
+        <div class="form-group">
+          <label>Product Name / Item Returned *</label>
+          <input type="text" id="productName" required placeholder="Name of the product">
+        </div>
+        
+        <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="returnQty" min="1" value="1" required>
+          </div>
+          <div class="form-group">
+            <label>Refund Amount (LKR)</label>
+            <input type="number" id="refundAmount" step="0.01" min="0" placeholder="0.00">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Reason for Return *</label>
+          <select id="returnReason" required>
+            <option value="">Select reason...</option>
+            <option value="Defective / Faulty">Defective / Faulty</option>
+            <option value="Wrong Item Delivered">Wrong Item Delivered</option>
+            <option value="Not as Described">Not as Described</option>
+            <option value="Changed Mind">Changed Mind</option>
+            <option value="Warranty Claim">Warranty Claim</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Additional Notes</label>
+          <textarea id="returnNotes" placeholder="Condition, details, etc."></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Status</label>
+          <select id="returnStatus">
+            <option value="pending" selected>Pending</option>
+            <option value="refunded">Refunded</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Return</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let returns = [];
+    
+    function loadReturns() {
+      returns = JSON.parse(localStorage.getItem('shopReturns') || '[]');
+      renderReturns();
+    }
+    
+    function renderReturns() {
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const container = document.getElementById('returnList');
+      
+      let filtered = returns;
+      if (search) {
+        filtered = returns.filter(r => 
+          r.customerName.toLowerCase().includes(search) ||
+          r.productName.toLowerCase().includes(search) ||
+          r.reason.toLowerCase().includes(search)
+        );
+      }
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p style="font-size:40px; margin-bottom:10px;">↩️</p>
+            <p>${returns.length === 0 ? 'No returns recorded yet.' : 'No matching returns found.'}</p>
+            <p style="font-size:13px; margin-top:5px;">Click "New Return" to record your first return</p>
+          </div>`;
+        return;
+      }
+      
+      // Sort: newest first
+      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      container.innerHTML = filtered.map(r => {
+        const statusClass = r.status === 'refunded' ? 'status-refunded' :
+                            r.status === 'rejected' ? 'status-rejected' : 'status-pending';
+        return `
+          <div class="return-card">
+            <div class="return-header">
+              <div>
+                <div class="cust-name">${escapeHtml(r.customerName)}</div>
+                <div class="return-date">📅 ${r.date} — ${r.time}</div>
+              </div>
+              <span class="status-badge ${statusClass}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span>
+            </div>
+            <div class="return-details">
+              <div><strong>Item:</strong> ${escapeHtml(r.productName)}</div>
+              <div><strong>Qty:</strong> ${r.quantity}</div>
+              ${r.refundAmount ? `<div class="refund-amount">Refund: LKR ${r.refundAmount.toLocaleString()}</div>` : ''}
+              <div class="reason-box"><strong>Reason:</strong> ${escapeHtml(r.reason)}</div>
+              ${r.notes ? `<div style="margin-top:6px; font-size:13px; color:#616161;"><strong>Notes:</strong> ${escapeHtml(r.notes)}</div>` : ''}
+            </div>
+            <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:8px;">
+              <button class="btn btn-secondary btn-sm" onclick="editReturn('${r.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteReturn('${r.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function openModal() {
+      document.getElementById('returnForm').reset();
+      document.getElementById('returnStatus').value = 'pending';
+      document.getElementById('returnModal').classList.add('show');
+    }
+    
+    function closeModal() {
+      document.getElementById('returnModal').classList.remove('show');
+    }
+    
+    function editReturn(id) {
+      const r = returns.find(x => x.id === id);
+      if (!r) return;
+      
+      document.getElementById('custName').value = r.customerName;
+      document.getElementById('custPhone').value = r.customerPhone || '';
+      document.getElementById('productName').value = r.productName;
+      document.getElementById('returnQty').value = r.quantity;
+      document.getElementById('refundAmount').value = r.refundAmount || '';
+      document.getElementById('returnReason').value = r.reason;
+      document.getElementById('returnNotes').value = r.notes || '';
+      document.getElementById('returnStatus').value = r.status;
+      document.getElementById('returnModal').classList.add('show');
+      // Store editing ID temporarily
+      document.getElementById('returnForm').dataset.editId = id;
+    }
+    
+    function deleteReturn(id) {
+      if (!confirm('Delete this return record?')) return;
+      returns = returns.filter(r => r.id !== id);
+      localStorage.setItem('shopReturns', JSON.stringify(returns));
+      renderReturns();
+    }
+    
+    document.getElementById('returnForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const editId = this.dataset.editId;
+      const today = new Date();
+      const dateStr = today.toLocaleDateString();
+      const timeStr = today.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      
+      const returnData = {
+        id: editId || 'RET-' + Date.now(),
+        customerName: document.getElementById('custName').value.trim(),
+        customerPhone: document.getElementById('custPhone').value.trim(),
+        productName: document.getElementById('productName').value.trim(),
+        quantity: parseInt(document.getElementById('returnQty').value) || 1,
+        refundAmount: parseFloat(document.getElementById('refundAmount').value) || 0,
+        reason: document.getElementById('returnReason').value,
+        notes: document.getElementById('returnNotes').value.trim(),
+        status: document.getElementById('returnStatus').value,
+        date: editId ? returns.find(r=>r.id===editId).date : dateStr,
+        time: editId ? returns.find(r=>r.id===editId).time : timeStr,
+        updatedAt: dateStr + ' ' + timeStr
+      };
+      
+      if (editId) {
+        const idx = returns.findIndex(r => r.id === editId);
+        if (idx !== -1) returnss[idx] = returnData;
+        delete this.dataset.editId;
+      } else {
+        returns.unshift(returnData);
+      }
+      
+      localStorage.setItem('shopReturns', JSON.stringify(returns));
+      closeModal();
+      renderReturns();
+      alert('✅ Return saved successfully!');
+    });
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+    
+    loadReturns();
+  </script>
+</body>
+</html>

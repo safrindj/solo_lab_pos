@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory — SOLO LAB MOBILES</title>
+  <script src="sidebar.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #F9FAFB; padding: 20px; }
+
+    .page-header { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #FFE0B2; }
+    .page-header h1 { font-size: 24px; color: #212121; }
+    .page-header p { color: #757575; margin-top: 5px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+    .stat-card { background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #F57C00; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .stat-value { font-size: 24px; font-weight: bold; color: #E65100; }
+    .stat-label { font-size: 12px; color: #757575; margin-top: 5px; }
+
+    .toolbar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    input, select { padding: 10px; border: 2px solid #FFE0B2; border-radius: 6px; font-size: 14px; }
+    input:focus, select:focus { outline: none; border-color: #F57C00; }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+
+    .btn-primary { background: #F57C00; color: white; }
+    .btn-success { background: #2E7D32; color: white; }
+    .btn-warning { background: #F57C00; color: white; }
+    .btn-danger { background: #C62828; color: white; }
+    .btn-secondary { background: #E0E0E0; color: #333; }
+    .btn-sm { padding: 5px 10px; font-size: 12px; margin: 0 2px; }
+
+    .table-wrap { overflow-x: auto; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    th { background: #F57C00; color: white; padding: 12px 10px; text-align: left; font-size: 13px; }
+    td { padding: 12px 10px; border-bottom: 1px solid #FFE0B2; font-size: 14px; }
+    tr:hover td { background: #FFF8F0; }
+    .empty { text-align: center; padding: 40px; color: #757575; }
+    .out-of-stock td { background: #FFEBEE; color: #C62828; }
+    .low-stock td { background: #FFF3E0; color: #E65100; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 { margin-bottom: 20px; color: #212121; font-size: 20px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: 500; color: #424242; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; }
+    .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    textarea { width: 100%; min-height: 120px; padding: 10px; border: 2px solid #FFE0B2; border-radius: 6px; font-family: monospace; font-size: 12px; }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>📦 Inventory Management</h1>
+    <p>Add, edit and manage your products</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="totalProducts">0</div>
+      <div class="stat-label">Total Products</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="totalQty">0</div>
+      <div class="stat-label">Total Stock</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="lowStock">0</div>
+      <div class="stat-label">Low Stock</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="outOfStock">0</div>
+      <div class="stat-label">Out of Stock</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="searchInput" placeholder="🔍 Search products..." aria-label="Search products">
+    <select id="catFilter" aria-label="Filter by category">
+      <option value="">All Categories</option>
+    </select>
+    <button type="button" class="btn-success" id="btnAdd">➕ Add Product</button>
+    <button type="button" class="btn-warning" id="btnBulk">📥 Bulk Import</button>
+    <button type="button" class="btn-secondary" id="btnExport">📋 Export</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Cost</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="productTableBody">
+        <tr><td colspan="7" class="empty">No products yet. Click "Add Product" to start!</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-overlay" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <h2 id="modalTitle">Add New Product</h2>
+      <div class="form-group">
+        <label for="pCode">Product Code *</label>
+        <input type="text" id="pCode" placeholder="e.g. PH001" required>
+      </div>
+      <div class="form-group">
+        <label for="pName">Product Name *</label>
+        <input type="text" id="pName" placeholder="Product name" required>
+      </div>
+      <div class="form-group">
+        <label for="pCat">Category *</label>
+        <select id="pCat" required>
+          <option value="">Select Category</option>
+          <option value="Mobile Phones">Mobile Phones</option>
+          <option value="Cables">Cables</option>
+          <option value="Chargers">Chargers</option>
+          <option value="Headphones">Headphones</option>
+          <option value="Speakers">Speakers</option>
+          <option value="Accessories">Accessories</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="pCost">Cost Price (LKR) *</label>
+        <input type="number" step="0.01" min="0" id="pCost" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label for="pPrice">Retail Price (LKR) *</label>
+        <input type="number" step="0.01" min="0" id="pPrice" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label for="pStock">Stock Quantity *</label>
+        <input type="number" step="1" min="0" id="pStock" placeholder="0" required>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn-secondary" id="closeModalBtn">Cancel</button>
+        <button type="button" class="btn-primary" id="saveProductBtn">Save Product</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="bulkModal" role="dialog" aria-modal="true" aria-labelledby="bulkTitle">
+    <div class="modal">
+      <h2 id="bulkTitle">📥 Bulk Import Products</h2>
+      <p style="font-size:13px; color:#666; margin-bottom:15px;">
+        Format: Code, Name, Category, Cost, Price, Stock — one product per line
+      </p>
+      <div class="form-group">
+        <label for="bulkData">Paste products here:</label>
+        <textarea id="bulkData" placeholder="MB001,Samsung A54,Mobile Phones,65000,72000,8&#10;CH001,65W Charger,Chargers,2500,3500,12"></textarea>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn-secondary" id="closeBulkBtn">Cancel</button>
+        <button type="button" class="btn-primary" id="doBulkImport">Import All</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'sololab_products';
+    let products = [];
+    let editingId = null;
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const parsed = saved ? JSON.parse(saved) : [];
+        products = Array.isArray(parsed) ? parsed.filter(isValidStoredProduct) : [];
+      } catch (error) {
+        console.error('Could not load inventory data:', error);
+        products = [];
+        alert('Saved inventory data could not be read. Starting with an empty inventory.');
+      }
+
+      updateStats();
+      updateCategoryFilter();
+      renderProducts();
+    }
+
+    function isValidStoredProduct(product) {
+      return product &&
+        product.id !== undefined &&
+        typeof product.code === 'string' &&
+        typeof product.name === 'string' &&
+        typeof product.category === 'string';
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+      } catch (error) {
+        console.error('Could not save inventory data:', error);
+        alert('Inventory could not be saved. Check browser storage availability.');
+      }
+
+      updateStats();
+      updateCategoryFilter();
+      renderProducts();
+    }
+
+    function getNextId() {
+      const highestId = products.reduce((highest, product) => {
+        const id = Number(product.id);
+        return Number.isFinite(id) ? Math.max(highest, id) : highest;
+      }, 0);
+
+      return highestId + 1;
+    }
+
+    function updateStats() {
+      document.getElementById('totalProducts').textContent = products.length;
+      document.getElementById('totalQty').textContent = products.reduce(
+        (sum, product) => sum + (Number(product.stock) || 0),
+        0
+      );
+      document.getElementById('lowStock').textContent = products.filter(
+        product => Number(product.stock) > 0 && Number(product.stock) <= 3
+      ).length;
+      document.getElementById('outOfStock').textContent = products.filter(
+        product => Number(product.stock) === 0
+      ).length;
+    }
+
+    function updateCategoryFilter() {
+      const select = document.getElementById('catFilter');
+      const previousValue = select.value;
+      const categories = [...new Set(
+        products.map(product => product.category.trim()).filter(Boolean)
+      )].sort((a, b) => a.localeCompare(b));
+
+      select.replaceChildren(new Option('All Categories', ''));
+
+      categories.forEach(category => {
+        select.add(new Option(category, category));
+      });
+
+      if (categories.includes(previousValue)) {
+        select.value = previousValue;
+      }
+    }
+
+    function renderProducts() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const category = document.getElementById('catFilter').value;
+      const tbody = document.getElementById('productTableBody');
+
+      const filteredProducts = products.filter(product => {
+        const matchesSearch = !search ||
+          product.name.toLowerCase().includes(search) ||
+          product.code.toLowerCase().includes(search);
+        const matchesCategory = !category || product.category === category;
+        return matchesSearch && matchesCategory;
+      });
+
+      tbody.replaceChildren();
+
+      if (filteredProducts.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 7;
+        cell.className = 'empty';
+        cell.textContent = products.length
+          ? 'No products found'
+          : 'No products yet. Click "Add Product" to start!';
+        row.appendChild(cell);
+        tbody.appendChild(row);
+        return;
+      }
+
+      filteredProducts.forEach(product => {
+        const stock = Number(product.stock) || 0;
+        const row = document.createElement('tr');
+
+        if (stock === 0) {
+          row.className = 'out-of-stock';
+        } else if (stock <= 3) {
+          row.className = 'low-stock';
+        }
+
+        [
+          product.code,
+          product.name,
+          product.category,
+          `LKR ${formatMoney(product.cost)}`,
+          `LKR ${formatMoney(product.price)}`,
+          String(stock)
+        ].forEach(value => {
+          const cell = document.createElement('td');
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+
+        const actions = document.createElement('td');
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'btn-sm btn-primary';
+        editButton.dataset.edit = String(product.id);
+        editButton.textContent = 'Edit';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn-sm btn-danger';
+        deleteButton.dataset.delete = String(product.id);
+        deleteButton.textContent = 'Del';
+
+        actions.append(editButton, deleteButton);
+        row.appendChild(actions);
+        tbody.appendChild(row);
+      });
+    }
+
+    function formatMoney(value) {
+      const amount = Number(value);
+      return Number.isFinite(amount) ? amount.toFixed(2) : '0.00';
+    }
+
+    function openProductModal(product = null) {
+      editingId = product ? product.id : null;
+      document.getElementById('modalTitle').textContent = product
+        ? 'Edit Product'
+        : 'Add New Product';
+
+      document.getElementById('pCode').value = product ? product.code : '';
+      document.getElementById('pName').value = product ? product.name : '';
+      document.getElementById('pCat').value = product ? product.category : '';
+      document.getElementById('pCost').value = product ? product.cost : '';
+      document.getElementById('pPrice').value = product ? product.price : '';
+      document.getElementById('pStock').value = product ? product.stock : '';
+
+      document.getElementById('productModal').classList.add('active');
+      document.getElementById('pCode').focus();
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').classList.remove('active');
+      editingId = null;
+    }
+
+    document.getElementById('btnAdd').addEventListener('click', () => {
+      openProductModal();
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', closeProductModal);
+
+    document.getElementById('saveProductBtn').addEventListener('click', () => {
+      const code = document.getElementById('pCode').value.trim();
+      const name = document.getElementById('pName').value.trim();
+      const category = document.getElementById('pCat').value;
+      const costText = document.getElementById('pCost').value;
+      const priceText = document.getElementById('pPrice').value;
+      const stockText = document.getElementById('pStock').value;
+      const cost = Number(costText);
+      const price = Number(priceText);
+      const stock = Number(stockText);
+
+      if (
+        !code || !name || !category ||
+        costText === '' || priceText === '' || stockText === '' ||
+        !Number.isFinite(cost) || cost < 0 ||
+        !Number.isFinite(price) || price < 0 ||
+        !Number.isInteger(stock) || stock < 0
+      ) {
+        alert('Please enter valid values in all required fields. Prices and stock cannot be negative, and stock must be a whole number.');
+        return;
+      }
+
+      const duplicateCode = products.some(product =>
+        product.code.toLowerCase() === code.toLowerCase() &&
+        product.id !== editingId
+      );
+
+      if (duplicateCode) {
+        alert('A product with that code already exists.');
+        return;
+      }
+
+      if (editingId !== null) {
+        const index = products.findIndex(product => product.id === editingId);
+        if (index === -1) {
+          alert('The product could not be found.');
+          closeProductModal();
+          return;
+        }
+
+        products[index] = { id: editingId, code, name, category, cost, price, stock };
+      } else {
+        products.push({ id: getNextId(), code, name, category, cost, price, stock });
+      }
+
+      saveData();
+      closeProductModal();
+    });
+
+    document.getElementById('btnBulk').addEventListener('click', () => {
+      document.getElementById('bulkData').value = '';
+      document.getElementById('bulkModal').classList.add('active');
+      document.getElementById('bulkData').focus();
+    });
+
+    document.getElementById('closeBulkBtn').addEventListener('click', () => {
+      document.getElementById('bulkModal').classList.remove('active');
+    });
+
+    document.getElementById('doBulkImport').addEventListener('click', () => {
+      const text = document.getElementById('bulkData').value.trim();
+
+      if (!text) {
+        alert('Please paste some data first.');
+        return;
+      }
+
+      let added = 0;
+      let skipped = 0;
+      const lines = text.split(/\r?\n/);
+
+      lines.forEach(line => {
+        const parts = line.split(',').map(part => part.trim());
+
+        if (parts.length !== 6) {
+          skipped++;
+          return;
+        }
+
+        const [code, name, category, costText, priceText, stockText] = parts;
+        const cost = Number(costText);
+        const price = Number(priceText);
+        const stock = Number(stockText);
+
+        const invalid = !code || !name || !category ||
+          costText === '' || priceText === '' || stockText === '' ||
+          !Number.isFinite(cost) || cost < 0 ||
+          !Number.isFinite(price) || price < 0 ||
+          !Number.isInteger(stock) || stock < 0;
+
+        const duplicate = products.some(product =>
+          product.code.toLowerCase() === code.toLowerCase()
+        );
+
+        if (invalid || duplicate) {
+          skipped++;
+          return;
+        }
+
+        products.push({
+          id: getNextId(),
+          code,
+          name,
+          category,
+          cost,
+          price,
+          stock
+        });
+        added++;
+      });
+
+      saveData();
+      document.getElementById('bulkModal').classList.remove('active');
+      alert(`Import complete. Added: ${added} | Skipped (invalid rows or duplicate codes): ${skipped}`);
+    });
+
+    document.getElementById('btnExport').addEventListener('click', () => {
+      if (products.length === 0) {
+        alert('No products to export.');
+        return;
+      }
+
+      const escapeCsv = value =>
+        `"${String(value ?? '').replace(/"/g, '""')}"`;
+
+      const rows = [
+        ['Code', 'Name', 'Category', 'Cost Price', 'Retail Price', 'Stock'],
+        ...products.map(product => [
+          product.code,
+          product.name,
+          product.category,
+          product.cost,
+          product.price,
+          product.stock
+        ])
+      ];
+
+      const csv = rows.map(row => row.map(escapeCsv).join(',')).join('\r\n');
+      const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = `inventory-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('productTableBody').addEventListener('click', event => {
+      const editButton = event.target.closest('[data-edit]');
+      const deleteButton = event.target.closest('[data-delete]');
+
+      if (editButton) {
+        const product = products.find(item =>
+          String(item.id) === editButton.dataset.edit
+        );
+        if (product) openProductModal(product);
+        return;
+      }
+
+      if (deleteButton) {
+        const product = products.find(item =>
+          String(item.id) === deleteButton.dataset.delete
+        );
+
+        if (product && confirm(`Delete "${product.name}"?`)) {
+          products = products.filter(item => item.id !== product.id);
+          saveData();
+        }
+      }
+    });
+
+    document.getElementById('searchInput').addEventListener('input', renderProducts);
+    document.getElementById('catFilter').addEventListener('change', renderProducts);
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', event => {
+        if (event.target === overlay) {
+          overlay.classList.remove('active');
+          if (overlay.id === 'productModal') editingId = null;
+        }
+      });
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(overlay => {
+          overlay.classList.remove('active');
+        });
+        editingId = null;
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
