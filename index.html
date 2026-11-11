@@ -224,8 +224,15 @@ console.log('✅ Categories loaded:', Object.keys(CATEGORIES).length, 'groups');
    </script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Arial;background:#f3f4f6;display:flex;min-height:100vh}
-
+    body {
+  font-family: Arial;
+  background: #f3f4f6;
+  padding-left: 232px; /* Make room for fixed sidebar */
+  min-height: 100vh;
+}
+@media (max-width: 860px) {
+  body { padding-left: 0; }
+}
     /* ===== LEFT SIDEBAR ===== */
     .sidebar{width:220px;background:#fff;padding:20px 12px;box-shadow:2px 0 8px rgba(0,0,0,.05);flex-shrink:0}
     .brand{display:flex;align-items:center;gap:10px;padding:0 8px 20px;border-bottom:1px solid #f3f4f6;margin-bottom:15px}
