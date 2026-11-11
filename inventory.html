@@ -285,18 +285,15 @@ async function gsSave(tabName, objects, headers) {
         typeof product.category === 'string';
     }
 
-    function saveData() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-      } catch (error) {
-        console.error('Could not save inventory data:', error);
-        alert('Inventory could not be saved. Check browser storage availability.');
-      }
+  async function saveData() {
+  const headers = ['id','code','name','category','cost','price','stock'];
+  const ok = await gsSave('products', products, headers);
+  if (!ok) return;
+  updateStats();
+  updateCategoryFilter();
+  renderProducts();
+}
 
-      updateStats();
-      updateCategoryFilter();
-      renderProducts();
-    }
 
     function getNextId() {
       const highestId = products.reduce((highest, product) => {
@@ -487,7 +484,7 @@ async function gsSave(tabName, objects, headers) {
         products.push({ id: getNextId(), code, name, category, cost, price, stock });
       }
 
-      saveData();
+      await saveData();
       closeProductModal();
     });
 
@@ -553,7 +550,7 @@ async function gsSave(tabName, objects, headers) {
         added++;
       });
 
-      saveData();
+     await saveData();
       document.getElementById('bulkModal').classList.remove('active');
       alert(`Import complete. Added: ${added} | Skipped (invalid rows or duplicate codes): ${skipped}`);
     });
@@ -611,7 +608,7 @@ async function gsSave(tabName, objects, headers) {
 
         if (product && confirm(`Delete "${product.name}"?`)) {
           products = products.filter(item => item.id !== product.id);
-          saveData();
+         await saveData();
         }
       }
     });
