@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -230,23 +230,7 @@ window.CATEGORIES = CATEGORIES;
   .main{flex:1;min-width:0;display:flex;flex-direction:column}
   .content{flex:1;display:grid;grid-template-columns:1fr 360px;gap:20px;padding:20px 24px 32px;align-items:start}
   @media (max-width:1100px){.content{grid-template-columns:1fr}}
-  @media (max-width:860px){.sidebar{display:none}.content{padding:16px}}
-
-  /* ---------- Sidebar ---------- */
-  .sb-logo{padding:20px 18px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.07)}
-  .sb-logo-mark{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--red),#7f1d1d);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(220,38,38,.4)}
-  .sb-logo-mark svg{width:20px;height:20px}
-  .sb-logo-name{font-weight:800;font-size:15px;color:#fff;letter-spacing:.3px;line-height:1.15}
-  .sb-logo-name small{display:block;font-weight:500;font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--sidebar-dim);margin-top:2px}
-  .nav-group{padding:18px 10px 6px}
-  .nav-group-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--sidebar-dim);font-weight:700;padding:0 10px 10px;display:flex;align-items:center;gap:7px}
-  .nav-group-title .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-  .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;font-size:13px;color:var(--sidebar-text);cursor:pointer;margin-bottom:2px;font-weight:500;transition:background .15s,color .15s}
-  .nav-item svg{width:17px;height:17px;opacity:.85}
-  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
-  .nav-item.active{background:var(--red);color:#fff;font-weight:700;box-shadow:0 4px 12px rgba(220,38,38,.35)}
-  .nav-item.active svg{opacity:1}
-  .nav-item .chev{margin-left:auto;width:14px;height:14px;opacity:.6}
+  @media (max-width:860px){.content{padding:16px}}
 
   /* ---------- Topbar ---------- */
   .topbar{height:64px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20}
@@ -434,46 +418,10 @@ window.CATEGORIES = CATEGORIES;
     .inv-actions{display:none !important}
   }
 </style>
+<script src="sidebar.js"></script>
 </head>
 <body>
 <div class="app">
-
-  <!-- ============ SIDEBAR ============ -->
-  <aside class="sidebar">
-    <a class="sb-logo" href="index.html">
-      <div class="sb-logo-mark">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
-      </div>
-      <div class="sb-logo-name">SOLO LAB<small>Mobile · Kandy</small></div>
-    </a>
-
-    <nav class="nav-group">
-      <div class="nav-group-title"><span class="dot" style="background:var(--red)"></span>Main Hub</div>
-      <a class="nav-item" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>Dashboard</a>
-      <a class="nav-item active" href="checkout.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>POS Billing<svg class="chev" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></a>
-      <a class="nav-item" href="billing.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>Billing</a>
-      <a class="nav-item" href="sale-history.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Sales History</a>
-      <a class="nav-item" href="customers.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customer Management</a>
-      <a class="nav-item" href="customer-return.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7l9 6 9-6"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2"/></svg>Customer Returns</a>
-      <a class="nav-item" href="invoice.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" x2="16" y1="13" y2="13"/><line x1="8" x2="16" y1="17" y2="17"/></svg>Invoices</a>
-    </nav>
-
-    <nav class="nav-group">
-      <div class="nav-group-title"><span class="dot" style="background:#3b82f6"></span>Stock &amp; Inventory</div>
-      <a class="nav-item" href="inventory.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>Inventory Manager</a>
-      <a class="nav-item" href="purchase.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Purchases &amp; Returns</a>
-      <a class="nav-item" href="supplier.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Supplier Registry</a>
-    </nav>
-
-    <nav class="nav-group" style="padding-bottom:24px">
-      <div class="nav-group-title"><span class="dot" style="background:var(--green)"></span>Finance &amp; Settings</div>
-      <a class="nav-item" href="reports.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-4"/></svg>Reports</a>
-      <a class="nav-item" href="payments.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>Payments</a>
-      <a class="nav-item" href="payment-management.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Payment Management</a>
-      <a class="nav-item" href="staff.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Staff</a>
-      <a class="nav-item" href="setting.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Settings</a>
-    </nav>
-  </aside>
 
   <!-- ============ MAIN ============ -->
   <div class="main">
