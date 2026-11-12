@@ -184,7 +184,11 @@ async function gsSave(tabName, objects, headers) {
               </div>
               <button class="btn btn-delete" onclick="deleteSale('${sale.id}')">🗑️ Delete</button>
             </div>
-            <div class="sale-items">${sale.items || '—'}</div>
+            <div class="sale-items">
+  ${sale.items.map(item => 
+    `${item.name} × ${item.quantity || item.qty} @ LKR ${item.price}`
+  ).join('<br>')}
+</div>
             <div class="sale-footer">
               <div class="sale-date">${sale.date || '—'}</div>
               <div class="sale-total">LKR ${(sale.total || 0).toLocaleString()}</div>
