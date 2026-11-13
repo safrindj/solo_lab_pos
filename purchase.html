@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Purchases &amp; Returns — SOLO LAB MOBILES</title>
+  <title>Purchases & Returns — SOLO LAB MOBILES</title>
 
   <link
     rel="stylesheet"
@@ -24,14 +24,144 @@
       font-family: Arial, sans-serif;
     }
 
+    /* ===== SIDEBAR STYLES ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 250px;
+      background: #1F2937;
+      color: white;
+      transition: width 0.3s ease;
+      z-index: 999;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid #374151;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header h2 {
+      font-size: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-header h2 {
+      display: none;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 15px 0;
+    }
+
+    .sidebar-menu li {
+      margin: 5px 0;
+    }
+
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: #D1D5DB;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .sidebar-menu a:hover,
+    .sidebar-menu a.active {
+      background: #374151;
+      color: white;
+      border-left: 3px solid #DC2626;
+    }
+
+    .sidebar-menu i {
+      font-size: 18px;
+      min-width: 25px;
+      text-align: center;
+    }
+
+    .sidebar-menu span {
+      margin-left: 12px;
+    }
+
+    .sidebar.collapsed .sidebar-menu span {
+      display: none;
+    }
+
     .page-wrapper {
       margin-left: 250px;
       padding: 25px;
       transition: margin-left 0.3s ease;
+      min-height: 100vh;
     }
 
     .sidebar-collapsed .page-wrapper {
       margin-left: 70px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 10px 0 20px;
+      gap: 20px;
+    }
+
+    .top-bar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    .top-bar-item button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #374151;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #DC2626;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      color: #374151;
     }
 
     .page-header {
@@ -315,6 +445,11 @@
     }
 
     @media (max-width: 768px) {
+      .sidebar {
+        position: relative;
+        width: 100% !important;
+        height: auto;
+      }
       .page-wrapper,
       .sidebar-collapsed .page-wrapper {
         margin-left: 0;
@@ -329,9 +464,84 @@
 </head>
 
 <body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>SOLO LAB MOBILES</h2>
+      <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <ul class="sidebar-menu">
+      <li>
+        <a href="dashboard.html">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="products.html">
+          <i class="fas fa-mobile-alt"></i>
+          <span>Products</span>
+        </a>
+      </li>
+      <li>
+        <a href="purchases.html" class="active">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Purchases & Returns</span>
+        </a>
+      </li>
+      <li>
+        <a href="sales.html">
+          <i class="fas fa-cash-register"></i>
+          <span>Sales</span>
+        </a>
+      </li>
+      <li>
+        <a href="inventory.html">
+          <i class="fas fa-boxes"></i>
+          <span>Inventory</span>
+        </a>
+      </li>
+      <li>
+        <a href="suppliers.html">
+          <i class="fas fa-truck-loading"></i>
+          <span>Suppliers</span>
+        </a>
+      </li>
+      <li>
+        <a href="reports.html">
+          <i class="fas fa-chart-bar"></i>
+          <span>Reports</span>
+        </a>
+      </li>
+      <li>
+        <a href="settings.html">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
   <main class="page-wrapper" id="pageWrapper">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-item">
+        <button title="Toggle theme"><i class="fas fa-moon"></i></button>
+      </div>
+      <div class="top-bar-item">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Cashier</span>
+      </div>
+      <div class="top-bar-item">
+        <div class="user-avatar">C</div>
+      </div>
+      <button class="logout-btn"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+    </div>
+
     <header class="page-header">
-      <h1>Purchases &amp; Vendor Returns Hub</h1>
+      <h1>Purchases & Vendor Returns Hub</h1>
       <p>Record product restocks and manage supplier defective stock returns in one consolidated ledger.</p>
     </header>
 
@@ -430,438 +640,4 @@
         <header class="modal-header">
           <h2 id="purchaseModalTitle">Record Stock Purchase</h2>
           <button class="close-btn" type="button" aria-label="Close"
-                  onclick="closePurchaseModal()">&times;</button>
-        </header>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="purchaseSupplierName">Supplier name *</label>
-            <input type="text" id="purchaseSupplierName" list="supplierList"
-                   placeholder="Enter or select supplier name" required>
-            <datalist id="supplierList"></datalist>
-          </div>
-          <div class="form-group">
-            <label for="purchaseBillNo">Bill reference number *</label>
-            <input type="text" id="purchaseBillNo" placeholder="e.g. INV-2026-113" required>
-          </div>
-          <div class="form-group">
-            <label for="purchaseDate">Purchase date *</label>
-            <input type="date" id="purchaseDate" required>
-          </div>
-          <div class="form-group">
-            <label for="purchaseTotal">Total cost (Rs) *</label>
-            <input type="number" id="purchaseTotal" min="0.01" step="0.01"
-                   placeholder="0.00" required>
-          </div>
-          <div class="form-group">
-            <label for="purchaseNotes">Notes</label>
-            <textarea id="purchaseNotes" rows="3" placeholder="Optional notes"></textarea>
-          </div>
-        </div>
-
-        <footer class="modal-footer">
-          <button class="btn-cancel" type="button" onclick="closePurchaseModal()">Cancel</button>
-          <button class="btn-save" type="submit">Save Purchase</button>
-        </footer>
-      </form>
-    </section>
-  </div>
-
-  <!-- Return modal -->
-  <div class="modal-overlay" id="returnModal" aria-hidden="true">
-    <section class="modal-box" role="dialog" aria-modal="true"
-             aria-labelledby="returnModalTitle">
-      <form id="returnForm">
-        <header class="modal-header">
-          <h2 id="returnModalTitle">Record Vendor Return</h2>
-          <button class="close-btn" type="button" aria-label="Close"
-                  onclick="closeReturnModal()">&times;</button>
-        </header>
-
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="returnSupplierName">Supplier name *</label>
-            <input type="text" id="returnSupplierName" list="supplierListReturn"
-                   placeholder="Enter supplier name" required>
-            <datalist id="supplierListReturn"></datalist>
-          </div>
-          <div class="form-group">
-            <label for="returnDate">Return date *</label>
-            <input type="date" id="returnDate" required>
-          </div>
-          <div class="form-group">
-            <label for="returnItems">Items returned *</label>
-            <textarea id="returnItems" rows="3" placeholder="List items and quantities"
-                      required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="returnAmount">Credit amount (Rs) *</label>
-            <input type="number" id="returnAmount" min="0.01" step="0.01"
-                   placeholder="0.00" required>
-          </div>
-          <div class="form-group">
-            <label for="returnNotes">Reason / notes</label>
-            <textarea id="returnNotes" rows="2" placeholder="e.g. Defective"></textarea>
-          </div>
-        </div>
-
-        <footer class="modal-footer">
-          <button class="btn-cancel" type="button" onclick="closeReturnModal()">Cancel</button>
-          <button class="btn-save" type="submit">Save Return</button>
-        </footer>
-      </form>
-    </section>
-  </div>
-
-  <script>
-    "use strict";
-
-    // Records are held in memory. Add a backend or local storage if they must
-    // remain available after the page is refreshed.
-    let purchasesData = [];
-    let returnsData = [];
-    let historyData = [];
-
-    document.addEventListener("DOMContentLoaded", () => {
-      initTabs();
-      setTodayDate();
-      bindForms();
-      bindModalDismissal();
-      renderAll();
-    });
-
-    function initTabs() {
-      const buttons = document.querySelectorAll(".tab-btn");
-
-      buttons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const selectedTab = button.dataset.tab;
-
-          buttons.forEach((tabButton) => {
-            const isSelected = tabButton === button;
-            tabButton.classList.toggle("active", isSelected);
-            tabButton.setAttribute("aria-selected", String(isSelected));
-          });
-
-          document.querySelectorAll(".tab-content").forEach((panel) => {
-            const isSelected = panel.id === `${selectedTab}-tab`;
-            panel.classList.toggle("active", isSelected);
-            panel.hidden = !isSelected;
-          });
-        });
-      });
-    }
-
-    function getLocalDateString() {
-      const now = new Date();
-      const localOffset = now.getTimezoneOffset() * 60_000;
-      return new Date(now.getTime() - localOffset).toISOString().slice(0, 10);
-    }
-
-    function setTodayDate() {
-      const today = getLocalDateString();
-      document.getElementById("purchaseDate").value = today;
-      document.getElementById("returnDate").value = today;
-    }
-
-    function bindForms() {
-      document.getElementById("purchaseForm").addEventListener("submit", (event) => {
-        event.preventDefault();
-        savePurchase();
-      });
-
-      document.getElementById("returnForm").addEventListener("submit", (event) => {
-        event.preventDefault();
-        saveReturn();
-      });
-    }
-
-    function bindModalDismissal() {
-      document.querySelectorAll(".modal-overlay").forEach((overlay) => {
-        overlay.addEventListener("click", (event) => {
-          if (event.target === overlay) {
-            closeModal(overlay);
-          }
-        });
-      });
-
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-          document.querySelectorAll(".modal-overlay.active").forEach(closeModal);
-        }
-      });
-    }
-
-    function openModal(id) {
-      const modal = document.getElementById(id);
-      modal.classList.add("active");
-      modal.setAttribute("aria-hidden", "false");
-
-      const firstInput = modal.querySelector("input, textarea");
-      if (firstInput) firstInput.focus();
-    }
-
-    function closeModal(modal) {
-      modal.classList.remove("active");
-      modal.setAttribute("aria-hidden", "true");
-    }
-
-    function openPurchaseModal() {
-      updateSupplierSuggestions();
-      openModal("purchaseModal");
-    }
-
-    function closePurchaseModal() {
-      const modal = document.getElementById("purchaseModal");
-      closeModal(modal);
-      document.getElementById("purchaseForm").reset();
-      document.getElementById("purchaseDate").value = getLocalDateString();
-    }
-
-    function openReturnModal() {
-      updateSupplierSuggestions();
-      openModal("returnModal");
-    }
-
-    function closeReturnModal() {
-      const modal = document.getElementById("returnModal");
-      closeModal(modal);
-      document.getElementById("returnForm").reset();
-      document.getElementById("returnDate").value = getLocalDateString();
-    }
-
-    function updateSupplierSuggestions() {
-      const suppliers = new Set(
-        purchasesData.map((purchase) => purchase.supplierName.trim())
-      );
-
-      returnsData.forEach((record) => suppliers.add(record.supplierName.trim()));
-
-      ["supplierList", "supplierListReturn"].forEach((listId) => {
-        const list = document.getElementById(listId);
-        list.replaceChildren();
-
-        [...suppliers]
-          .filter(Boolean)
-          .sort((a, b) => a.localeCompare(b))
-          .forEach((supplier) => {
-            const option = document.createElement("option");
-            option.value = supplier;
-            list.appendChild(option);
-          });
-      });
-    }
-
-    function savePurchase() {
-      const supplierName = document.getElementById("purchaseSupplierName").value.trim();
-      const billNo = document.getElementById("purchaseBillNo").value.trim();
-      const date = document.getElementById("purchaseDate").value;
-      const total = Number(document.getElementById("purchaseTotal").value);
-      const notes = document.getElementById("purchaseNotes").value.trim();
-
-      if (!supplierName || !billNo || !date || !Number.isFinite(total) || total <= 0) {
-        alert("Please fill in all required fields with valid values.");
-        return;
-      }
-
-      purchasesData.push({
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-        supplierName,
-        billNo,
-        date,
-        total,
-        notes
-      });
-
-      closePurchaseModal();
-      renderAll();
-    }
-
-    function saveReturn() {
-      const supplierName = document.getElementById("returnSupplierName").value.trim();
-      const date = document.getElementById("returnDate").value;
-      const items = document.getElementById("returnItems").value.trim();
-      const amount = Number(document.getElementById("returnAmount").value);
-      const notes = document.getElementById("returnNotes").value.trim();
-
-      if (!supplierName || !date || !items || !Number.isFinite(amount) || amount <= 0) {
-        alert("Please fill in all required fields with valid values.");
-        return;
-      }
-
-      returnsData.push({
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-        supplierName,
-        date,
-        items,
-        amount,
-        notes
-      });
-
-      closeReturnModal();
-      renderAll();
-    }
-
-    function createCell(value, className = "") {
-      const cell = document.createElement("td");
-      cell.textContent = value;
-
-      if (className) cell.className = className;
-      return cell;
-    }
-
-    function showEmptyState(tbody, columnCount, iconClass, message) {
-      const row = document.createElement("tr");
-      const cell = document.createElement("td");
-      const icon = document.createElement("i");
-      const text = document.createElement("p");
-
-      cell.colSpan = columnCount;
-      cell.className = "empty-state";
-      icon.className = iconClass;
-      icon.setAttribute("aria-hidden", "true");
-      text.textContent = message;
-
-      cell.append(icon, text);
-      row.appendChild(cell);
-      tbody.replaceChildren(row);
-    }
-
-    function renderPurchases() {
-      const tbody = document.getElementById("purchasesBody");
-
-      if (purchasesData.length === 0) {
-        showEmptyState(tbody, 4, "fas fa-database", "No purchase records yet.");
-        return;
-      }
-
-      const grouped = new Map();
-
-      purchasesData.forEach((purchase) => {
-        if (!grouped.has(purchase.supplierName)) {
-          grouped.set(purchase.supplierName, { bills: [], total: 0 });
-        }
-
-        const supplier = grouped.get(purchase.supplierName);
-        supplier.bills.push(purchase);
-        supplier.total += purchase.total;
-      });
-
-      const rows = [];
-
-      [...grouped.entries()]
-        .sort(([a], [b]) => a.localeCompare(b))
-        .forEach(([supplierName, data]) => {
-          const row = document.createElement("tr");
-          row.appendChild(createCell(supplierName));
-          row.appendChild(createCell(String(data.bills.length), "text-right"));
-          row.appendChild(createCell(formatMoney(data.total), "text-right"));
-
-          const actions = document.createElement("td");
-          actions.className = "text-center";
-
-          const viewButton = document.createElement("button");
-          viewButton.type = "button";
-          viewButton.className = "view-btn";
-          viewButton.textContent = "View bills";
-          viewButton.addEventListener("click", () => {
-            const details = data.bills
-              .map((bill) => `${bill.date} — ${bill.billNo}: ${formatMoney(bill.total)}`)
-              .join("\n");
-            alert(`${supplierName}\n\n${details}`);
-          });
-
-          actions.appendChild(viewButton);
-          row.appendChild(actions);
-          rows.push(row);
-        });
-
-      tbody.replaceChildren(...rows);
-    }
-
-    function renderReturns() {
-      const tbody = document.getElementById("returnsBody");
-
-      if (returnsData.length === 0) {
-        showEmptyState(tbody, 5, "fas fa-rotate-left", "No returns recorded yet.");
-        return;
-      }
-
-      const rows = returnsData.map((record) => {
-        const row = document.createElement("tr");
-        row.appendChild(createCell(record.supplierName));
-        row.appendChild(createCell(record.date));
-        row.appendChild(createCell(record.items));
-        row.appendChild(createCell(formatMoney(record.amount), "text-right"));
-
-        const actions = document.createElement("td");
-        actions.className = "text-center";
-
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className = "delete-btn";
-        deleteButton.textContent = "Delete";
-        deleteButton.setAttribute("aria-label", `Delete return for ${record.supplierName}`);
-        deleteButton.addEventListener("click", () => deleteReturn(record.id));
-
-        actions.appendChild(deleteButton);
-        row.appendChild(actions);
-        return row;
-      });
-
-      tbody.replaceChildren(...rows);
-    }
-
-    function deleteReturn(id) {
-      const record = returnsData.find((item) => item.id === id);
-      if (!record || !confirm("Delete this return record?")) return;
-
-      historyData.push({
-        deletedAt: new Date().toLocaleString(),
-        type: "Vendor return",
-        supplierName: record.supplierName,
-        deletedBy: "Current user",
-        amount: record.amount
-      });
-
-      returnsData = returnsData.filter((item) => item.id !== id);
-      renderAll();
-    }
-
-    function renderHistory() {
-      const tbody = document.getElementById("historyBody");
-
-      if (historyData.length === 0) {
-        showEmptyState(tbody, 5, "fas fa-clipboard-list", "No deleted records yet.");
-        return;
-      }
-
-      const rows = historyData.map((record) => {
-        const row = document.createElement("tr");
-        row.appendChild(createCell(record.deletedAt));
-        row.appendChild(createCell(record.type));
-        row.appendChild(createCell(record.supplierName));
-        row.appendChild(createCell(record.deletedBy));
-        row.appendChild(createCell(formatMoney(record.amount), "text-right"));
-        return row;
-      });
-
-      tbody.replaceChildren(...rows);
-    }
-
-    function renderAll() {
-      renderPurchases();
-      renderReturns();
-      renderHistory();
-      updateSupplierSuggestions();
-    }
-
-    function formatMoney(amount) {
-      return `Rs ${Number(amount).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })}`;
-    }
-  </script>
-</body>
-</html>
+                  onclick="
