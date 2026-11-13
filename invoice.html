@@ -25,70 +25,76 @@
       width: 210mm;
       min-height: 148mm;
       margin: 0 auto;
-      padding: 15mm 15mm 12mm;
+      padding: 12mm 15mm 12mm;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       position: relative;
     }
 
-    /* ===== HEADER WITH LOGO ===== */
+    /* ===== HEADER — 3 COLUMN LAYOUT ===== */
     .header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       border-bottom: 2px dashed #333;
       padding-bottom: 12px;
       margin-bottom: 10px;
     }
 
-    .logo-container {
-      flex-shrink: 0;
-      margin-right: 18px;
+    .header-left {
+      flex: 0 0 90px;
     }
 
     .logo-container img {
-      width: 70px;
-      height: 70px;
+      width: 80px;
+      height: 80px;
       object-fit: contain;
       display: block;
     }
 
-    .shop-info {
+    .header-center {
       flex: 1;
+      text-align: center;
+      padding: 0 10px;
     }
 
     .shop-name {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
       letter-spacing: 2px;
       color: #111;
     }
 
     .shop-tagline {
-      font-size: 11px;
-      letter-spacing: 3px;
+      font-size: 12px;
+      letter-spacing: 4px;
       color: #555;
-      margin: 3px 0;
+      margin: 4px 0;
     }
 
     .shop-address {
       font-size: 12px;
       color: #666;
-      line-height: 1.5;
-      margin-top: 4px;
+      line-height: 1.6;
     }
 
-    /* ===== INVOICE TOP ROW ===== */
-    .invoice-top {
+    .header-right {
+      flex: 0 0 140px;
+      text-align: right;
+    }
+
+    .barcode-text {
+      font-size: 11px;
+      letter-spacing: 2px;
+      margin-top: 3px;
+      font-family: monospace;
+    }
+
+    .invoice-meta-top {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      padding: 8px 0;
-      border-bottom: 1px dashed #ccc;
-      margin-bottom: 10px;
-    }
-
-    .invoice-meta p {
+      align-items: center;
+      padding: 6px 0 10px;
       font-size: 13px;
-      margin: 4px 0;
     }
 
     /* ===== CUSTOMER DETAILS ===== */
@@ -108,18 +114,6 @@
       font-size: 13px;
       margin: 3px 0;
       color: #333;
-    }
-
-    /* ===== BARCODE ===== */
-    .barcode-section {
-      text-align: right;
-    }
-
-    .barcode-text {
-      font-size: 10px;
-      letter-spacing: 2px;
-      margin-top: 2px;
-      font-family: monospace;
     }
 
     /* ===== ITEMS TABLE ===== */
@@ -253,55 +247,41 @@
         display: none;
       }
     }
-
-    /* ===== MOBILE PREVIEW ===== */
-    @media (max-width: 768px) {
-      .invoice-container {
-        width: 100%;
-        padding: 15px;
-      }
-      .totals-section {
-        width: 100%;
-      }
-      .invoice-top {
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .barcode-section {
-        text-align: left;
-        width: 100%;
-        margin-top: 8px;
-      }
-    }
   </style>
 </head>
 <body>
 
   <div class="invoice-container" id="invoiceArea">
 
-    <!-- ===== HEADER: LOGO LEFT + SHOP INFO ===== -->
+    <!-- ===== HEADER: LOGO LEFT | NAME/CENTER | BARCODE RIGHT ===== -->
     <div class="header">
-      <div class="logo-container">
-        <img src="shop-logo.png" alt="SOLO LAB MOBILE">
+      <div class="header-left">
+        <div class="logo-container">
+          <img src="shop-logo.png" alt="SOLO LAB MOBILE">
+        </div>
       </div>
-      <div class="shop-info">
+
+      <div class="header-center">
         <div class="shop-name">SOLO LAB MOBILE</div>
         <div class="shop-tagline">P H O N E S · A C C E S S O R I E S</div>
         <div class="shop-address">
           23A, D.S. Senanayaka Veediya, Kandy &nbsp;|&nbsp; Tel: 077 732 2237
         </div>
       </div>
-    </div>
 
-    <!-- ===== INVOICE NO, DATE & BARCODE ===== -->
-    <div class="invoice-top">
-      <div class="invoice-meta">
-        <p><strong>Invoice No:</strong> <span id="invNo">SL-000001</span></p>
-        <p><strong>Date:</strong> <span id="invDate">10/11/2026</span></p>
-      </div>
-      <div class="barcode-section">
+      <div class="header-right">
         <svg id="barcode"></svg>
         <div class="barcode-text" id="barcodeNumber">SL000001</div>
+      </div>
+    </div>
+
+    <!-- ===== INVOICE NO & DATE ===== -->
+    <div class="invoice-meta-top">
+      <div>
+        <strong>Invoice No:</strong> <span id="invNo">SL-000001</span>
+      </div>
+      <div>
+        <strong>Date:</strong> <span id="invDate">10/11/2026</span>
       </div>
     </div>
 
