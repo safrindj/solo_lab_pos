@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Purchases &amp; Returns — SOLO LAB MOBILES</title>
 
+  <!-- Optional sidebar script; the page works without it. -->
+  <script src="sidebar.js" defer></script>
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -35,22 +37,26 @@
     }
 
     .page-wrapper {
-      max-width: 1500px;
-      margin: 0 auto;
+      margin-left: 250px;
       padding: 25px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .sidebar-collapsed .page-wrapper {
+      margin-left: 70px;
     }
 
     .page-header {
-      margin-bottom: 30px;
+      margin-bottom: 28px;
     }
 
     .page-header h1 {
       font-size: 26px;
-      font-weight: 700;
     }
 
-    .page-header p {
-      margin-top: 5px;
+    .page-header p,
+    .description {
+      margin-top: 6px;
       color: #6b7280;
       font-size: 14px;
     }
@@ -58,24 +64,22 @@
     .tabs-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 25px;
+      gap: 8px;
+      margin-bottom: 24px;
       border-bottom: 1px solid #e5e7eb;
     }
 
     .tab-btn {
-      padding: 10px 22px;
+      padding: 10px 18px;
       border: 0;
       border-bottom: 3px solid transparent;
       border-radius: 6px 6px 0 0;
       background: transparent;
       color: #6b7280;
-      font-size: 15px;
     }
 
     .tab-btn:hover {
       background: #f3f4f6;
-      color: #374151;
     }
 
     .tab-btn.active {
@@ -106,17 +110,16 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
     .section-title {
       font-size: 18px;
-      font-weight: 600;
     }
 
-    .btn-primary-custom,
-    .add-product-btn,
+    .primary-btn,
+    .add-btn,
     .process-btn {
       border: 0;
       border-radius: 6px;
@@ -125,23 +128,18 @@
       font-weight: 600;
     }
 
-    .btn-primary-custom {
-      padding: 10px 20px;
+    .primary-btn {
+      padding: 10px 18px;
     }
 
-    .btn-primary-custom:hover,
-    .add-product-btn:hover,
+    .primary-btn:hover,
+    .add-btn:hover,
     .process-btn:hover {
       background: #b91c1c;
     }
 
-    .description {
-      margin-bottom: 15px;
-      color: #6b7280;
-      font-size: 13px;
-    }
-
     .table-container {
+      margin-top: 14px;
       overflow-x: auto;
       border-radius: 10px;
       background: #fff;
@@ -155,7 +153,7 @@
 
     th,
     td {
-      padding: 14px 18px;
+      padding: 13px 16px;
       border-bottom: 1px solid #e5e7eb;
       text-align: left;
       vertical-align: middle;
@@ -164,14 +162,12 @@
     th {
       background: #f9fafb;
       color: #6b7280;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 12px;
       text-transform: uppercase;
       white-space: nowrap;
     }
 
     td {
-      color: #1f2937;
       font-size: 14px;
     }
 
@@ -188,14 +184,14 @@
     }
 
     .empty-state {
-      padding: 50px 20px;
-      color: #9ca3af;
+      padding: 28px;
+      color: #6b7280;
       text-align: center;
     }
 
     .view-btn,
     .delete-btn {
-      padding: 6px 12px;
+      padding: 6px 10px;
       border: 0;
       border-radius: 5px;
       font-size: 13px;
@@ -207,7 +203,7 @@
     }
 
     .delete-btn {
-      margin-left: 6px;
+      margin-left: 5px;
       background: #fef2f2;
       color: #b91c1c;
     }
@@ -230,7 +226,6 @@
       overflow-y: auto;
       padding: 20px;
       background: rgb(0 0 0 / 45%);
-      backdrop-filter: blur(3px);
     }
 
     .modal-overlay.active {
@@ -242,18 +237,17 @@
       max-width: 760px;
       max-height: calc(100vh - 40px);
       overflow-y: auto;
-      border-radius: 14px;
+      border-radius: 12px;
       background: #fff;
       box-shadow: 0 10px 40px rgb(0 0 0 / 15%);
     }
 
     .modal-header {
-      padding: 26px 28px 18px;
+      padding: 24px 26px 16px;
     }
 
     .modal-header h2 {
-      margin-bottom: 7px;
-      color: #111827;
+      margin-bottom: 6px;
       font-size: 22px;
     }
 
@@ -264,21 +258,19 @@
     }
 
     .modal-body {
-      padding: 0 28px 24px;
+      padding: 0 26px 22px;
     }
 
-    .top-row {
+    .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 22px;
-      padding-bottom: 22px;
-      border-bottom: 1px solid #e5e7eb;
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 7px;
+      margin-bottom: 6px;
       color: #374151;
       font-size: 13px;
       font-weight: 600;
@@ -288,57 +280,50 @@
     .form-group select {
       width: 100%;
       min-height: 42px;
-      padding: 9px 12px;
+      padding: 9px 11px;
       border: 1px solid #d1d5db;
       border-radius: 7px;
       background: #fff;
       color: #1f2937;
-      font-size: 14px;
     }
 
     .product-section {
-      padding: 20px;
+      padding: 18px;
       border: 1px solid #e5e7eb;
-      border-radius: 12px;
+      border-radius: 10px;
       background: #fafafa;
     }
 
-    .section-label {
-      margin-bottom: 16px;
-      color: #374151;
+    .product-section h3 {
+      margin-bottom: 14px;
       font-size: 14px;
-      font-weight: 600;
     }
 
     .product-input-row {
       display: grid;
-      grid-template-columns: minmax(150px, 2fr) repeat(4, minmax(85px, 1fr)) auto;
+      grid-template-columns: minmax(140px, 2fr) repeat(3, minmax(85px, 1fr)) auto;
       gap: 10px;
       align-items: end;
-      margin-bottom: 18px;
     }
 
-    .add-product-btn {
+    .add-btn {
       min-height: 42px;
       padding: 9px 14px;
       white-space: nowrap;
     }
 
-    .empty-list-msg {
-      padding: 24px 12px;
-      color: #9ca3af;
-      font-size: 14px;
-      text-align: center;
+    .items-list {
+      margin-top: 14px;
     }
 
     .purchase-item {
-      display: grid;
-      grid-template-columns: minmax(120px, 2fr) repeat(4, minmax(65px, 1fr)) 36px;
-      gap: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
       align-items: center;
-      margin-bottom: 8px;
-      padding: 12px;
-      border-radius: 8px;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 7px;
       background: #fff;
       font-size: 13px;
     }
@@ -348,25 +333,32 @@
     }
 
     .remove-item {
+      flex: 0 0 auto;
       border: 0;
       background: transparent;
-      color: #dc2626;
+      color: #b91c1c;
       font-size: 18px;
+    }
+
+    .empty-list-msg {
+      padding: 18px 10px 4px;
+      color: #6b7280;
+      font-size: 13px;
+      text-align: center;
     }
 
     .modal-footer {
       display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 0 28px 28px;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 26px 24px;
     }
 
     .cancel-btn,
     .process-btn {
-      min-height: 44px;
-      padding: 10px 24px;
-      border-radius: 7px;
-      font-size: 15px;
+      min-height: 42px;
+      padding: 9px 20px;
+      border-radius: 6px;
     }
 
     .cancel-btn {
@@ -379,71 +371,51 @@
       background: #f9fafb;
     }
 
-    .process-btn {
-      padding-inline: 32px;
+    .status-message {
+      min-height: 20px;
+      margin: 12px 0 0;
+      color: #b91c1c;
+      font-size: 13px;
     }
 
-    .return-form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .return-form .full-width {
-      grid-column: 1 / -1;
-    }
-
-    .me-1 {
-      margin-right: 0.25rem;
-    }
-
-    .me-2 {
-      margin-right: 0.5rem;
-    }
-
-    @media (max-width: 760px) {
-      .page-wrapper {
+    @media (max-width: 768px) {
+      .page-wrapper,
+      .sidebar-collapsed .page-wrapper {
+        margin-left: 0;
         padding: 18px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .form-grid {
+        grid-template-columns: 1fr;
       }
 
       .product-input-row {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr 1fr;
       }
 
       .product-input-row .form-group:first-child {
         grid-column: 1 / -1;
       }
 
-      .purchase-item {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .purchase-item .remove-item {
-        justify-self: end;
+      .product-input-row .add-btn {
+        grid-column: 1 / -1;
       }
     }
 
-    @media (max-width: 520px) {
-      .top-row,
-      .return-form {
-        grid-template-columns: 1fr;
-      }
-
-      .return-form .full-width {
-        grid-column: auto;
-      }
-
+    @media (max-width: 480px) {
       .modal-header {
-        padding: 22px 20px 16px;
+        padding: 20px 18px 14px;
       }
 
       .modal-body {
-        padding: 0 20px 20px;
+        padding: 0 18px 18px;
       }
 
       .modal-footer {
         flex-direction: column-reverse;
-        padding: 0 20px 20px;
+        padding: 0 18px 18px;
       }
 
       .cancel-btn,
@@ -452,15 +424,11 @@
       }
 
       .product-section {
-        padding: 14px;
-      }
-
-      .tabs-container {
-        gap: 4px;
+        padding: 13px;
       }
 
       .tab-btn {
-        padding: 10px;
+        padding: 9px 10px;
         font-size: 13px;
       }
     }
@@ -475,46 +443,26 @@
     </header>
 
     <div class="tabs-container" role="tablist" aria-label="Purchase and return records">
-      <button
-        class="tab-btn active"
-        id="purchasesTabButton"
-        type="button"
-        role="tab"
-        aria-selected="true"
-        aria-controls="purchases-tab"
-        data-tab="purchases"
-      >
-        <i class="fas fa-boxes-stacked me-2" aria-hidden="true"></i>Stock Purchases
+      <button class="tab-btn active" id="purchasesTabButton" type="button"
+        role="tab" aria-selected="true" aria-controls="purchases-tab" data-tab="purchases">
+        <i class="fas fa-boxes-stacked" aria-hidden="true"></i> Stock Purchases
       </button>
-      <button
-        class="tab-btn"
-        id="returnsTabButton"
-        type="button"
-        role="tab"
-        aria-selected="false"
-        aria-controls="returns-tab"
-        data-tab="returns"
-      >
-        <i class="fas fa-arrow-rotate-left me-2" aria-hidden="true"></i>Vendor Returns
+      <button class="tab-btn" id="returnsTabButton" type="button"
+        role="tab" aria-selected="false" aria-controls="returns-tab" data-tab="returns">
+        <i class="fas fa-arrow-rotate-left" aria-hidden="true"></i> Vendor Returns
       </button>
-      <button
-        class="tab-btn"
-        id="historyTabButton"
-        type="button"
-        role="tab"
-        aria-selected="false"
-        aria-controls="history-tab"
-        data-tab="history"
-      >
-        <i class="fas fa-clock-rotate-left me-2" aria-hidden="true"></i>Deleted History
+      <button class="tab-btn" id="historyTabButton" type="button"
+        role="tab" aria-selected="false" aria-controls="history-tab" data-tab="history">
+        <i class="fas fa-clock-rotate-left" aria-hidden="true"></i> Deleted History
       </button>
     </div>
 
-    <section class="tab-content active" id="purchases-tab" role="tabpanel" aria-labelledby="purchasesTabButton">
+    <section class="tab-content active" id="purchases-tab" role="tabpanel"
+      aria-labelledby="purchasesTabButton">
       <div class="top-action-bar">
         <h2 class="section-title">Stock Purchases Journal</h2>
-        <button class="btn-primary-custom" id="openPurchaseButton" type="button">
-          <i class="fas fa-plus me-1" aria-hidden="true"></i>Record Purchase
+        <button class="primary-btn" id="openPurchaseButton" type="button">
+          <i class="fas fa-plus" aria-hidden="true"></i> Record Purchase
         </button>
       </div>
       <p class="description">Record supplier restock arrivals and update purchase totals.</p>
@@ -523,8 +471,9 @@
           <thead>
             <tr>
               <th>Supplier</th>
-              <th class="text-right">Total bills</th>
-              <th class="text-right">Total purchased cost</th>
+              <th>Purchase date</th>
+              <th>Items</th>
+              <th class="text-right">Total cost</th>
               <th class="text-center">Actions</th>
             </tr>
           </thead>
@@ -533,21 +482,23 @@
       </div>
     </section>
 
-    <section class="tab-content" id="returns-tab" role="tabpanel" aria-labelledby="returnsTabButton">
+    <section class="tab-content" id="returns-tab" role="tabpanel"
+      aria-labelledby="returnsTabButton">
       <div class="top-action-bar">
         <h2 class="section-title">Vendor Returns Journal</h2>
-        <button class="btn-primary-custom" id="openReturnButton" type="button">
-          <i class="fas fa-plus me-1" aria-hidden="true"></i>Record Return
+        <button class="primary-btn" id="openReturnButton" type="button">
+          <i class="fas fa-plus" aria-hidden="true"></i> Record Return
         </button>
       </div>
-      <p class="description">Record defective stock sent back to suppliers.</p>
+      <p class="description">Record stock sent back to suppliers and its credit amount.</p>
       <div class="table-container">
         <table>
           <thead>
             <tr>
               <th>Supplier</th>
               <th>Return date</th>
-              <th>Items returned</th>
+              <th>Product</th>
+              <th>Quantity</th>
               <th class="text-right">Credit amount</th>
               <th class="text-center">Actions</th>
             </tr>
@@ -557,11 +508,12 @@
       </div>
     </section>
 
-    <section class="tab-content" id="history-tab" role="tabpanel" aria-labelledby="historyTabButton">
+    <section class="tab-content" id="history-tab" role="tabpanel"
+      aria-labelledby="historyTabButton">
       <div class="top-action-bar">
         <h2 class="section-title">Deleted Records History</h2>
       </div>
-      <p class="description">Audit log of removed records.</p>
+      <p class="description">Audit log of removed purchase and return records.</p>
       <div class="table-container">
         <table>
           <thead>
@@ -580,114 +532,87 @@
   </main>
 
   <!-- Purchase modal -->
-  <div
-    class="modal-overlay"
-    id="purchaseModal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="purchaseModalTitle"
-    aria-hidden="true"
-  >
+  <div class="modal-overlay" id="purchaseModal" role="dialog" aria-modal="true"
+    aria-labelledby="purchaseModalTitle" aria-hidden="true">
     <div class="modal-box">
-      <div class="modal-header">
-        <h2 id="purchaseModalTitle">New Purchase Entry</h2>
-        <p>Record stock received from a supplier. Free quantities are not included in the purchase cost.</p>
-      </div>
+      <form id="purchaseForm">
+        <div class="modal-header">
+          <h2 id="purchaseModalTitle">New Purchase Entry</h2>
+          <p>Free quantities are recorded but are not included in the purchase cost.</p>
+        </div>
 
-      <div class="modal-body">
-        <div class="top-row">
-          <div class="form-group">
-            <label for="purchaseSupplier">Select supplier</label>
-            <select id="purchaseSupplier" required>
-              <option value="">-- Choose supplier --</option>
-              <option value="Solo Mobile Suppliers">Solo Mobile Suppliers</option>
-              <option value="Tech Wholesale Ltd">Tech Wholesale Ltd</option>
-              <option value="City Electronics">City Electronics</option>
-            </select>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="purchaseSupplier">Supplier</label>
+              <select id="purchaseSupplier" required>
+                <option value="">-- Choose supplier --</option>
+                <option value="Solo Mobile Suppliers">Solo Mobile Suppliers</option>
+                <option value="Tech Wholesale Ltd">Tech Wholesale Ltd</option>
+                <option value="City Electronics">City Electronics</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="purchaseDate">Purchase date</label>
+              <input type="date" id="purchaseDate" required>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="purchaseDate">Purchase date</label>
-            <input type="date" id="purchaseDate" required>
+
+          <div class="product-section">
+            <h3>Add product to purchase</h3>
+            <div class="product-input-row">
+              <div class="form-group">
+                <label for="productSearch">Product</label>
+                <input type="text" id="productSearch" list="productOptions"
+                  placeholder="Search product..." maxlength="100" autocomplete="off">
+                <datalist id="productOptions">
+                  <option value="iPhone 15 Pro Max"></option>
+                  <option value="Samsung Galaxy S24"></option>
+                  <option value="MacBook Air M3"></option>
+                  <option value="USB-C Cable 2m"></option>
+                  <option value="Wall Charger 20W"></option>
+                </datalist>
+              </div>
+              <div class="form-group">
+                <label for="qtyBought">Qty bought</label>
+                <input type="number" id="qtyBought" min="1" step="1" placeholder="0">
+              </div>
+              <div class="form-group">
+                <label for="freeQty">Free qty</label>
+                <input type="number" id="freeQty" min="0" step="1" value="0">
+              </div>
+              <div class="form-group">
+                <label for="unitCost">Unit cost</label>
+                <input type="number" id="unitCost" min="0" step="0.01" placeholder="0.00">
+              </div>
+              <button class="add-btn" id="addPurchaseItemButton" type="button">Add item</button>
+            </div>
+
+            <div class="items-list" id="purchaseItemsList" aria-live="polite"></div>
+            <p class="status-message" id="purchaseMessage" role="status"></p>
           </div>
         </div>
 
-        <div class="product-section">
-          <div class="section-label">ADD PRODUCT TO PURCHASE LIST</div>
-
-          <div class="product-input-row">
-            <div class="form-group">
-              <label for="productSearch">Product</label>
-              <input
-                type="text"
-                id="productSearch"
-                list="productOptions"
-                placeholder="Search product..."
-                maxlength="100"
-                autocomplete="off"
-              >
-              <datalist id="productOptions">
-                <option value="iPhone 15 Pro Max"></option>
-                <option value="Samsung Galaxy S24"></option>
-                <option value="MacBook Air M3"></option>
-                <option value="USB-C Cable 2m"></option>
-                <option value="Wall Charger 20W"></option>
-              </datalist>
-            </div>
-
-            <div class="form-group">
-              <label for="qtyBought">Qty bought</label>
-              <input type="number" id="qtyBought" min="1" step="1" placeholder="0">
-            </div>
-
-            <div class="form-group">
-              <label for="freeQty">Free qty</label>
-              <input type="number" id="freeQty" min="0" step="1" value="0">
-            </div>
-
-            <div class="form-group">
-              <label for="unitCost">Unit cost (Rs.)</label>
-              <input type="number" id="unitCost" min="0" step="0.01" placeholder="0.00">
-            </div>
-
-            <div class="form-group">
-              <label for="discount">Discount (Rs.)</label>
-              <input type="number" id="discount" min="0" step="0.01" value="0">
-            </div>
-
-            <button class="add-product-btn" id="addProductButton" type="button">
-              <i class="fas fa-plus" aria-hidden="true"></i> Add
-            </button>
-          </div>
-
-          <div id="productListContainer" aria-live="polite"></div>
+        <div class="modal-footer">
+          <button class="cancel-btn" type="button" data-close-modal="purchaseModal">Cancel</button>
+          <button class="process-btn" type="submit">Save Purchase</button>
         </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="cancel-btn" type="button" data-close-modal="purchaseModal">Cancel</button>
-        <button class="process-btn" id="processPurchaseButton" type="button">Process Purchase</button>
-      </div>
+      </form>
     </div>
   </div>
 
   <!-- Return modal -->
-  <div
-    class="modal-overlay"
-    id="returnModal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="returnModalTitle"
-    aria-hidden="true"
-  >
+  <div class="modal-overlay" id="returnModal" role="dialog" aria-modal="true"
+    aria-labelledby="returnModalTitle" aria-hidden="true">
     <div class="modal-box">
-      <div class="modal-header">
-        <h2 id="returnModalTitle">Record Vendor Return</h2>
-        <p>Enter the supplier, returned item details, and credit amount.</p>
-      </div>
-
       <form id="returnForm">
+        <div class="modal-header">
+          <h2 id="returnModalTitle">New Vendor Return</h2>
+          <p>Enter the returned product and the credit amount issued by the supplier.</p>
+        </div>
+
         <div class="modal-body">
-          <div class="return-form">
+          <div class="form-grid">
             <div class="form-group">
               <label for="returnSupplier">Supplier</label>
               <select id="returnSupplier" required>
@@ -697,35 +622,25 @@
                 <option value="City Electronics">City Electronics</option>
               </select>
             </div>
-
             <div class="form-group">
               <label for="returnDate">Return date</label>
               <input type="date" id="returnDate" required>
             </div>
-
-            <div class="form-group full-width">
-              <label for="returnItems">Items returned</label>
-              <input
-                type="text"
-                id="returnItems"
-                maxlength="200"
-                placeholder="e.g. 2 × USB-C Cable 2m"
-                required
-              >
+            <div class="form-group">
+              <label for="returnProduct">Product</label>
+              <input type="text" id="returnProduct" list="productOptions"
+                maxlength="100" required autocomplete="off">
             </div>
-
-            <div class="form-group full-width">
-              <label for="returnAmount">Credit amount (Rs.)</label>
-              <input
-                type="number"
-                id="returnAmount"
-                min="0.01"
-                step="0.01"
-                placeholder="0.00"
-                required
-              >
+            <div class="form-group">
+              <label for="returnQty">Quantity returned</label>
+              <input type="number" id="returnQty" min="1" step="1" required>
+            </div>
+            <div class="form-group">
+              <label for="returnUnitCredit">Credit per item</label>
+              <input type="number" id="returnUnitCredit" min="0" step="0.01" required>
             </div>
           </div>
+          <p class="status-message" id="returnMessage" role="status"></p>
         </div>
 
         <div class="modal-footer">
@@ -746,15 +661,7 @@
         history: "soloLabDeletedHistory"
       };
 
-      let purchases = loadData(STORAGE_KEYS.purchases);
-      let returns = loadData(STORAGE_KEYS.returns);
-      let deletedHistory = loadData(STORAGE_KEYS.history);
-      let purchaseItems = [];
-
-      const purchaseModal = document.getElementById("purchaseModal");
-      const returnModal = document.getElementById("returnModal");
-
-      function loadData(key) {
+      const readStorage = (key) => {
         try {
           const value = JSON.parse(localStorage.getItem(key) || "[]");
           return Array.isArray(value) ? value : [];
@@ -762,454 +669,413 @@
           console.warn(`Could not read ${key} from localStorage.`, error);
           return [];
         }
-      }
+      };
 
-      function saveData() {
+      let purchases = readStorage(STORAGE_KEYS.purchases);
+      let returns = readStorage(STORAGE_KEYS.returns);
+      let history = readStorage(STORAGE_KEYS.history);
+      let pendingPurchaseItems = [];
+
+      const saveStorage = () => {
         try {
           localStorage.setItem(STORAGE_KEYS.purchases, JSON.stringify(purchases));
           localStorage.setItem(STORAGE_KEYS.returns, JSON.stringify(returns));
-          localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(deletedHistory));
+          localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
         } catch (error) {
-          alert("Your browser could not save the records. Check your storage settings.");
+          alert("Your browser could not save the records. Check available storage.");
           console.error("Could not save records.", error);
         }
-      }
+      };
 
-      function createId() {
-        return window.crypto?.randomUUID
-          ? window.crypto.randomUUID()
-          : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-      }
+      const today = () => {
+        const date = new Date();
+        const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        return localDate.toISOString().slice(0, 10);
+      };
 
-      function formatMoney(value) {
-        return Number(value || 0).toLocaleString("en-LK", {
+      const formatAmount = (amount) =>
+        Number(amount || 0).toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         });
-      }
 
-      function setTodayDate(input) {
-        const now = new Date();
-        const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-          .toISOString()
-          .slice(0, 10);
-        input.value = localDate;
-      }
+      const formatDate = (value) => {
+        if (!value) return "—";
+        const date = new Date(`${value}T00:00:00`);
+        return Number.isNaN(date.getTime())
+          ? value
+          : date.toLocaleDateString();
+      };
 
-      function openModal(modal) {
+      const makeCell = (text, className = "") => {
+        const cell = document.createElement("td");
+        cell.textContent = text;
+        if (className) cell.className = className;
+        return cell;
+      };
+
+      const addActionButton = (cell, label, action, id, className) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = label;
+        button.className = className;
+        button.dataset.action = action;
+        button.dataset.id = id;
+        button.setAttribute("aria-label", `${label} record`);
+        cell.append(button);
+      };
+
+      const showEmptyState = (tbody, colspan, message) => {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = colspan;
+        cell.className = "empty-state";
+        cell.textContent = message;
+        row.append(cell);
+        tbody.append(row);
+      };
+
+      const renderPurchases = () => {
+        const tbody = document.getElementById("purchasesBody");
+        tbody.replaceChildren();
+
+        if (!purchases.length) {
+          showEmptyState(tbody, 5, "No purchase records yet.");
+          return;
+        }
+
+        [...purchases].reverse().forEach((record) => {
+          const row = document.createElement("tr");
+          const itemCount = record.items.reduce(
+            (sum, item) => sum + Number(item.qty) + Number(item.freeQty || 0), 0
+          );
+
+          row.append(
+            makeCell(record.supplier),
+            makeCell(formatDate(record.date)),
+            makeCell(`${itemCount} unit${itemCount === 1 ? "" : "s"}`),
+            makeCell(formatAmount(record.total), "text-right")
+          );
+
+          const actions = document.createElement("td");
+          actions.className = "text-center";
+          addActionButton(actions, "View", "view-purchase", record.id, "view-btn");
+          addActionButton(actions, "Delete", "delete-purchase", record.id, "delete-btn");
+          row.append(actions);
+          tbody.append(row);
+        });
+      };
+
+      const renderReturns = () => {
+        const tbody = document.getElementById("returnsBody");
+        tbody.replaceChildren();
+
+        if (!returns.length) {
+          showEmptyState(tbody, 6, "No return records yet.");
+          return;
+        }
+
+        [...returns].reverse().forEach((record) => {
+          const row = document.createElement("tr");
+          row.append(
+            makeCell(record.supplier),
+            makeCell(formatDate(record.date)),
+            makeCell(record.product),
+            makeCell(String(record.qty)),
+            makeCell(formatAmount(record.total), "text-right")
+          );
+
+          const actions = document.createElement("td");
+          actions.className = "text-center";
+          addActionButton(actions, "View", "view-return", record.id, "view-btn");
+          addActionButton(actions, "Delete", "delete-return", record.id, "delete-btn");
+          row.append(actions);
+          tbody.append(row);
+        });
+      };
+
+      const renderHistory = () => {
+        const tbody = document.getElementById("historyBody");
+        tbody.replaceChildren();
+
+        if (!history.length) {
+          showEmptyState(tbody, 5, "No deleted records.");
+          return;
+        }
+
+        [...history].reverse().forEach((record) => {
+          const row = document.createElement("tr");
+          row.append(
+            makeCell(new Date(record.deletedAt).toLocaleString()),
+            makeCell(record.type),
+            makeCell(record.supplier),
+            makeCell(record.deletedBy),
+            makeCell(formatAmount(record.amount), "text-right")
+          );
+          tbody.append(row);
+        });
+      };
+
+      const renderAll = () => {
+        renderPurchases();
+        renderReturns();
+        renderHistory();
+      };
+
+      const openModal = (modalId) => {
+        const modal = document.getElementById(modalId);
         modal.classList.add("active");
         modal.setAttribute("aria-hidden", "false");
         document.body.style.overflow = "hidden";
 
-        const firstField = modal.querySelector("input, select, button");
-        firstField?.focus();
-      }
+        const firstInput = modal.querySelector("input, select, button");
+        if (firstInput) firstInput.focus();
+      };
 
-      function closeModal(modal) {
+      const closeModal = (modalId) => {
+        const modal = document.getElementById(modalId);
         modal.classList.remove("active");
         modal.setAttribute("aria-hidden", "true");
 
         if (!document.querySelector(".modal-overlay.active")) {
           document.body.style.overflow = "";
         }
-      }
+      };
 
-      function initTabs() {
-        document.querySelectorAll(".tab-btn").forEach((button) => {
-          button.addEventListener("click", () => {
-            document.querySelectorAll(".tab-btn").forEach((tab) => {
-              const active = tab === button;
-              tab.classList.toggle("active", active);
-              tab.setAttribute("aria-selected", String(active));
-            });
-
-            document.querySelectorAll(".tab-content").forEach((panel) => {
-              panel.classList.toggle("active", panel.id === `${button.dataset.tab}-tab`);
-            });
-          });
-        });
-      }
-
-      function renderPurchases() {
-        const body = document.getElementById("purchasesBody");
-        body.replaceChildren();
-
-        const suppliers = new Map();
-
-        purchases.forEach((purchase) => {
-          const current = suppliers.get(purchase.supplier) || { bills: 0, total: 0 };
-          current.bills += 1;
-          current.total += Number(purchase.total) || 0;
-          suppliers.set(purchase.supplier, current);
-        });
-
-        if (suppliers.size === 0) {
-          body.innerHTML = '<tr><td colspan="4" class="empty-state">No purchase records yet. Click “Record Purchase” to add one.</td></tr>';
-          return;
-        }
-
-        [...suppliers.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([supplier, summary]) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td></td>
-            <td class="text-right">${summary.bills}</td>
-            <td class="text-right">Rs. ${formatMoney(summary.total)}</td>
-            <td class="text-center">
-              <button class="view-btn" type="button" data-action="view-purchases" data-supplier="">
-                View
-              </button>
-              <button class="delete-btn" type="button" data-action="delete-purchases" data-supplier="">
-                Delete
-              </button>
-            </td>
-          `;
-
-          row.cells[0].textContent = supplier;
-          row.querySelector('[data-action="view-purchases"]').dataset.supplier = supplier;
-          row.querySelector('[data-action="delete-purchases"]').dataset.supplier = supplier;
-          body.appendChild(row);
-        });
-      }
-
-      function renderReturns() {
-        const body = document.getElementById("returnsBody");
-        body.replaceChildren();
-
-        if (returns.length === 0) {
-          body.innerHTML = '<tr><td colspan="5" class="empty-state">No returns recorded yet.</td></tr>';
-          return;
-        }
-
-        returns.forEach((record) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="text-right">Rs. ${formatMoney(record.amount)}</td>
-            <td class="text-center">
-              <button class="delete-btn" type="button" data-action="delete-return" data-id="">
-                Delete
-              </button>
-            </td>
-          `;
-
-          row.cells[0].textContent = record.supplier;
-          row.cells[1].textContent = record.date;
-          row.cells[2].textContent = record.items;
-          row.querySelector("[data-id]").dataset.id = record.id;
-          body.appendChild(row);
-        });
-      }
-
-      function renderHistory() {
-        const body = document.getElementById("historyBody");
-        body.replaceChildren();
-
-        if (deletedHistory.length === 0) {
-          body.innerHTML = '<tr><td colspan="5" class="empty-state">No deleted records yet.</td></tr>';
-          return;
-        }
-
-        [...deletedHistory].reverse().forEach((record) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="text-right">Rs. ${formatMoney(record.amount)}</td>
-          `;
-
-          row.cells[0].textContent = record.deletedAt;
-          row.cells[1].textContent = record.type;
-          row.cells[2].textContent = record.supplier;
-          row.cells[3].textContent = record.deletedBy;
-          body.appendChild(row);
-        });
-      }
-
-      function renderAll() {
-        renderPurchases();
-        renderReturns();
-        renderHistory();
-      }
-
-      function renderPurchaseItems() {
-        const container = document.getElementById("productListContainer");
-        container.replaceChildren();
-
-        if (purchaseItems.length === 0) {
-          const message = document.createElement("div");
-          message.className = "empty-list-msg";
-          message.textContent = 'No products added yet. Select a product and click "Add" to build your purchase list.';
-          container.appendChild(message);
-          return;
-        }
-
-        purchaseItems.forEach((item, index) => {
-          const row = document.createElement("div");
-          row.className = "purchase-item";
-
-          const values = [
-            item.product,
-            `Bought: ${item.quantity}`,
-            `Free: ${item.freeQuantity}`,
-            `Unit: Rs. ${formatMoney(item.unitCost)}`,
-            `Total: Rs. ${formatMoney(item.lineTotal)}`
-          ];
-
-          values.forEach((value) => {
-            const span = document.createElement("span");
-            span.textContent = value;
-            row.appendChild(span);
-          });
-
-          const removeButton = document.createElement("button");
-          removeButton.className = "remove-item";
-          removeButton.type = "button";
-          removeButton.setAttribute("aria-label", `Remove ${item.product}`);
-          removeButton.innerHTML = '<i class="fas fa-trash" aria-hidden="true"></i>';
-          removeButton.addEventListener("click", () => {
-            purchaseItems.splice(index, 1);
-            renderPurchaseItems();
-          });
-
-          row.appendChild(removeButton);
-          container.appendChild(row);
-        });
-      }
-
-      function resetPurchaseForm() {
-        purchaseItems = [];
-        document.getElementById("purchaseSupplier").value = "";
+      const clearPurchaseInputs = () => {
         document.getElementById("productSearch").value = "";
         document.getElementById("qtyBought").value = "";
         document.getElementById("freeQty").value = "0";
         document.getElementById("unitCost").value = "";
-        document.getElementById("discount").value = "0";
-        setTodayDate(document.getElementById("purchaseDate"));
-        renderPurchaseItems();
-      }
+      };
 
-      function addProduct() {
-        const productInput = document.getElementById("productSearch");
-        const quantityInput = document.getElementById("qtyBought");
-        const freeInput = document.getElementById("freeQty");
-        const unitCostInput = document.getElementById("unitCost");
-        const discountInput = document.getElementById("discount");
+      const renderPendingItems = () => {
+        const list = document.getElementById("purchaseItemsList");
+        list.replaceChildren();
 
-        const product = productInput.value.trim();
-        const quantity = Number(quantityInput.value);
-        const freeQuantity = Number(freeInput.value || 0);
-        const unitCost = Number(unitCostInput.value);
-        const discount = Number(discountInput.value || 0);
-
-        if (!product) {
-          alert("Enter or select a product.");
-          productInput.focus();
+        if (!pendingPurchaseItems.length) {
+          const message = document.createElement("p");
+          message.className = "empty-list-msg";
+          message.textContent = "No products added yet.";
+          list.append(message);
           return;
         }
 
-        if (!Number.isInteger(quantity) || quantity < 1) {
-          alert("Quantity bought must be a whole number greater than zero.");
-          quantityInput.focus();
-          return;
-        }
+        pendingPurchaseItems.forEach((item, index) => {
+          const line = document.createElement("div");
+          line.className = "purchase-item";
 
-        if (!Number.isInteger(freeQuantity) || freeQuantity < 0) {
-          alert("Free quantity must be a whole number of zero or more.");
-          freeInput.focus();
-          return;
-        }
+          const details = document.createElement("span");
+          details.textContent =
+            `${item.product} — ${item.qty} bought, ${item.freeQty} free; ` +
+            `cost ${formatAmount(item.qty * item.unitCost)}`;
 
-        if (!Number.isFinite(unitCost) || unitCost < 0) {
-          alert("Enter a valid unit cost of zero or more.");
-          unitCostInput.focus();
-          return;
-        }
-
-        const gross = quantity * unitCost;
-
-        if (!Number.isFinite(discount) || discount < 0 || discount > gross) {
-          alert("Discount must be between zero and the product's gross cost.");
-          discountInput.focus();
-          return;
-        }
-
-        purchaseItems.push({
-          product,
-          quantity,
-          freeQuantity,
-          unitCost,
-          discount,
-          lineTotal: Math.round((gross - discount) * 100) / 100
-        });
-
-        productInput.value = "";
-        quantityInput.value = "";
-        freeInput.value = "0";
-        unitCostInput.value = "";
-        discountInput.value = "0";
-        productInput.focus();
-        renderPurchaseItems();
-      }
-
-      function processPurchase() {
-        const supplier = document.getElementById("purchaseSupplier").value;
-        const date = document.getElementById("purchaseDate").value;
-
-        if (!supplier) {
-          alert("Select a supplier.");
-          document.getElementById("purchaseSupplier").focus();
-          return;
-        }
-
-        if (!date) {
-          alert("Select a purchase date.");
-          document.getElementById("purchaseDate").focus();
-          return;
-        }
-
-        if (purchaseItems.length === 0) {
-          alert("Add at least one product to the purchase.");
-          return;
-        }
-
-        const total = purchaseItems.reduce((sum, item) => sum + item.lineTotal, 0);
-
-        purchases.push({
-          id: createId(),
-          supplier,
-          date,
-          items: [...purchaseItems],
-          total: Math.round(total * 100) / 100,
-          createdAt: new Date().toISOString()
-        });
-
-        saveData();
-        renderAll();
-        closeModal(purchaseModal);
-        resetPurchaseForm();
-      }
-
-      function recordDeleted(type, record) {
-        deletedHistory.push({
-          id: createId(),
-          deletedAt: new Date().toLocaleString(),
-          type,
-          supplier: record.supplier,
-          deletedBy: "Current user",
-          amount: record.total ?? record.amount ?? 0
-        });
-      }
-
-      document.getElementById("purchasesBody").addEventListener("click", (event) => {
-        const button = event.target.closest("button[data-action]");
-        if (!button) return;
-
-        const supplier = button.dataset.supplier;
-        const supplierPurchases = purchases.filter((purchase) => purchase.supplier === supplier);
-
-        if (button.dataset.action === "view-purchases") {
-          const details = supplierPurchases.map((purchase) => {
-            const itemNames = purchase.items.map((item) => `${item.product} (${item.quantity})`).join(", ");
-            return `${purchase.date} — Rs. ${formatMoney(purchase.total)}\n${itemNames}`;
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "remove-item";
+          remove.textContent = "×";
+          remove.setAttribute("aria-label", `Remove ${item.product}`);
+          remove.addEventListener("click", () => {
+            pendingPurchaseItems.splice(index, 1);
+            renderPendingItems();
           });
 
-          alert(`${supplier} — Purchase bills\n\n${details.join("\n\n")}`);
+          line.append(details, remove);
+          list.append(line);
+        });
+      };
+
+      document.querySelectorAll("[data-tab]").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach((tab) => {
+            const selected = tab === button;
+            tab.classList.toggle("active", selected);
+            tab.setAttribute("aria-selected", String(selected));
+          });
+
+          document.querySelectorAll(".tab-content").forEach((panel) => {
+            panel.classList.toggle("active", panel.id === button.getAttribute("aria-controls"));
+          });
+        });
+      });
+
+      document.getElementById("openPurchaseButton").addEventListener("click", () => {
+        pendingPurchaseItems = [];
+        document.getElementById("purchaseForm").reset();
+        document.getElementById("purchaseDate").value = today();
+        document.getElementById("freeQty").value = "0";
+        document.getElementById("purchaseMessage").textContent = "";
+        renderPendingItems();
+        openModal("purchaseModal");
+      });
+
+      document.getElementById("openReturnButton").addEventListener("click", () => {
+        document.getElementById("returnForm").reset();
+        document.getElementById("returnDate").value = today();
+        document.getElementById("returnMessage").textContent = "";
+        openModal("returnModal");
+      });
+
+      document.getElementById("addPurchaseItemButton").addEventListener("click", () => {
+        const product = document.getElementById("productSearch").value.trim();
+        const qty = Number(document.getElementById("qtyBought").value);
+        const freeQty = Number(document.getElementById("freeQty").value || 0);
+        const unitCost = Number(document.getElementById("unitCost").value);
+        const message = document.getElementById("purchaseMessage");
+
+        message.textContent = "";
+
+        if (!product || !Number.isInteger(qty) || qty < 1 ||
+            !Number.isInteger(freeQty) || freeQty < 0 ||
+            !Number.isFinite(unitCost) || unitCost < 0) {
+          message.textContent =
+            "Enter a product, a bought quantity of at least 1, a valid free quantity, and a non-negative unit cost.";
           return;
         }
 
-        if (button.dataset.action === "delete-purchases") {
-          if (!confirm(`Delete all ${supplierPurchases.length} purchase record(s) for ${supplier}?`)) return;
-
-          supplierPurchases.forEach((purchase) => recordDeleted("Purchase", purchase));
-          purchases = purchases.filter((purchase) => purchase.supplier !== supplier);
-          saveData();
-          renderAll();
-        }
+        pendingPurchaseItems.push({ product, qty, freeQty, unitCost });
+        clearPurchaseInputs();
+        renderPendingItems();
       });
 
-      document.getElementById("returnsBody").addEventListener("click", (event) => {
-        const button = event.target.closest('[data-action="delete-return"]');
-        if (!button) return;
+      document.getElementById("purchaseForm").addEventListener("submit", (event) => {
+        event.preventDefault();
 
-        const record = returns.find((item) => item.id === button.dataset.id);
-        if (!record || !confirm("Delete this return record?")) return;
+        const message = document.getElementById("purchaseMessage");
+        if (!pendingPurchaseItems.length) {
+          message.textContent = "Add at least one product before saving the purchase.";
+          return;
+        }
 
-        recordDeleted("Vendor return", record);
-        returns = returns.filter((item) => item.id !== record.id);
-        saveData();
+        const record = {
+          id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+          supplier: document.getElementById("purchaseSupplier").value,
+          date: document.getElementById("purchaseDate").value,
+          items: pendingPurchaseItems.map((item) => ({ ...item })),
+          total: pendingPurchaseItems.reduce(
+            (sum, item) => sum + item.qty * item.unitCost, 0
+          )
+        };
+
+        purchases.push(record);
+        saveStorage();
         renderAll();
+        closeModal("purchaseModal");
       });
 
       document.getElementById("returnForm").addEventListener("submit", (event) => {
         event.preventDefault();
 
-        const supplier = document.getElementById("returnSupplier").value;
-        const date = document.getElementById("returnDate").value;
-        const items = document.getElementById("returnItems").value.trim();
-        const amount = Number(document.getElementById("returnAmount").value);
+        const product = document.getElementById("returnProduct").value.trim();
+        const qty = Number(document.getElementById("returnQty").value);
+        const unitCredit = Number(document.getElementById("returnUnitCredit").value);
+        const message = document.getElementById("returnMessage");
 
-        if (!supplier || !date || !items || !Number.isFinite(amount) || amount <= 0) {
-          alert("Complete all return fields and enter a credit amount greater than zero.");
+        message.textContent = "";
+
+        if (!product || !Number.isInteger(qty) || qty < 1 ||
+            !Number.isFinite(unitCredit) || unitCredit < 0) {
+          message.textContent =
+            "Enter a product, a quantity of at least 1, and a non-negative credit per item.";
           return;
         }
 
         returns.push({
-          id: createId(),
-          supplier,
-          date,
-          items,
-          amount: Math.round(amount * 100) / 100,
-          createdAt: new Date().toISOString()
+          id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+          supplier: document.getElementById("returnSupplier").value,
+          date: document.getElementById("returnDate").value,
+          product,
+          qty,
+          unitCredit,
+          total: qty * unitCredit
         });
 
-        saveData();
+        saveStorage();
         renderAll();
-        event.currentTarget.reset();
-        setTodayDate(document.getElementById("returnDate"));
-        closeModal(returnModal);
+        closeModal("returnModal");
       });
-
-      document.getElementById("openPurchaseButton").addEventListener("click", () => {
-        resetPurchaseForm();
-        openModal(purchaseModal);
-      });
-
-      document.getElementById("openReturnButton").addEventListener("click", () => {
-        document.getElementById("returnForm").reset();
-        setTodayDate(document.getElementById("returnDate"));
-        openModal(returnModal);
-      });
-
-      document.getElementById("addProductButton").addEventListener("click", addProduct);
-      document.getElementById("processPurchaseButton").addEventListener("click", processPurchase);
 
       document.querySelectorAll("[data-close-modal]").forEach((button) => {
-        button.addEventListener("click", () => {
-          closeModal(document.getElementById(button.dataset.closeModal));
-        });
+        button.addEventListener("click", () => closeModal(button.dataset.closeModal));
       });
 
       document.querySelectorAll(".modal-overlay").forEach((modal) => {
         modal.addEventListener("click", (event) => {
-          if (event.target === modal) closeModal(modal);
+          if (event.target === modal) closeModal(modal.id);
         });
       });
 
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
-          document.querySelectorAll(".modal-overlay.active").forEach(closeModal);
+          document.querySelectorAll(".modal-overlay.active").forEach((modal) => {
+            closeModal(modal.id);
+          });
         }
       });
 
-      initTabs();
-      setTodayDate(document.getElementById("purchaseDate"));
-      setTodayDate(document.getElementById("returnDate"));
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+
+        const { action, id } = button.dataset;
+
+        if (action === "view-purchase") {
+          const record = purchases.find((item) => item.id === id);
+          if (!record) return;
+
+          const details = record.items.map((item) =>
+            `${item.product}: ${item.qty} bought, ${item.freeQty} free, ` +
+            `unit cost ${formatAmount(item.unitCost)}`
+          ).join("\n");
+
+          alert(
+            `Supplier: ${record.supplier}\nDate: ${formatDate(record.date)}\n\n` +
+            `${details}\n\nTotal cost: ${formatAmount(record.total)}`
+          );
+        }
+
+        if (action === "view-return") {
+          const record = returns.find((item) => item.id === id);
+          if (!record) return;
+
+          alert(
+            `Supplier: ${record.supplier}\nDate: ${formatDate(record.date)}\n` +
+            `Product: ${record.product}\nQuantity: ${record.qty}\n` +
+            `Credit amount: ${formatAmount(record.total)}`
+          );
+        }
+
+        if (action === "delete-purchase" || action === "delete-return") {
+          const isPurchase = action === "delete-purchase";
+          const source = isPurchase ? purchases : returns;
+          const record = source.find((item) => item.id === id);
+          if (!record) return;
+
+          const type = isPurchase ? "Purchase" : "Return";
+          if (!confirm(`Delete this ${type.toLowerCase()} record?`)) return;
+
+          if (isPurchase) {
+            purchases = purchases.filter((item) => item.id !== id);
+          } else {
+            returns = returns.filter((item) => item.id !== id);
+          }
+
+          history.push({
+            id: `${Date.now()}-${Math.random()}`,
+            type,
+            supplier: record.supplier,
+            amount: record.total,
+            deletedAt: new Date().toISOString(),
+            deletedBy: "Current user"
+          });
+
+          saveStorage();
+          renderAll();
+        }
+      });
+
       renderAll();
-      renderPurchaseItems();
+      renderPendingItems();
     })();
   </script>
 </body>
