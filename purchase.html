@@ -1,987 +1,464 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Purchases &amp; Returns — SOLO LAB MOBILES</title>
+<script>
+  "use strict";
 
-  <script src="sidebar.js" defer></script>
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  >
+  const STORAGE_KEY = "soloLabPurchasesReturns";
+  const SUPPLIERS = ["Supplier A", "Supplier B", "Supplier C"];
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+  let purchaseItems = [];
+  let records = loadRecords();
+
+  function loadRecords() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      return {
+        purchases: Array.isArray(saved?.purchases) ? saved.purchases : [],
+        returns: Array.isArray(saved?.returns) ? saved.returns : [],
+        history: Array.isArray(saved?.history) ? saved.history : []
+      };
+    } catch {
+      return { purchases: [], returns: [], history: [] };
+    }
+  }
+
+  function saveRecords() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    } catch {
+      alert("Your browser could not save these records.");
+    }
+  }
+
+  function today() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function formatMoney(value) {
+    return Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function makeButton(text, className, onClick) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = className;
+    button.textContent = text;
+    button.addEventListener("click", onClick);
+    return button;
+  }
+
+  function setEmptyState(tbody, colspan, message) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = colspan;
+    cell.className = "empty-state";
+    cell.textContent = message;
+    row.appendChild(cell);
+    tbody.replaceChildren(row);
+  }
+
+  function populateSuppliers() {
+    const select = document.getElementById("purchaseSupplier");
+
+    SUPPLIERS.forEach((supplier) => {
+      const option = document.createElement("option");
+      option.value = supplier;
+      option.textContent = supplier;
+      select.appendChild(option);
+    });
+  }
+
+  function setupTabs() {
+    const buttons = document.querySelectorAll(".tab-btn");
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((tabButton) => {
+          const isActive = tabButton === button;
+          tabButton.classList.toggle("active", isActive);
+          tabButton.setAttribute("aria-selected", String(isActive));
+        });
+
+        document.querySelectorAll(".tab-content").forEach((panel) => {
+          panel.classList.toggle(
+            "active",
+            panel.id === `${button.dataset.tab}-tab`
+          );
+        });
+      });
+    });
+  }
+
+  function openPurchaseModal() {
+    const modal = document.getElementById("purchaseModal");
+    document.getElementById("purchaseDate").value = today();
+    modal.classList.add("active");
+    document.getElementById("purchaseSupplier").focus();
+  }
+
+  function closePurchaseModal() {
+    document.getElementById("purchaseModal").classList.remove("active");
+  }
+
+  function renderProductList() {
+    const container = document.getElementById("productListContainer");
+    container.replaceChildren();
+
+    if (purchaseItems.length === 0) {
+      const emptyMessage = document.createElement("div");
+      emptyMessage.className = "product-list-empty";
+      emptyMessage.textContent =
+        'No products added yet. Select a product and click "Add" to build your purchase list.';
+      container.appendChild(emptyMessage);
+      return;
     }
 
-    body {
-      min-height: 100vh;
-      background: #F8FAFC;
-      color: #1F2937;
-      font-family: Arial, sans-serif;
+    purchaseItems.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = "purchase-list-item";
+
+      [
+        item.name,
+        `Qty: ${item.quantity}`,
+        `Free: ${item.freeQuantity}`,
+        `Unit cost: Rs. ${formatMoney(item.unitCost)}`,
+        `Total: Rs. ${formatMoney(item.total)}`
+      ].forEach((text) => {
+        const cell = document.createElement("span");
+        cell.textContent = text;
+        row.appendChild(cell);
+      });
+
+      row.appendChild(
+        makeButton("Remove", "remove-item-btn", () => {
+          purchaseItems.splice(index, 1);
+          renderProductList();
+        })
+      );
+
+      container.appendChild(row);
+    });
+  }
+
+  function addProductToList() {
+    const name = document.getElementById("productSearch").value.trim();
+    const quantity = Number(document.getElementById("qtyBought").value);
+    const freeQuantity = Number(document.getElementById("freeQty").value || 0);
+    const unitCost = Number(document.getElementById("unitCost").value);
+    const discount = Number(document.getElementById("discount").value || 0);
+
+    if (!name) {
+      alert("Enter or select a product.");
+      return;
     }
 
-    .page-wrapper {
-      margin-left: 250px;
-      padding: 25px;
-      transition: margin-left 0.3s ease;
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      alert("Quantity bought must be a whole number greater than zero.");
+      return;
     }
 
-    .sidebar-collapsed .page-wrapper {
-      margin-left: 70px;
+    if (!Number.isInteger(freeQuantity) || freeQuantity < 0) {
+      alert("Free quantity must be a non-negative whole number.");
+      return;
     }
 
-    @media (max-width: 768px) {
-      .page-wrapper,
-      .sidebar-collapsed .page-wrapper {
-        margin-left: 0;
-        padding: 18px;
-      }
+    if (!Number.isFinite(unitCost) || unitCost < 0) {
+      alert("Enter a valid unit cost.");
+      return;
     }
 
-    .page-header {
-      margin-bottom: 30px;
+    const subtotal = quantity * unitCost;
+
+    if (!Number.isFinite(discount) || discount < 0 || discount > subtotal) {
+      alert("Discount must be between zero and the product subtotal.");
+      return;
     }
 
-    .page-header h1 {
-      color: #1F2937;
-      font-size: 26px;
-      font-weight: 700;
-    }
-
-    .page-header p {
-      margin-top: 5px;
-      color: #6B7280;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .tabs-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 25px;
-      border-bottom: 1px solid #E5E7EB;
-    }
-
-    .tab-btn {
-      padding: 10px 22px;
-      border: 0;
-      border-bottom: 3px solid transparent;
-      border-radius: 6px 6px 0 0;
-      background: transparent;
-      color: #6B7280;
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    .tab-btn:hover {
-      background: #F3F4F6;
-      color: #374151;
-    }
-
-    .tab-btn.active {
-      border-bottom-color: #DC2626;
-      background: #FEE2E2;
-      color: #DC2626;
-      font-weight: 600;
-    }
-
-    .tab-btn:focus-visible,
-    button:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible {
-      outline: 3px solid #93C5FD;
-      outline-offset: 2px;
-    }
-
-    .top-action-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .section-title {
-      color: #1F2937;
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .btn-primary-custom {
-      padding: 10px 20px;
-      border: 0;
-      border-radius: 6px;
-      background: #DC2626;
-      color: #FFF;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .btn-primary-custom:hover,
-    .btn-save:hover {
-      background: #B91C1C;
-    }
-
-    .description {
-      margin-bottom: 15px;
-      color: #6B7280;
-      font-size: 13px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-      border-radius: 10px;
-      background: #FFF;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      padding: 14px 18px;
-      border-bottom: 1px solid #E5E7EB;
-      background: #F9FAFB;
-      color: #6B7280;
-      font-size: 13px;
-      font-weight: 600;
-      text-align: left;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 16px 18px;
-      border-bottom: 1px solid #F3F4F6;
-      color: #1F2937;
-      font-size: 14px;
-      vertical-align: middle;
-    }
-
-    tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
-    .text-right { text-align: right; }
-    .text-center { text-align: center; }
-
-    .view-btn,
-    .delete-btn {
-      padding: 6px 14px;
-      border: 0;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    .view-btn {
-      background: #EFF6FF;
-      color: #1D4ED8;
-    }
-
-    .delete-btn {
-      margin-left: 6px;
-      background: #FEF2F2;
-      color: #B91C1C;
-    }
-
-    .empty-state {
-      padding: 40px 20px;
-      color: #9CA3AF;
-      text-align: center;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      z-index: 1000;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal-box {
-      width: 100%;
-      max-width: 550px;
-      max-height: 90vh;
-      overflow-y: auto;
-      border-radius: 10px;
-      background: #FFF;
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 24px;
-      border-bottom: 1px solid #E5E7EB;
-    }
-
-    .modal-header h2 {
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .close-btn {
-      border: 0;
-      background: transparent;
-      color: #6B7280;
-      cursor: pointer;
-      font-size: 24px;
-    }
-
-    .modal-body {
-      padding: 24px;
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      font: inherit;
-      font-size: 14px;
-    }
-
-    .form-group textarea {
-      resize: vertical;
-    }
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      padding: 18px 24px;
-      border-top: 1px solid #E5E7EB;
-    }
-
-    .btn-cancel,
-    .btn-save {
-      padding: 9px 18px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .btn-cancel {
-      border: 1px solid #D1D5DB;
-      background: #FFF;
-    }
-
-    .btn-save {
-      padding: 9px 22px;
-      border: 0;
-      background: #DC2626;
-      color: white;
-      font-weight: 600;
-    }
-
-    .me-1 { margin-right: 0.25rem; }
-    .me-2 { margin-right: 0.5rem; }
-  </style>
-</head>
-
-<body>
-  <main class="page-wrapper" id="pageWrapper">
-    <header class="page-header">
-      <h1>Purchases &amp; Vendor Returns Hub</h1>
-      <p>Record product restocks and manage supplier defective stock returns in one consolidated ledger.</p>
-    </header>
-
-    <div class="tabs-container" role="tablist" aria-label="Purchase and return records">
-      <button class="tab-btn active" id="purchases-tab-button"
-              type="button" role="tab" aria-selected="true"
-              aria-controls="purchases-tab" data-tab="purchases">
-        <i class="fas fa-boxes-stacked me-2" aria-hidden="true"></i>Stock Purchases
-      </button>
-      <button class="tab-btn" id="returns-tab-button"
-              type="button" role="tab" aria-selected="false"
-              aria-controls="returns-tab" data-tab="returns">
-        <i class="fas fa-arrow-rotate-left me-2" aria-hidden="true"></i>Vendor Returns
-      </button>
-      <button class="tab-btn" id="history-tab-button"
-              type="button" role="tab" aria-selected="false"
-              aria-controls="history-tab" data-tab="history">
-        <i class="fas fa-clock-rotate-left me-2" aria-hidden="true"></i>Deleted History
-      </button>
-    </div>
-
-    <section class="tab-content active" id="purchases-tab"
-             role="tabpanel" aria-labelledby="purchases-tab-button">
-      <div class="top-action-bar">
-        <h2 class="section-title">Stock Purchases Journal</h2>
-        <button class="btn-primary-custom" id="openPurchaseButton" type="button">
-          <i class="fas fa-plus me-1" aria-hidden="true"></i>Record Purchase
-        </button>
-      </div>
-      <p class="description">Record supplier restock arrivals and update liabilities.</p>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Supplier</th>
-              <th class="text-right">Total bills</th>
-              <th class="text-right">Total purchased cost</th>
-              <th class="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="purchasesBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="tab-content" id="returns-tab"
-             role="tabpanel" aria-labelledby="returns-tab-button" hidden>
-      <div class="top-action-bar">
-        <h2 class="section-title">Vendor Returns Journal</h2>
-        <button class="btn-primary-custom" id="openReturnButton" type="button">
-          <i class="fas fa-plus me-1" aria-hidden="true"></i>Record Return
-        </button>
-      </div>
-      <p class="description">Record defective stock sent back to suppliers.</p>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Supplier</th>
-              <th>Return date</th>
-              <th>Items returned</th>
-              <th class="text-right">Credit amount</th>
-              <th class="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="returnsBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="tab-content" id="history-tab"
-             role="tabpanel" aria-labelledby="history-tab-button" hidden>
-      <div class="top-action-bar">
-        <h2 class="section-title">Deleted Records History</h2>
-      </div>
-      <p class="description">Audit log of deleted records.</p>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Date deleted</th>
-              <th>Type</th>
-              <th>Supplier</th>
-              <th>Deleted by</th>
-              <th class="text-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody id="historyBody"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <div class="modal-overlay" id="purchaseModal" aria-hidden="true">
-    <section class="modal-box" role="dialog" aria-modal="true"
-             aria-labelledby="purchaseModalTitle">
-      <div class="modal-header">
-        <h2 id="purchaseModalTitle">Record Stock Purchase</h2>
-        <button class="close-btn" type="button" data-close-modal="purchaseModal"
-                aria-label="Close purchase dialog">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="purchaseSupplierName">Supplier name *</label>
-          <input type="text" id="purchaseSupplierName" list="supplierList"
-                 placeholder="Enter supplier name" required maxlength="120">
-          <datalist id="supplierList"></datalist>
-        </div>
-        <div class="form-group">
-          <label for="purchaseBillNo">Bill reference number *</label>
-          <input type="text" id="purchaseBillNo"
-                 placeholder="e.g. INV-2026-113" required maxlength="80">
-        </div>
-        <div class="form-group">
-          <label for="purchaseDate">Purchase date *</label>
-          <input type="date" id="purchaseDate" required>
-        </div>
-        <div class="form-group">
-          <label for="purchaseTotal">Total cost (Rs) *</label>
-          <input type="number" id="purchaseTotal" min="0.01" step="0.01"
-                 placeholder="0.00" required>
-        </div>
-        <div class="form-group">
-          <label for="purchaseNotes">Notes</label>
-          <textarea id="purchaseNotes" rows="3"
-                    placeholder="Optional notes" maxlength="1000"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" type="button"
-                data-close-modal="purchaseModal">Cancel</button>
-        <button class="btn-save" id="savePurchaseButton" type="button">Save Purchase</button>
-      </div>
-    </section>
-  </div>
-
-  <div class="modal-overlay" id="returnModal" aria-hidden="true">
-    <section class="modal-box" role="dialog" aria-modal="true"
-             aria-labelledby="returnModalTitle">
-      <div class="modal-header">
-        <h2 id="returnModalTitle">Record Vendor Return</h2>
-        <button class="close-btn" type="button" data-close-modal="returnModal"
-                aria-label="Close return dialog">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="returnSupplierName">Supplier name *</label>
-          <input type="text" id="returnSupplierName" list="supplierListReturn"
-                 placeholder="Enter supplier name" required maxlength="120">
-          <datalist id="supplierListReturn"></datalist>
-        </div>
-        <div class="form-group">
-          <label for="returnDate">Return date *</label>
-          <input type="date" id="returnDate" required>
-        </div>
-        <div class="form-group">
-          <label for="returnItems">Items returned *</label>
-          <textarea id="returnItems" rows="3"
-                    placeholder="List items and quantities" required maxlength="1000"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="returnAmount">Credit amount (Rs) *</label>
-          <input type="number" id="returnAmount" min="0.01" step="0.01"
-                 placeholder="0.00" required>
-        </div>
-        <div class="form-group">
-          <label for="returnNotes">Reason / notes</label>
-          <textarea id="returnNotes" rows="2"
-                    placeholder="e.g. Defective" maxlength="1000"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" type="button"
-                data-close-modal="returnModal">Cancel</button>
-        <button class="btn-save" id="saveReturnButton" type="button">Save Return</button>
-      </div>
-    </section>
-  </div>
-
-  <script>
-    "use strict";
-
-    const STORAGE_KEY = "soloLabPurchasesReturns";
-    let purchasesData = [];
-    let returnsData = [];
-    let historyData = [];
-    let lastFocusedElement = null;
-
-    document.addEventListener("DOMContentLoaded", () => {
-      loadData();
-      initTabs();
-      initButtons();
-      setTodayDate();
-      renderAll();
+    purchaseItems.push({
+      name,
+      quantity,
+      freeQuantity,
+      unitCost,
+      discount,
+      total: subtotal - discount
     });
 
-    function loadData() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-        purchasesData = Array.isArray(saved.purchases) ? saved.purchases : [];
-        returnsData = Array.isArray(saved.returns) ? saved.returns : [];
-        historyData = Array.isArray(saved.history) ? saved.history : [];
-      } catch (error) {
-        console.warn("Saved purchase/return data could not be loaded.", error);
-        purchasesData = [];
-        returnsData = [];
-        historyData = [];
-      }
+    document.getElementById("productSearch").value = "";
+    document.getElementById("qtyBought").value = "";
+    document.getElementById("freeQty").value = "0";
+    document.getElementById("unitCost").value = "";
+    document.getElementById("discount").value = "0";
+
+    renderProductList();
+    document.getElementById("productSearch").focus();
+  }
+
+  function processPurchase() {
+    const supplier = document.getElementById("purchaseSupplier").value;
+    const date = document.getElementById("purchaseDate").value;
+
+    if (!supplier) {
+      alert("Select a supplier.");
+      return;
     }
 
-    function persistData() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          purchases: purchasesData,
-          returns: returnsData,
-          history: historyData
-        }));
-      } catch (error) {
-        console.warn("Data could not be saved to local storage.", error);
-        alert("The changes are visible now, but could not be saved in this browser.");
-      }
+    if (!date) {
+      alert("Select a purchase date.");
+      return;
     }
 
-    function initTabs() {
-      document.querySelectorAll(".tab-btn").forEach(button => {
-        button.addEventListener("click", () => {
-          document.querySelectorAll(".tab-btn").forEach(tab => {
-            const selected = tab === button;
-            tab.classList.toggle("active", selected);
-            tab.setAttribute("aria-selected", String(selected));
-          });
-
-          document.querySelectorAll(".tab-content").forEach(panel => {
-            const selected = panel.id === `${button.dataset.tab}-tab`;
-            panel.classList.toggle("active", selected);
-            panel.hidden = !selected;
-          });
-        });
-      });
+    if (purchaseItems.length === 0) {
+      alert("Add at least one product before processing the purchase.");
+      return;
     }
 
-    function initButtons() {
-      document.getElementById("openPurchaseButton")
-        .addEventListener("click", openPurchaseModal);
-      document.getElementById("openReturnButton")
-        .addEventListener("click", openReturnModal);
-      document.getElementById("savePurchaseButton")
-        .addEventListener("click", savePurchase);
-      document.getElementById("saveReturnButton")
-        .addEventListener("click", saveReturn);
+    const items = purchaseItems.map((item) => ({ ...item }));
+    const total = items.reduce((sum, item) => sum + item.total, 0);
 
-      document.querySelectorAll("[data-close-modal]").forEach(button => {
-        button.addEventListener("click", () => closeModal(button.dataset.closeModal));
-      });
+    records.purchases.push({
+      id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+      supplier,
+      date,
+      items,
+      total
+    });
 
-      document.querySelectorAll(".modal-overlay").forEach(overlay => {
-        overlay.addEventListener("click", event => {
-          if (event.target === overlay) closeModal(overlay.id);
-        });
-      });
+    saveRecords();
+    purchaseItems = [];
+    renderProductList();
+    closePurchaseModal();
+    renderAll();
+  }
 
-      document.getElementById("purchasesBody").addEventListener("click", handleTableAction);
-      document.getElementById("returnsBody").addEventListener("click", handleTableAction);
+  function renderPurchases() {
+    const tbody = document.getElementById("purchasesBody");
 
-      document.addEventListener("keydown", event => {
-        if (event.key === "Escape") {
-          const openOverlay = document.querySelector(".modal-overlay.active");
-          if (openOverlay) closeModal(openOverlay.id);
-        }
-      });
+    if (records.purchases.length === 0) {
+      setEmptyState(
+        tbody,
+        4,
+        'No purchase records yet. Click "Record Purchase" to add one.'
+      );
+      return;
     }
 
-    function getLocalDateString() {
-      const now = new Date();
-      const localOffset = now.getTimezoneOffset() * 60_000;
-      return new Date(now.getTime() - localOffset).toISOString().slice(0, 10);
-    }
+    const grouped = new Map();
 
-    function setTodayDate() {
-      const today = getLocalDateString();
-      document.getElementById("purchaseDate").value = today;
-      document.getElementById("returnDate").value = today;
-    }
+    records.purchases.forEach((purchase) => {
+      const current = grouped.get(purchase.supplier) || {
+        supplier: purchase.supplier,
+        bills: 0,
+        total: 0,
+        purchases: []
+      };
 
-    function makeId() {
-      if (window.crypto && typeof window.crypto.randomUUID === "function") {
-        return window.crypto.randomUUID();
-      }
-      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    }
+      current.bills += 1;
+      current.total += Number(purchase.total) || 0;
+      current.purchases.push(purchase);
+      grouped.set(purchase.supplier, current);
+    });
 
-    function updateSupplierSuggestions() {
-      const names = new Map();
+    tbody.replaceChildren();
 
-      [...purchasesData, ...returnsData].forEach(record => {
-        const name = String(record.supplierName || "").trim();
-        if (name) names.set(name.toLowerCase(), name);
-      });
-
-      ["supplierList", "supplierListReturn"].forEach(listId => {
-        const list = document.getElementById(listId);
-        list.replaceChildren();
-
-        [...names.values()].sort((a, b) => a.localeCompare(b)).forEach(name => {
-          const option = document.createElement("option");
-          option.value = name;
-          list.appendChild(option);
-        });
-      });
-    }
-
-    function openModal(modalId, firstInputId) {
-      lastFocusedElement = document.activeElement;
-      updateSupplierSuggestions();
-
-      const modal = document.getElementById(modalId);
-      modal.classList.add("active");
-      modal.setAttribute("aria-hidden", "false");
-      document.getElementById(firstInputId).focus();
-    }
-
-    function closeModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (!modal) return;
-
-      modal.classList.remove("active");
-      modal.setAttribute("aria-hidden", "true");
-
-      if (modalId === "purchaseModal") {
-        document.getElementById("purchaseSupplierName").value = "";
-        document.getElementById("purchaseBillNo").value = "";
-        document.getElementById("purchaseTotal").value = "";
-        document.getElementById("purchaseNotes").value = "";
-      } else {
-        document.getElementById("returnSupplierName").value = "";
-        document.getElementById("returnItems").value = "";
-        document.getElementById("returnAmount").value = "";
-        document.getElementById("returnNotes").value = "";
-      }
-
-      setTodayDate();
-
-      if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
-        lastFocusedElement.focus();
-      }
-    }
-
-    function openPurchaseModal() {
-      openModal("purchaseModal", "purchaseSupplierName");
-    }
-
-    function openReturnModal() {
-      openModal("returnModal", "returnSupplierName");
-    }
-
-    function savePurchase() {
-      const supplierInput = document.getElementById("purchaseSupplierName");
-      const billInput = document.getElementById("purchaseBillNo");
-      const dateInput = document.getElementById("purchaseDate");
-      const totalInput = document.getElementById("purchaseTotal");
-
-      if (![supplierInput, billInput, dateInput, totalInput].every(input => input.reportValidity())) {
-        return;
-      }
-
-      const supplierName = supplierInput.value.trim();
-      const billNo = billInput.value.trim();
-      const total = Number(totalInput.value);
-
-      if (!supplierName || !billNo || !Number.isFinite(total) || total <= 0) {
-        alert("Enter a supplier, bill reference, and a cost greater than zero.");
-        return;
-      }
-
-      purchasesData.push({
-        id: makeId(),
-        supplierName,
-        billNo,
-        date: dateInput.value,
-        total,
-        notes: document.getElementById("purchaseNotes").value.trim()
-      });
-
-      persistData();
-      renderAll();
-      closeModal("purchaseModal");
-    }
-
-    function saveReturn() {
-      const supplierInput = document.getElementById("returnSupplierName");
-      const dateInput = document.getElementById("returnDate");
-      const itemsInput = document.getElementById("returnItems");
-      const amountInput = document.getElementById("returnAmount");
-
-      if (![supplierInput, dateInput, itemsInput, amountInput].every(input => input.reportValidity())) {
-        return;
-      }
-
-      const supplierName = supplierInput.value.trim();
-      const items = itemsInput.value.trim();
-      const amount = Number(amountInput.value);
-
-      if (!supplierName || !items || !Number.isFinite(amount) || amount <= 0) {
-        alert("Enter a supplier, returned items, and a credit amount greater than zero.");
-        return;
-      }
-
-      returnsData.push({
-        id: makeId(),
-        supplierName,
-        date: dateInput.value,
-        items,
-        amount,
-        notes: document.getElementById("returnNotes").value.trim()
-      });
-
-      persistData();
-      renderAll();
-      closeModal("returnModal");
-    }
-
-    function makeCell(text, className = "") {
-      const cell = document.createElement("td");
-      cell.textContent = text;
-      if (className) cell.className = className;
-      return cell;
-    }
-
-    function makeActionButton(text, className, action, key, label) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = className;
-      button.textContent = text;
-      button.dataset.action = action;
-      button.dataset.key = key;
-      button.setAttribute("aria-label", label);
-      return button;
-    }
-
-    function showEmptyRow(tbody, columnCount, message) {
+    grouped.forEach((group) => {
       const row = document.createElement("tr");
-      const cell = document.createElement("td");
-      cell.colSpan = columnCount;
-      cell.className = "empty-state";
-      cell.textContent = message;
-      row.appendChild(cell);
+      const supplierCell = document.createElement("td");
+      const billsCell = document.createElement("td");
+      const totalCell = document.createElement("td");
+      const actionsCell = document.createElement("td");
+
+      supplierCell.textContent = group.supplier;
+      billsCell.className = "text-right";
+      billsCell.textContent = String(group.bills);
+      totalCell.className = "text-right";
+      totalCell.textContent = `Rs. ${formatMoney(group.total)}`;
+      actionsCell.className = "text-center";
+
+      actionsCell.appendChild(
+        makeButton("View", "view-btn", () => {
+          const details = group.purchases.map((purchase) => {
+            const products = purchase.items
+              .map((item) => `${item.name} × ${item.quantity}`)
+              .join(", ");
+            return `${purchase.date}: ${products} — Rs. ${formatMoney(purchase.total)}`;
+          });
+          alert(`${group.supplier}\n\n${details.join("\n")}`);
+        })
+      );
+
+      actionsCell.appendChild(
+        makeButton("Delete", "delete-btn", () => {
+          if (!confirm(`Delete all purchase records for ${group.supplier}?`)) {
+            return;
+          }
+
+          records.purchases = records.purchases.filter(
+            (purchase) => purchase.supplier !== group.supplier
+          );
+
+          records.history.push({
+            date: new Date().toLocaleString(),
+            type: "Purchase",
+            supplier: group.supplier,
+            deletedBy: "Current user",
+            amount: group.total
+          });
+
+          saveRecords();
+          renderAll();
+        })
+      );
+
+      row.append(supplierCell, billsCell, totalCell, actionsCell);
       tbody.appendChild(row);
+    });
+  }
+
+  function recordReturn() {
+    const supplierNumber = prompt(
+      `Select supplier by number:\n${SUPPLIERS.map(
+        (supplier, index) => `${index + 1}. ${supplier}`
+      ).join("\n")}`
+    );
+
+    if (supplierNumber === null) return;
+
+    const supplierIndex = Number(supplierNumber) - 1;
+    if (!Number.isInteger(supplierIndex) || !SUPPLIERS[supplierIndex]) {
+      alert("Select a valid supplier number.");
+      return;
     }
 
-    function renderPurchases() {
-      const tbody = document.getElementById("purchasesBody");
-      tbody.replaceChildren();
+    const items = prompt("Describe the items being returned:");
+    if (items === null || !items.trim()) return;
 
-      const groups = new Map();
+    const amountText = prompt("Enter the credit amount in Rs.:");
+    if (amountText === null) return;
 
-      purchasesData.forEach(purchase => {
-        const supplierName = String(purchase.supplierName || "Unknown supplier");
-        const key = supplierName.trim().toLowerCase();
-
-        if (!groups.has(key)) {
-          groups.set(key, { supplierName, purchases: [], total: 0 });
-        }
-
-        const group = groups.get(key);
-        group.purchases.push(purchase);
-        group.total += Number(purchase.total) || 0;
-      });
-
-      if (groups.size === 0) {
-        showEmptyRow(tbody, 4, "No purchase records yet.");
-        return;
-      }
-
-      [...groups.entries()]
-        .sort((a, b) => a[1].supplierName.localeCompare(b[1].supplierName))
-        .forEach(([key, group]) => {
-          const row = document.createElement("tr");
-          row.appendChild(makeCell(group.supplierName));
-          row.appendChild(makeCell(String(group.purchases.length), "text-right"));
-          row.appendChild(makeCell(formatCurrency(group.total), "text-right"));
-
-          const actions = document.createElement("td");
-          actions.className = "text-center";
-          actions.appendChild(makeActionButton(
-            "View", "view-btn", "view-purchases", key,
-            `View purchases from ${group.supplierName}`
-          ));
-          actions.appendChild(makeActionButton(
-            "Delete", "delete-btn", "delete-purchases", key,
-            `Delete purchases from ${group.supplierName}`
-          ));
-          row.appendChild(actions);
-          tbody.appendChild(row);
-        });
+    const amount = Number(amountText);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      alert("Enter a valid credit amount greater than zero.");
+      return;
     }
 
-    function renderReturns() {
-      const tbody = document.getElementById("returnsBody");
-      tbody.replaceChildren();
+    records.returns.push({
+      id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+      supplier: SUPPLIERS[supplierIndex],
+      date: today(),
+      items: items.trim(),
+      amount
+    });
 
-      if (returnsData.length === 0) {
-        showEmptyRow(tbody, 5, "No vendor returns yet.");
-        return;
-      }
+    saveRecords();
+    renderAll();
+  }
 
-      [...returnsData]
-        .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
-        .forEach(record => {
-          const row = document.createElement("tr");
-          row.appendChild(makeCell(record.supplierName || "Unknown supplier"));
-          row.appendChild(makeCell(formatDate(record.date)));
-          row.appendChild(makeCell(record.items || ""));
-          row.appendChild(makeCell(formatCurrency(record.amount), "text-right"));
+  function renderReturns() {
+    const tbody = document.getElementById("returnsBody");
 
-          const actions = document.createElement("td");
-          actions.className = "text-center";
-          actions.appendChild(makeActionButton(
-            "Delete", "delete-btn", "delete-return", record.id,
-            `Delete return from ${record.supplierName || "unknown supplier"}`
-          ));
-          row.appendChild(actions);
-          tbody.appendChild(row);
-        });
+    if (records.returns.length === 0) {
+      setEmptyState(tbody, 5, "No returns recorded yet.");
+      return;
     }
 
-    function renderHistory() {
-      const tbody = document.getElementById("historyBody");
-      tbody.replaceChildren();
+    tbody.replaceChildren();
 
-      if (historyData.length === 0) {
-        showEmptyRow(tbody, 5, "No deleted records.");
-        return;
-      }
+    records.returns.forEach((record) => {
+      const row = document.createElement("tr");
+      const supplierCell = document.createElement("td");
+      const dateCell = document.createElement("td");
+      const itemsCell = document.createElement("td");
+      const amountCell = document.createElement("td");
+      const actionsCell = document.createElement("td");
 
-      [...historyData]
-        .sort((a, b) => String(b.deletedAt || "").localeCompare(String(a.deletedAt || "")))
-        .forEach(record => {
-          const row = document.createElement("tr");
-          row.appendChild(makeCell(formatDateTime(record.deletedAt)));
-          row.appendChild(makeCell(record.type || ""));
-          row.appendChild(makeCell(record.supplierName || ""));
-          row.appendChild(makeCell(record.deletedBy || "Current user"));
-          row.appendChild(makeCell(formatCurrency(record.amount), "text-right"));
-          tbody.appendChild(row);
-        });
-    }
+      supplierCell.textContent = record.supplier;
+      dateCell.textContent = record.date;
+      itemsCell.textContent = record.items;
+      amountCell.className = "text-right";
+      amountCell.textContent = `Rs. ${formatMoney(record.amount)}`;
+      actionsCell.className = "text-center";
 
-    function renderAll() {
-      renderPurchases();
-      renderReturns();
-      renderHistory();
-    }
+      actionsCell.appendChild(
+        makeButton("Delete", "delete-btn", () => {
+          if (!confirm("Delete this return record?")) return;
 
-    function handleTableAction(event) {
-      const button = event.target.closest("button[data-action]");
-      if (!button) return;
+          records.returns = records.returns.filter(
+            (item) => item.id !== record.id
+          );
+          records.history.push({
+            date: new Date().toLocaleString(),
+            type: "Vendor return",
+            supplier: record.supplier,
+            deletedBy: "Current user",
+            amount: record.amount
+          });
 
-      const { action, key } = button.dataset;
-
-      if (action === "view-purchases") viewPurchases(key);
-      if (action === "delete-purchases") deletePurchases(key);
-      if (action === "delete-return") deleteReturn(key);
-    }
-
-    function viewPurchases(supplierKey) {
-      const records = purchasesData.filter(
-        record => String(record.supplierName || "").trim().toLowerCase() === supplierKey
+          saveRecords();
+          renderAll();
+        })
       );
 
-      if (records.length === 0) return;
+      row.append(supplierCell, dateCell, itemsCell, amountCell, actionsCell);
+      tbody.appendChild(row);
+    });
+  }
 
-      const details = records.map(record => {
-        const lines = [
-          `Bill: ${record.billNo || "—"}`,
-          `Date: ${formatDate(record.date)}`,
-          `Cost: ${formatCurrency(record.total)}`
-        ];
-        if (record.notes) lines.push(`Notes: ${record.notes}`);
-        return lines.join("\n");
-      });
+  function renderHistory() {
+    const tbody = document.getElementById("historyBody");
 
-      alert(`${records[0].supplierName}\n\n${details.join("\n\n")}`);
+    if (records.history.length === 0) {
+      setEmptyState(tbody, 5, "No deleted records yet.");
+      return;
     }
 
-    function deletePurchases(supplierKey) {
-      const records = purchasesData.filter(
-        record => String(record.supplierName || "").trim().toLowerCase() === supplierKey
-      );
+    tbody.replaceChildren();
 
-      if (records.length === 0) return;
+    [...records.history].reverse().forEach((record) => {
+      const row = document.createElement("tr");
 
-      if (!confirm(`Delete all ${records.length} purchase record(s) for ${records[0].supplierName}?`)) {
-        return;
+      [
+        record.date,
+        record.type,
+        record.supplier,
+        record.deletedBy,
+        `Rs. ${formatMoney(record.amount)}`
+      ].forEach((text, index) => {
+        const cell = document.createElement("td");
+        cell.textContent = text;
+        if (index === 4) cell.className = "text-right";
+        row.appendChild(cell);
+      });
+
+      tbody.appendChild(row);
+    });
+  }
+
+  function renderAll() {
+    renderPurchases();
+    renderReturns();
+    renderHistory();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    populateSuppliers();
+    setupTabs();
+    renderProductList();
+    renderAll();
+
+    document.getElementById("purchaseModal").addEventListener("click", (event) => {
+      if (event.target.id === "purchaseModal") {
+        closePurchaseModal();
       }
+    });
 
-      const deletedAt = new Date().toISOString();
-      records.forEach(record => {
-        historyData.push({
-          id: makeId(),
-          deletedAt,
-          type: "Purchase",
-          supplierName: record.supplierName,
-          deletedBy: "Current user",
-          amount: Number(record.total) || 0
-        });
-      });
-
-      purchasesData = purchasesData.filter(
-        record => String(record.supplierName || "").trim().toLowerCase() !== supplierKey
-      );
-
-      persistData();
-      renderAll();
-    }
-
-    function deleteReturn(id) {
-      const record = returnsData.find(item => item.id === id);
-      if (!record) return;
-
-      if (!confirm(`Delete the vendor return from ${record.supplierName}?`)) return;
-
-      historyData.push({
-        id: makeId(),
-        deletedAt: new Date().toISOString(),
-        type: "Vendor return",
-        supplierName: record.supplierName,
-        deletedBy: "Current user",
-        amount: Number(record.amount) || 0
-      });
-
-      returnsData = returnsData.filter(item => item.id !== id);
-      persistData();
-      renderAll();
-    }
-
-    function formatCurrency(value) {
-      const amount = Number(value);
-      if (!Number.isFinite(amount)) return "Rs 0.00";
-
-      return `Rs ${amount.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })}`;
-    }
-
-    function formatDate(value) {
-      if (!value) return "—";
-
-      const date = new Date(`${value}T00:00:00`);
-      return Number.isNaN(date.getTime())
-        ? String(value)
-        : date.toLocaleDateString();
-    }
-
-    function formatDateTime(value) {
-      if (!value) return "—";
-
-      const date = new Date(value);
-      return Number.isNaN(date.getTime())
-        ? String(value)
-        : date.toLocaleString();
-    }
-  </script>
-</body>
-</html>
+    document.addEventListener("keydown", (event) => {
+      if (
+        event.key === "Escape" &&
+        document.getElementById("purchaseModal").classList.contains("active")
+      ) {
+        closePurchaseModal();
+      }
+    });
+  });
+</script>
