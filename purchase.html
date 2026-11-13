@@ -1,497 +1,584 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Purchases — SOLO LAB MOBILES</title>
-  <script src="sidebar.js"></script>
+  <title>Purchases & Returns — SOLO LAB MOBILES</title>
+  <script src="sidebar.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .top-bar {
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #F8FAFC;
+      min-height: 100vh;
+    }
+
+    .page-wrapper {
+      margin-left: 250px;
+      padding: 25px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .sidebar-collapsed .page-wrapper {
+      margin-left: 70px;
+    }
+
+    .page-header {
+      margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+      font-size: 26px;
+      color: #1F2937;
+      font-weight: 700;
+    }
+
+    .page-header p {
+      color: #6B7280;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .tabs-container {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 20px;
-      align-items: center;
-      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 25px;
+      border-bottom: 1px solid #E5E7EB;
+      padding-bottom: 0;
     }
-    .search-box { flex: 1; min-width: 220px; }
-    
-    .purchase-card {
-      background: white;
-      border-left: 4px solid #F57C00;
-      border-radius: 10px;
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+
+    .tab-btn {
+      padding: 10px 22px;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      color: #6B7280;
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      transition: all 0.2s ease;
+      border-bottom: 3px solid transparent;
     }
-    .purchase-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
+
+    .tab-btn:hover {
+      background: #F3F4F6;
+      color: #374151;
     }
-    .supplier-name {
+
+    .tab-btn.active {
+      background: #FEE2E2;
+      color: #DC2626;
       font-weight: 600;
-      font-size: 16px;
-      color: #212121;
+      border-bottom: 3px solid #DC2626;
     }
-    .purchase-ref {
-      font-size: 13px;
-      color: #757575;
+
+    .top-action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
     }
-    .purchase-date {
-      font-size: 13px;
-      color: #757575;
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1F2937;
     }
-    
-    .items-table {
+
+    .btn-primary-custom {
+      background: #DC2626;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-primary-custom:hover {
+      background: #B91C1C;
+    }
+
+    .btn-secondary-custom {
+      background: #F3F4F6;
+      color: #374151;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-secondary-custom:hover {
+      background: #E5E7EB;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    table {
       width: 100%;
       border-collapse: collapse;
-      margin: 12px 0;
     }
-    .items-table th {
-      background: #FFF3E0;
-      color: #E65100;
-      padding: 8px 10px;
+
+    th {
+      background: #F9FAFB;
+      padding: 14px 18px;
       text-align: left;
       font-size: 13px;
-    }
-    .items-table td {
-      padding: 8px 10px;
-      border-bottom: 1px solid #FFE0B2;
-      font-size: 14px;
-    }
-    .total-row {
-      text-align: right;
-      font-size: 18px;
-      font-weight: 700;
-      color: #E65100;
-      margin-top: 8px;
-    }
-    
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
       font-weight: 600;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid #E5E7EB;
     }
-    .status-pending { background: #FFF3E0; color: #E65100; }
-    .status-received { background: #E8F5E9; color: #2E7D32; }
-    .status-cancelled { background: #FFEBEE; color: #C62828; }
-    
-    /* Modal */
-    .modal-overlay {
+
+    td {
+      padding: 16px 18px;
+      border-bottom: 1px solid #F3F4F6;
+      font-size: 14px;
+      color: #1F2937;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .view-btn {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 5px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .view-btn:hover {
+      background: #DBEAFE;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9CA3AF;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 15px;
+      color: #D1D5DB;
+    }
+
+    .tab-content {
       display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
       background: rgba(0,0,0,0.5);
+      display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      padding: 20px;
+      display: none;
     }
-    .modal-overlay.show { display: flex; }
-    .modal {
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
       background: white;
-      border-radius: 12px;
-      padding: 24px;
-      width: 100%;
-      max-width: 500px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 550px;
       max-height: 90vh;
       overflow-y: auto;
     }
-    .modal h3 {
-      margin-top: 0;
-      color: #212121;
-      font-size: 18px;
-      margin-bottom: 16px;
-    }
-    .form-group {
-      margin-bottom: 14px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      color: #424242;
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .form-actions {
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #E5E7EB;
       display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 10px;
-    }
-    .btn-secondary {
-      background: #E0E0E0;
-      color: #212121;
-    }
-    
-    .item-row {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 40px;
-      gap: 8px;
-      margin-bottom: 8px;
+      justify-content: space-between;
       align-items: center;
     }
-    .btn-sm {
-      padding: 5px 10px;
-      font-size: 12px;
+
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1F2937;
     }
-    
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #757575;
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #6B7280;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 7px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #DC2626;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+    }
+
+    .modal-footer {
+      padding: 18px 24px;
+      border-top: 1px solid #E5E7EB;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn-cancel {
+      padding: 9px 18px;
+      border-radius: 6px;
+      border: 1px solid #D1D5DB;
+      background: white;
+      color: #374151;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-save {
+      padding: 9px 22px;
+      border-radius: 6px;
+      border: none;
+      background: #DC2626;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-save:hover {
+      background: #B91C1C;
+    }
+
+    .supplier-name {
+      font-weight: 500;
+    }
+
+    .supplier-location {
+      font-size: 12px;
+      color: #6B7280;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .text-success {
+      color: #16A34A;
+    }
+
+    .text-danger {
+      color: #DC2626;
     }
   </style>
-  <script>
-// ==========================================
-// Google Sheets Sync — SOLO LAB MOBILES
-// ==========================================
-const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdVCmtSvSo5deT_5Os6yXRp1EE7hroItOe6ufemZe-rgH-yzsM9xq02bLqWsSUjBPw/exec"; // ← PASTE YOUR URL HERE
-
-async function gsRead(tabName) {
-  try {
-    const res = await fetch(`${GS_WEB_APP_URL}?action=read&tab=${tabName}`);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    
-    // Convert sheet rows to objects (first row = headers)
-    const rows = json.data;
-    if (rows.length < 2) return [];
-    
-    const headers = rows[0].map(h => h.trim());
-    return rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((h, i) => {
-        let val = row[i];
-        // Convert numbers where possible
-        if (!isNaN(parseFloat(val)) && isFinite(val)) val = Number(val);
-        obj[h] = val;
-      });
-      return obj;
-    });
-  } catch (err) {
-    console.error('Google Sheets Read Error:', err);
-    alert('Could not load data: ' + err.message);
-    return [];
-  }
-}
-
-async function gsSave(tabName, objects, headers) {
-  try {
-    // Convert objects back to sheet rows
-    const rows = [headers];
-    objects.forEach(obj => {
-      rows.push(headers.map(h => obj[h] ?? ''));
-    });
-    
-    const res = await fetch(`${GS_WEB_APP_URL}?action=save`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tab: tabName, data: rows })
-    });
-    
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    return true;
-  } catch (err) {
-    console.error('Google Sheets Save Error:', err);
-    alert('Could not save data: ' + err.message);
-    return false;
-  }
-}
-</script>
-
 </head>
 <body>
 
+<!-- ===== MAIN PAGE CONTENT ===== -->
+<div class="page-wrapper" id="pageWrapper">
   <div class="page-header">
-    <h1>📥 Purchase Orders & Stock In</h1>
-    <p>Record stock purchases from suppliers</p>
+    <h1>Purchases & Vendor Returns Hub</h1>
+    <p>Record product restocks and manage supplier defective stock returns in one consolidated ledger.</p>
   </div>
 
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by supplier or reference..." oninput="renderPurchases()">
-    <button class="btn btn-primary" onclick="openModal()">➕ New Purchase</button>
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <button class="tab-btn active" data-tab="purchases">
+      <i class="fas fa-boxes-stacked me-2"></i> Stock Purchases
+    </button>
+    <button class="tab-btn" data-tab="returns">
+      <i class="fas fa-arrow-rotate-left me-2"></i> Vendor Returns
+    </button>
+    <button class="tab-btn" data-tab="history">
+      <i class="fas fa-clock-rotate-left me-2"></i> Deleted History
+    </button>
   </div>
 
-  <!-- Purchase List -->
-  <div id="purchaseList"></div>
+  <!-- ===== STOCK PURCHASES TAB ===== -->
+  <div class="tab-content active" id="purchases-tab">
+    <div class="top-action-bar">
+      <div class="section-title">Stock Purchases Journal</div>
+      <button class="btn-primary-custom" onclick="openPurchaseModal()">
+        <i class="fas fa-plus me-1"></i> Record Purchase
+      </button>
+    </div>
 
-  <!-- New Purchase Modal -->
-  <div class="modal-overlay" id="purchaseModal">
-    <div class="modal">
-      <h3>New Purchase Order</h3>
-      <form id="purchaseForm">
-        <div class="form-group">
-          <label>Supplier Name *</label>
-          <input type="text" id="supplierName" required placeholder="Enter supplier name">
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label>Reference No.</label>
-            <input type="text" id="refNo" placeholder="Invoice / Order No.">
-          </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="purchaseDate">
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Items Purchased</label>
-          <div id="itemContainer">
-            <div class="item-row">
-              <input type="text" placeholder="Product name" class="item-name" required>
-              <input type="number" placeholder="Qty" class="item-qty" min="1" value="1" required>
-              <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" required>
-              <button type="button" class="btn btn-danger" style="padding:6px; width:32px; height:32px;" onclick="removeItem(this)">×</button>
-            </div>
-          </div>
-          <button type="button" class="btn btn-secondary" style="margin-top:8px; width:100%;" onclick="addItemRow()">+ Add Item</button>
-        </div>
-        
-        <div class="form-group">
-          <label>Status</label>
-          <select id="purchaseStatus">
-            <option value="pending" selected>Pending / Ordered</option>
-            <option value="received">✅ Items Received</option>
-            <option value="cancelled">❌ Cancelled</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="purchaseNotes" placeholder="Delivery info, payment terms, etc." style="width:100%; padding:10px; border:2px solid #FFE0B2; border-radius:6px; min-height:60px; box-sizing:border-box;"></textarea>
-        </div>
-        
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Purchase</button>
-        </div>
-      </form>
+    <p style="color:#6B7280; font-size:13px; margin-bottom:15px;">Record supplier restock arrivals and update liabilities.</p>
+
+    <div class="table-container">
+      <table id="purchasesTable">
+        <thead>
+          <tr>
+            <th>SUPPLIER</th>
+            <th class="text-right">TOTAL BILLS</th>
+            <th class="text-right">TOTAL PURCHASED COST</th>
+            <th style="text-align:center;">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody id="purchasesBody">
+          <!-- Data loads here -->
+          <tr>
+            <td colspan="4" class="empty-state">
+              <i class="fas fa-database"></i>
+              <p>Loading data...</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <script>
-    let purchases = [];
-    
-    // Set today's date
-    document.getElementById('purchaseDate').valueAsDate = new Date();
-    
-    function loadPurchases() {
-      purchases = JSON.parse(localStorage.getItem('shopPurchases') || '[]');
-      renderPurchases();
-    }
-    
-    function renderPurchases() {
-      const search = document.getElementById('searchInput').value.toLowerCase().trim();
-      const container = document.getElementById('purchaseList');
+  <!-- ===== VENDOR RETURNS TAB ===== -->
+  <div class="tab-content" id="returns-tab">
+    <div class="top-action-bar">
+      <div class="section-title">Vendor Returns Journal</div>
+      <button class="btn-primary-custom" onclick="openReturnModal()">
+        <i class="fas fa-plus me-1"></i> Record Return
+      </button>
+    </div>
+
+    <p style="color:#6B7280; font-size:13px; margin-bottom:15px;">Record defective stock sent back to suppliers and credit adjustments.</p>
+
+    <div class="table-container">
+      <table id="returnsTable">
+        <thead>
+          <tr>
+            <th>SUPPLIER</th>
+            <th>RETURN DATE</th>
+            <th>ITEMS RETURNED</th>
+            <th class="text-right">CREDIT AMOUNT</th>
+            <th style="text-align:center;">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody id="returnsBody">
+          <tr>
+            <td colspan="5" class="empty-state">
+              <i class="fas fa-rotate-left"></i>
+              <p>No returns recorded yet.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== DELETED HISTORY TAB ===== -->
+  <div class="tab-content" id="history-tab">
+    <div class="top-action-bar">
+      <div class="section-title">Deleted Records History</div>
+    </div>
+
+    <p style="color:#6B7280; font-size:13px; margin-bottom:15px;">Audit log of removed purchase and return records.</p>
+
+    <div class="table-container">
+      <table id="historyTable">
+        <thead>
+          <tr>
+            <th>DATE DELETED</th>
+            <th>TYPE</th>
+            <th>SUPPLIER</th>
+            <th>DELETED BY</th>
+            <th class="text-right">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr>
+            <td colspan="5" class="empty-state">
+              <i class="fas fa-clipboard-list"></i>
+              <p>No deleted records yet.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RECORD PURCHASE MODAL ===== -->
+<div class="modal-overlay" id="purchaseModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Record Stock Purchase</h3>
+      <button class="close-btn" onclick="closePurchaseModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Supplier Name *</label>
+        <select id="purchaseSupplier" required>
+          <option value="">-- Select Supplier --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Bill Reference No *</label>
+        <input type="text" id="purchaseBillNo" placeholder="e.g. INV-2026-113" required>
+      </div>
+      <div class="form-group">
+        <label>Purchase Date *</label>
+        <input type="date" id="purchaseDate" required>
+      </div>
+      <div class="form-group">
+        <label>Total Cost (Rs) *</label>
+        <input type="number" step="0.01" id="purchaseTotal" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="purchaseNotes" rows="3" placeholder="Optional notes about this purchase..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closePurchaseModal()">Cancel</button>
+      <button class="btn-save" onclick="savePurchase()">Save Purchase</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RECORD RETURN MODAL ===== -->
+<div class="modal-overlay" id="returnModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Record Vendor Return</h3>
+      <button class="close-btn" onclick="closeReturnModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Supplier Name *</label>
+        <select id="returnSupplier" required>
+          <option value="">-- Select Supplier --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Return Date *</label>
+        <input type="date" id="returnDate" required>
+      </div>
+      <div class="form-group">
+        <label>Items Returned *</label>
+        <textarea id="returnItems" rows="3" placeholder="List items & quantities..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Credit Amount (Rs) *</label>
+        <input type="number" step="0.01" id="returnAmount" placeholder="0.00" required>
+      </div>
+      <div class="form-group">
+        <label>Reason / Notes</label>
+        <textarea id="returnNotes" rows="2" placeholder="e.g. Defective, Wrong model..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeReturnModal()">Cancel</button>
+      <button class="btn-save" onclick="saveReturn()">Save Return</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== YOUR GOOGLE SHEETS WEB APP URL =====
+const GS_WEB_APP_URL = "PASTE-YOUR-URL-HERE";
+
+// Sample suppliers — replace with your actual list
+let suppliers = [
+  { id: 1, name: "HONEY BADGERS", location: "Asmathulla-Akurana" },
+  { id: 2, name: "NIPPON FOOTWEAR", location: "" },
+  { id: 3, name: "LEVOZI LANKA (PVT) LTD", location: "" },
+  { id: 4, name: "LAMA - GLIDE", location: "" },
+  { id: 5, name: "NAMI BAGS", location: "Nassar Uk" },
+  { id: 6, name: "Faiz", location: "Gampola" },
+  { id: 7, name: "K. RAJAN", location: "" }
+];
+
+// Data storage
+let purchasesData = [];
+let returnsData = [];
+let historyData = [];
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  initTabs();
+  populateSupplierDropdowns();
+  setTodayDate();
+  loadAllData();
+});
+
+// ===== TABS SYSTEM =====
+function initTabs() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Remove active from all
+      tabButtons.forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       
-      let filtered = purchases;
-      if (search) {
-        filtered = purchases.filter(p => 
-          p.supplierName.toLowerCase().includes(search) ||
-          (p.refNo || '').toLowerCase().includes(search)
-        );
-      }
-      
-      // Sort: newest first
-      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-      
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <p style="font-size:40px; margin-bottom:10px;">📦</p>
-            <p>${purchases.length === 0 ? 'No purchase orders yet.' : 'No matching purchases found.'}</p>
-            <p style="font-size:13px; margin-top:5px;">Click "New Purchase" to record stock received</p>
-          </div>`;
-        return;
-      }
-      
-      container.innerHTML = filtered.map(p => {
-        const statusClass = p.status === 'received' ? 'status-received' :
-                            p.status === 'cancelled' ? 'status-cancelled' : 'status-pending';
-        const total = p.items.reduce((sum, i) => sum + (i.qty * i.cost), 0);
-        
-        return `
-          <div class="purchase-card">
-            <div class="purchase-header">
-              <div>
-                <div class="supplier-name">${escapeHtml(p.supplierName)}</div>
-                <div class="purchase-ref">Ref: ${escapeHtml(p.refNo || '—')}</div>
-                <div class="purchase-date">📅 ${p.date}</div>
-              </div>
-              <span class="status-badge ${statusClass}">${p.status.charAt(0).toUpperCase() + p.status.slice(1)}</span>
-            </div>
-            <table class="items-table">
-              <thead>
-                <tr><th>Item</th><th>Qty</th><th>Cost Each</th><th>Subtotal</th></tr>
-              </thead>
-              <tbody>
-                ${p.items.map(i => `
-                  <tr>
-                    <td>${escapeHtml(i.name)}</td>
-                    <td>${i.qty}</td>
-                    <td>LKR ${i.cost.toLocaleString()}</td>
-                    <td>LKR ${(i.qty * i.cost).toLocaleString()}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-            <div class="total-row">Total: LKR ${total.toLocaleString()}</div>
-            ${p.notes ? `<div style="margin-top:10px; font-size:13px; color:#616161;"><strong>Notes:</strong> ${escapeHtml(p.notes)}</div>` : ''}
-            <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:12px;">
-              <button class="btn btn-secondary btn-sm" onclick="editPurchase('${p.id}')">✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">🗑️ Delete</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-    
-    function addItemRow() {
-      const container = document.getElementById('itemContainer');
-      const row = document.createElement('div');
-      row.className = 'item-row';
-      row.innerHTML = `
-        <input type="text" placeholder="Product name" class="item-name" required>
-        <input type="number" placeholder="Qty" class="item-qty" min="1" value="1" required>
-        <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" required>
-        <button type="button" class="btn btn-danger" style="padding:6px; width:32px; height:32px;" onclick="removeItem(this)">×</button>
-      `;
-      container.appendChild(row);
-    }
-    
-    function removeItem(btn) {
-      const rows = document.querySelectorAll('.item-row');
-      if (rows.length > 1) {
-        btn.parentElement.remove();
-      } else {
-        alert('At least one item is required');
-      }
-    }
-    
-    function openModal() {
-      document.getElementById('purchaseForm').reset();
-      document.getElementById('purchaseDate').valueAsDate = new Date();
-      document.getElementById('purchaseStatus').value = 'pending';
-      document.getElementById('itemContainer').innerHTML = `
-        <div class="item-row">
-          <input type="text" placeholder="Product name" class="item-name" required>
-          <input type="number" placeholder="Qty" class="item-qty" min="1" value="1" required>
-          <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" required>
-          <button type="button" class="btn btn-danger" style="padding:6px; width:32px; height:32px;" onclick="removeItem(this)">×</button>
-        </div>
-      `;
-      document.getElementById('purchaseModal').classList.add('show');
-    }
-    
-    function closeModal() {
-      document.getElementById('purchaseModal').classList.remove('show');
-      delete document.getElementById('purchaseForm').dataset.editId;
-    }
-    
-    function editPurchase(id) {
-      const p = purchases.find(x => x.id === id);
-      if (!p) return;
-      
-      document.getElementById('supplierName').value = p.supplierName;
-      document.getElementById('refNo').value = p.refNo || '';
-      document.getElementById('purchaseDate').value = p.date;
-      document.getElementById('purchaseStatus').value = p.status;
-      document.getElementById('purchaseNotes').value = p.notes || '';
-      
-      // Load items
-      const container = document.getElementById('itemContainer');
-      container.innerHTML = '';
-      p.items.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'item-row';
-        row.innerHTML = `
-          <input type="text" placeholder="Product name" class="item-name" value="${escapeHtml(item.name)}" required>
-          <input type="number" placeholder="Qty" class="item-qty" min="1" value="${item.qty}" required>
-          <input type="number" placeholder="Cost" class="item-cost" min="0" step="0.01" value="${item.cost}" required>
-          <button type="button" class="btn btn-danger" style="padding:6px; width:32px; height:32px;" onclick="removeItem(this)">×</button>
-        `;
-        container.appendChild(row);
-      });
-      
-      document.getElementById('purchaseForm').dataset.editId = id;
-      document.getElementById('purchaseModal').classList.add('show');
-    }
-    
-    function deletePurchase(id) {
-      if (!confirm('Delete this purchase record?')) return;
-      purchases = purchases.filter(p => p.id !== id);
-      localStorage.setItem('shopPurchases', JSON.stringify(purchases));
-      renderPurchases();
-    }
-    
-    document.getElementById('purchaseForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const editId = this.dataset.editId;
-      
-      // Collect items
-      const itemRows = document.querySelectorAll('.item-row');
-      const items = [];
-      let valid = true;
-      itemRows.forEach(row => {
-        const name = row.querySelector('.item-name').value.trim();
-        const qty = parseFloat(row.querySelector('.item-qty').value);
-        const cost = parseFloat(row.querySelector('.item-cost').value);
-        if (name && qty > 0 && cost >= 0) {
-          items.push({ name, qty, cost });
-        }
-      });
-      
-      if (items.length === 0) {
-        alert('Please add at least one item');
-        return;
-      }
-      
-      const purchaseData = {
-        id: editId || 'PO-' + Date.now(),
-        supplierName: document.getElementById('supplierName').value.trim(),
-        refNo: document.getElementById('refNo').value.trim(),
-        date: document.getElementById('purchaseDate').value,
-        items: items,
-        status: document.getElementById('purchaseStatus').value,
-        notes: document.getElementById('purchaseNotes').value.trim(),
-        createdAt: editId ? purchases.find(p=>p.id===editId).createdAt : new Date().toISOString()
-      };
-      
-      if (editId) {
-        const idx = purchases.findIndex(p => p.id === editId);
-        if (idx !== -1) purchases[idx] = purchaseData;
-        delete this.dataset.editId;
-      } else {
-        purchases.unshift(purchaseData);
-      }
-      
-      localStorage.setItem('shopPurchases', JSON.stringify(purchases));
-      closeModal();
-      renderPurchases();
-      alert('✅ Purchase saved successfully!');
+      // Activate clicked
+      btn.classList.add('active');
+      const tabId = btn.getAttribute('data-tab');
+      document.getElementById(`${tabId}-tab`).classList.add('active');
     });
-    
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text || '';
-      return div.innerHTML;
+  });
+}
+
+// ===== SET TODAY DATE =====
+function setTodayDate() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('purchaseDate').value = today;
+  document.getElementById('returnDate').value = today;
+}
+
+// ===== POPULATE SUPPLIER DROPDOWNS =====
+function populateSupplier
