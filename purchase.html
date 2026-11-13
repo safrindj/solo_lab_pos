@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Purchases & Returns — SOLO LAB MOBILES</title>
+  <title>Purchases &amp; Returns — SOLO LAB MOBILES</title>
 
+  <script src="sidebar.js" defer></script>
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -24,144 +25,22 @@
       font-family: Arial, sans-serif;
     }
 
-    /* ===== SIDEBAR STYLES ===== */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 250px;
-      background: #1F2937;
-      color: white;
-      transition: width 0.3s ease;
-      z-index: 999;
-      overflow: hidden;
-    }
-
-    .sidebar.collapsed {
-      width: 70px;
-    }
-
-    .sidebar-header {
-      padding: 20px;
-      border-bottom: 1px solid #374151;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .sidebar-header h2 {
-      font-size: 18px;
-      white-space: nowrap;
-      overflow: hidden;
-    }
-
-    .sidebar.collapsed .sidebar-header h2 {
-      display: none;
-    }
-
-    .toggle-btn {
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .sidebar-menu {
-      list-style: none;
-      padding: 15px 0;
-    }
-
-    .sidebar-menu li {
-      margin: 5px 0;
-    }
-
-    .sidebar-menu a {
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      color: #D1D5DB;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .sidebar-menu a:hover,
-    .sidebar-menu a.active {
-      background: #374151;
-      color: white;
-      border-left: 3px solid #DC2626;
-    }
-
-    .sidebar-menu i {
-      font-size: 18px;
-      min-width: 25px;
-      text-align: center;
-    }
-
-    .sidebar-menu span {
-      margin-left: 12px;
-    }
-
-    .sidebar.collapsed .sidebar-menu span {
-      display: none;
-    }
-
     .page-wrapper {
       margin-left: 250px;
       padding: 25px;
       transition: margin-left 0.3s ease;
-      min-height: 100vh;
     }
 
     .sidebar-collapsed .page-wrapper {
       margin-left: 70px;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 10px 0 20px;
-      gap: 20px;
-    }
-
-    .top-bar-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #374151;
-      font-size: 14px;
-    }
-
-    .top-bar-item button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #374151;
-    }
-
-    .user-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #DC2626;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    .logout-btn {
-      padding: 8px 16px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      background: white;
-      cursor: pointer;
-      font-size: 14px;
-      color: #374151;
+    @media (max-width: 768px) {
+      .page-wrapper,
+      .sidebar-collapsed .page-wrapper {
+        margin-left: 0;
+        padding: 18px;
+      }
     }
 
     .page-header {
@@ -178,6 +57,7 @@
       margin-top: 5px;
       color: #6B7280;
       font-size: 14px;
+      line-height: 1.5;
     }
 
     .tabs-container {
@@ -214,7 +94,6 @@
     .tab-btn:focus-visible,
     button:focus-visible,
     input:focus-visible,
-    select:focus-visible,
     textarea:focus-visible {
       outline: 3px solid #93C5FD;
       outline-offset: 2px;
@@ -235,18 +114,14 @@
       font-weight: 600;
     }
 
-    .btn-primary-custom,
-    .btn-save {
+    .btn-primary-custom {
+      padding: 10px 20px;
       border: 0;
       border-radius: 6px;
       background: #DC2626;
       color: #FFF;
       cursor: pointer;
       font-weight: 600;
-    }
-
-    .btn-primary-custom {
-      padding: 10px 20px;
     }
 
     .btn-primary-custom:hover,
@@ -289,48 +164,41 @@
       border-bottom: 1px solid #F3F4F6;
       color: #1F2937;
       font-size: 14px;
-      vertical-align: top;
+      vertical-align: middle;
     }
 
-    .text-right {
-      text-align: right;
+    tbody tr:last-child td {
+      border-bottom: 0;
     }
 
-    .text-center {
-      text-align: center;
-    }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
 
-    .view-btn {
-      padding: 6px 14px;
-      border: 0;
-      border-radius: 5px;
-      background: #EFF6FF;
-      color: #1D4ED8;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
+    .view-btn,
     .delete-btn {
       padding: 6px 14px;
       border: 0;
       border-radius: 5px;
-      background: #FEF2F2;
-      color: #B91C1C;
       cursor: pointer;
       font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .view-btn {
+      background: #EFF6FF;
+      color: #1D4ED8;
+    }
+
+    .delete-btn {
+      margin-left: 6px;
+      background: #FEF2F2;
+      color: #B91C1C;
     }
 
     .empty-state {
-      padding: 60px 20px;
+      padding: 40px 20px;
       color: #9CA3AF;
       text-align: center;
-    }
-
-    .empty-state i {
-      display: block;
-      margin-bottom: 15px;
-      color: #D1D5DB;
-      font-size: 40px;
     }
 
     .tab-content {
@@ -411,6 +279,10 @@
       font-size: 14px;
     }
 
+    .form-group textarea {
+      resize: vertical;
+    }
+
     .modal-footer {
       display: flex;
       justify-content: flex-end;
@@ -432,139 +304,48 @@
     }
 
     .btn-save {
-      padding-right: 22px;
-      padding-left: 22px;
+      padding: 9px 22px;
+      border: 0;
+      background: #DC2626;
+      color: white;
+      font-weight: 600;
     }
 
-    .me-1 {
-      margin-right: 0.25rem;
-    }
-
-    .me-2 {
-      margin-right: 0.5rem;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar {
-        position: relative;
-        width: 100% !important;
-        height: auto;
-      }
-      .page-wrapper,
-      .sidebar-collapsed .page-wrapper {
-        margin-left: 0;
-        padding: 18px;
-      }
-
-      .page-header h1 {
-        font-size: 22px;
-      }
-    }
+    .me-1 { margin-right: 0.25rem; }
+    .me-2 { margin-right: 0.5rem; }
   </style>
 </head>
 
 <body>
-  <!-- ===== SIDEBAR ===== -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <h2>SOLO LAB MOBILES</h2>
-      <button class="toggle-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-      </button>
-    </div>
-    <ul class="sidebar-menu">
-      <li>
-        <a href="dashboard.html">
-          <i class="fas fa-tachometer-alt"></i>
-          <span>Dashboard</span>
-        </a>
-      </li>
-      <li>
-        <a href="products.html">
-          <i class="fas fa-mobile-alt"></i>
-          <span>Products</span>
-        </a>
-      </li>
-      <li>
-        <a href="purchases.html" class="active">
-          <i class="fas fa-shopping-cart"></i>
-          <span>Purchases & Returns</span>
-        </a>
-      </li>
-      <li>
-        <a href="sales.html">
-          <i class="fas fa-cash-register"></i>
-          <span>Sales</span>
-        </a>
-      </li>
-      <li>
-        <a href="inventory.html">
-          <i class="fas fa-boxes"></i>
-          <span>Inventory</span>
-        </a>
-      </li>
-      <li>
-        <a href="suppliers.html">
-          <i class="fas fa-truck-loading"></i>
-          <span>Suppliers</span>
-        </a>
-      </li>
-      <li>
-        <a href="reports.html">
-          <i class="fas fa-chart-bar"></i>
-          <span>Reports</span>
-        </a>
-      </li>
-      <li>
-        <a href="settings.html">
-          <i class="fas fa-cog"></i>
-          <span>Settings</span>
-        </a>
-      </li>
-    </ul>
-  </aside>
-
   <main class="page-wrapper" id="pageWrapper">
-    <!-- Top Bar -->
-    <div class="top-bar">
-      <div class="top-bar-item">
-        <button title="Toggle theme"><i class="fas fa-moon"></i></button>
-      </div>
-      <div class="top-bar-item">
-        <i class="fas fa-shopping-cart"></i>
-        <span>Cashier</span>
-      </div>
-      <div class="top-bar-item">
-        <div class="user-avatar">C</div>
-      </div>
-      <button class="logout-btn"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
-    </div>
-
     <header class="page-header">
-      <h1>Purchases & Vendor Returns Hub</h1>
+      <h1>Purchases &amp; Vendor Returns Hub</h1>
       <p>Record product restocks and manage supplier defective stock returns in one consolidated ledger.</p>
     </header>
 
     <div class="tabs-container" role="tablist" aria-label="Purchase and return records">
-      <button class="tab-btn active" id="purchases-tab-button" type="button"
-              role="tab" aria-selected="true" aria-controls="purchases-tab" data-tab="purchases">
+      <button class="tab-btn active" id="purchases-tab-button"
+              type="button" role="tab" aria-selected="true"
+              aria-controls="purchases-tab" data-tab="purchases">
         <i class="fas fa-boxes-stacked me-2" aria-hidden="true"></i>Stock Purchases
       </button>
-      <button class="tab-btn" id="returns-tab-button" type="button"
-              role="tab" aria-selected="false" aria-controls="returns-tab" data-tab="returns">
+      <button class="tab-btn" id="returns-tab-button"
+              type="button" role="tab" aria-selected="false"
+              aria-controls="returns-tab" data-tab="returns">
         <i class="fas fa-arrow-rotate-left me-2" aria-hidden="true"></i>Vendor Returns
       </button>
-      <button class="tab-btn" id="history-tab-button" type="button"
-              role="tab" aria-selected="false" aria-controls="history-tab" data-tab="history">
+      <button class="tab-btn" id="history-tab-button"
+              type="button" role="tab" aria-selected="false"
+              aria-controls="history-tab" data-tab="history">
         <i class="fas fa-clock-rotate-left me-2" aria-hidden="true"></i>Deleted History
       </button>
     </div>
 
-    <section class="tab-content active" id="purchases-tab" role="tabpanel"
-             aria-labelledby="purchases-tab-button">
+    <section class="tab-content active" id="purchases-tab"
+             role="tabpanel" aria-labelledby="purchases-tab-button">
       <div class="top-action-bar">
         <h2 class="section-title">Stock Purchases Journal</h2>
-        <button class="btn-primary-custom" type="button" onclick="openPurchaseModal()">
+        <button class="btn-primary-custom" id="openPurchaseButton" type="button">
           <i class="fas fa-plus me-1" aria-hidden="true"></i>Record Purchase
         </button>
       </div>
@@ -573,10 +354,10 @@
         <table>
           <thead>
             <tr>
-              <th scope="col">Supplier</th>
-              <th scope="col" class="text-right">Total bills</th>
-              <th scope="col" class="text-right">Total purchased cost</th>
-              <th scope="col" class="text-center">Actions</th>
+              <th>Supplier</th>
+              <th class="text-right">Total bills</th>
+              <th class="text-right">Total purchased cost</th>
+              <th class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody id="purchasesBody"></tbody>
@@ -584,11 +365,11 @@
       </div>
     </section>
 
-    <section class="tab-content" id="returns-tab" role="tabpanel"
-             aria-labelledby="returns-tab-button" hidden>
+    <section class="tab-content" id="returns-tab"
+             role="tabpanel" aria-labelledby="returns-tab-button" hidden>
       <div class="top-action-bar">
         <h2 class="section-title">Vendor Returns Journal</h2>
-        <button class="btn-primary-custom" type="button" onclick="openReturnModal()">
+        <button class="btn-primary-custom" id="openReturnButton" type="button">
           <i class="fas fa-plus me-1" aria-hidden="true"></i>Record Return
         </button>
       </div>
@@ -597,11 +378,11 @@
         <table>
           <thead>
             <tr>
-              <th scope="col">Supplier</th>
-              <th scope="col">Return date</th>
-              <th scope="col">Items returned</th>
-              <th scope="col" class="text-right">Credit amount</th>
-              <th scope="col" class="text-center">Actions</th>
+              <th>Supplier</th>
+              <th>Return date</th>
+              <th>Items returned</th>
+              <th class="text-right">Credit amount</th>
+              <th class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody id="returnsBody"></tbody>
@@ -609,21 +390,21 @@
       </div>
     </section>
 
-    <section class="tab-content" id="history-tab" role="tabpanel"
-             aria-labelledby="history-tab-button" hidden>
+    <section class="tab-content" id="history-tab"
+             role="tabpanel" aria-labelledby="history-tab-button" hidden>
       <div class="top-action-bar">
         <h2 class="section-title">Deleted Records History</h2>
       </div>
-      <p class="description">Audit log of records removed during this session.</p>
+      <p class="description">Audit log of deleted records.</p>
       <div class="table-container">
         <table>
           <thead>
             <tr>
-              <th scope="col">Date deleted</th>
-              <th scope="col">Type</th>
-              <th scope="col">Supplier</th>
-              <th scope="col">Deleted by</th>
-              <th scope="col" class="text-right">Amount</th>
+              <th>Date deleted</th>
+              <th>Type</th>
+              <th>Supplier</th>
+              <th>Deleted by</th>
+              <th class="text-right">Amount</th>
             </tr>
           </thead>
           <tbody id="historyBody"></tbody>
@@ -632,12 +413,575 @@
     </section>
   </main>
 
-  <!-- Purchase modal -->
   <div class="modal-overlay" id="purchaseModal" aria-hidden="true">
     <section class="modal-box" role="dialog" aria-modal="true"
              aria-labelledby="purchaseModalTitle">
-      <form id="purchaseForm">
-        <header class="modal-header">
-          <h2 id="purchaseModalTitle">Record Stock Purchase</h2>
-          <button class="close-btn" type="button" aria-label="Close"
-                  onclick="
+      <div class="modal-header">
+        <h2 id="purchaseModalTitle">Record Stock Purchase</h2>
+        <button class="close-btn" type="button" data-close-modal="purchaseModal"
+                aria-label="Close purchase dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="purchaseSupplierName">Supplier name *</label>
+          <input type="text" id="purchaseSupplierName" list="supplierList"
+                 placeholder="Enter supplier name" required maxlength="120">
+          <datalist id="supplierList"></datalist>
+        </div>
+        <div class="form-group">
+          <label for="purchaseBillNo">Bill reference number *</label>
+          <input type="text" id="purchaseBillNo"
+                 placeholder="e.g. INV-2026-113" required maxlength="80">
+        </div>
+        <div class="form-group">
+          <label for="purchaseDate">Purchase date *</label>
+          <input type="date" id="purchaseDate" required>
+        </div>
+        <div class="form-group">
+          <label for="purchaseTotal">Total cost (Rs) *</label>
+          <input type="number" id="purchaseTotal" min="0.01" step="0.01"
+                 placeholder="0.00" required>
+        </div>
+        <div class="form-group">
+          <label for="purchaseNotes">Notes</label>
+          <textarea id="purchaseNotes" rows="3"
+                    placeholder="Optional notes" maxlength="1000"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" type="button"
+                data-close-modal="purchaseModal">Cancel</button>
+        <button class="btn-save" id="savePurchaseButton" type="button">Save Purchase</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-overlay" id="returnModal" aria-hidden="true">
+    <section class="modal-box" role="dialog" aria-modal="true"
+             aria-labelledby="returnModalTitle">
+      <div class="modal-header">
+        <h2 id="returnModalTitle">Record Vendor Return</h2>
+        <button class="close-btn" type="button" data-close-modal="returnModal"
+                aria-label="Close return dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="returnSupplierName">Supplier name *</label>
+          <input type="text" id="returnSupplierName" list="supplierListReturn"
+                 placeholder="Enter supplier name" required maxlength="120">
+          <datalist id="supplierListReturn"></datalist>
+        </div>
+        <div class="form-group">
+          <label for="returnDate">Return date *</label>
+          <input type="date" id="returnDate" required>
+        </div>
+        <div class="form-group">
+          <label for="returnItems">Items returned *</label>
+          <textarea id="returnItems" rows="3"
+                    placeholder="List items and quantities" required maxlength="1000"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="returnAmount">Credit amount (Rs) *</label>
+          <input type="number" id="returnAmount" min="0.01" step="0.01"
+                 placeholder="0.00" required>
+        </div>
+        <div class="form-group">
+          <label for="returnNotes">Reason / notes</label>
+          <textarea id="returnNotes" rows="2"
+                    placeholder="e.g. Defective" maxlength="1000"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" type="button"
+                data-close-modal="returnModal">Cancel</button>
+        <button class="btn-save" id="saveReturnButton" type="button">Save Return</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    "use strict";
+
+    const STORAGE_KEY = "soloLabPurchasesReturns";
+    let purchasesData = [];
+    let returnsData = [];
+    let historyData = [];
+    let lastFocusedElement = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadData();
+      initTabs();
+      initButtons();
+      setTodayDate();
+      renderAll();
+    });
+
+    function loadData() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        purchasesData = Array.isArray(saved.purchases) ? saved.purchases : [];
+        returnsData = Array.isArray(saved.returns) ? saved.returns : [];
+        historyData = Array.isArray(saved.history) ? saved.history : [];
+      } catch (error) {
+        console.warn("Saved purchase/return data could not be loaded.", error);
+        purchasesData = [];
+        returnsData = [];
+        historyData = [];
+      }
+    }
+
+    function persistData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          purchases: purchasesData,
+          returns: returnsData,
+          history: historyData
+        }));
+      } catch (error) {
+        console.warn("Data could not be saved to local storage.", error);
+        alert("The changes are visible now, but could not be saved in this browser.");
+      }
+    }
+
+    function initTabs() {
+      document.querySelectorAll(".tab-btn").forEach(button => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach(tab => {
+            const selected = tab === button;
+            tab.classList.toggle("active", selected);
+            tab.setAttribute("aria-selected", String(selected));
+          });
+
+          document.querySelectorAll(".tab-content").forEach(panel => {
+            const selected = panel.id === `${button.dataset.tab}-tab`;
+            panel.classList.toggle("active", selected);
+            panel.hidden = !selected;
+          });
+        });
+      });
+    }
+
+    function initButtons() {
+      document.getElementById("openPurchaseButton")
+        .addEventListener("click", openPurchaseModal);
+      document.getElementById("openReturnButton")
+        .addEventListener("click", openReturnModal);
+      document.getElementById("savePurchaseButton")
+        .addEventListener("click", savePurchase);
+      document.getElementById("saveReturnButton")
+        .addEventListener("click", saveReturn);
+
+      document.querySelectorAll("[data-close-modal]").forEach(button => {
+        button.addEventListener("click", () => closeModal(button.dataset.closeModal));
+      });
+
+      document.querySelectorAll(".modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", event => {
+          if (event.target === overlay) closeModal(overlay.id);
+        });
+      });
+
+      document.getElementById("purchasesBody").addEventListener("click", handleTableAction);
+      document.getElementById("returnsBody").addEventListener("click", handleTableAction);
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          const openOverlay = document.querySelector(".modal-overlay.active");
+          if (openOverlay) closeModal(openOverlay.id);
+        }
+      });
+    }
+
+    function getLocalDateString() {
+      const now = new Date();
+      const localOffset = now.getTimezoneOffset() * 60_000;
+      return new Date(now.getTime() - localOffset).toISOString().slice(0, 10);
+    }
+
+    function setTodayDate() {
+      const today = getLocalDateString();
+      document.getElementById("purchaseDate").value = today;
+      document.getElementById("returnDate").value = today;
+    }
+
+    function makeId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function updateSupplierSuggestions() {
+      const names = new Map();
+
+      [...purchasesData, ...returnsData].forEach(record => {
+        const name = String(record.supplierName || "").trim();
+        if (name) names.set(name.toLowerCase(), name);
+      });
+
+      ["supplierList", "supplierListReturn"].forEach(listId => {
+        const list = document.getElementById(listId);
+        list.replaceChildren();
+
+        [...names.values()].sort((a, b) => a.localeCompare(b)).forEach(name => {
+          const option = document.createElement("option");
+          option.value = name;
+          list.appendChild(option);
+        });
+      });
+    }
+
+    function openModal(modalId, firstInputId) {
+      lastFocusedElement = document.activeElement;
+      updateSupplierSuggestions();
+
+      const modal = document.getElementById(modalId);
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+      document.getElementById(firstInputId).focus();
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+
+      if (modalId === "purchaseModal") {
+        document.getElementById("purchaseSupplierName").value = "";
+        document.getElementById("purchaseBillNo").value = "";
+        document.getElementById("purchaseTotal").value = "";
+        document.getElementById("purchaseNotes").value = "";
+      } else {
+        document.getElementById("returnSupplierName").value = "";
+        document.getElementById("returnItems").value = "";
+        document.getElementById("returnAmount").value = "";
+        document.getElementById("returnNotes").value = "";
+      }
+
+      setTodayDate();
+
+      if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+        lastFocusedElement.focus();
+      }
+    }
+
+    function openPurchaseModal() {
+      openModal("purchaseModal", "purchaseSupplierName");
+    }
+
+    function openReturnModal() {
+      openModal("returnModal", "returnSupplierName");
+    }
+
+    function savePurchase() {
+      const supplierInput = document.getElementById("purchaseSupplierName");
+      const billInput = document.getElementById("purchaseBillNo");
+      const dateInput = document.getElementById("purchaseDate");
+      const totalInput = document.getElementById("purchaseTotal");
+
+      if (![supplierInput, billInput, dateInput, totalInput].every(input => input.reportValidity())) {
+        return;
+      }
+
+      const supplierName = supplierInput.value.trim();
+      const billNo = billInput.value.trim();
+      const total = Number(totalInput.value);
+
+      if (!supplierName || !billNo || !Number.isFinite(total) || total <= 0) {
+        alert("Enter a supplier, bill reference, and a cost greater than zero.");
+        return;
+      }
+
+      purchasesData.push({
+        id: makeId(),
+        supplierName,
+        billNo,
+        date: dateInput.value,
+        total,
+        notes: document.getElementById("purchaseNotes").value.trim()
+      });
+
+      persistData();
+      renderAll();
+      closeModal("purchaseModal");
+    }
+
+    function saveReturn() {
+      const supplierInput = document.getElementById("returnSupplierName");
+      const dateInput = document.getElementById("returnDate");
+      const itemsInput = document.getElementById("returnItems");
+      const amountInput = document.getElementById("returnAmount");
+
+      if (![supplierInput, dateInput, itemsInput, amountInput].every(input => input.reportValidity())) {
+        return;
+      }
+
+      const supplierName = supplierInput.value.trim();
+      const items = itemsInput.value.trim();
+      const amount = Number(amountInput.value);
+
+      if (!supplierName || !items || !Number.isFinite(amount) || amount <= 0) {
+        alert("Enter a supplier, returned items, and a credit amount greater than zero.");
+        return;
+      }
+
+      returnsData.push({
+        id: makeId(),
+        supplierName,
+        date: dateInput.value,
+        items,
+        amount,
+        notes: document.getElementById("returnNotes").value.trim()
+      });
+
+      persistData();
+      renderAll();
+      closeModal("returnModal");
+    }
+
+    function makeCell(text, className = "") {
+      const cell = document.createElement("td");
+      cell.textContent = text;
+      if (className) cell.className = className;
+      return cell;
+    }
+
+    function makeActionButton(text, className, action, key, label) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = className;
+      button.textContent = text;
+      button.dataset.action = action;
+      button.dataset.key = key;
+      button.setAttribute("aria-label", label);
+      return button;
+    }
+
+    function showEmptyRow(tbody, columnCount, message) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = columnCount;
+      cell.className = "empty-state";
+      cell.textContent = message;
+      row.appendChild(cell);
+      tbody.appendChild(row);
+    }
+
+    function renderPurchases() {
+      const tbody = document.getElementById("purchasesBody");
+      tbody.replaceChildren();
+
+      const groups = new Map();
+
+      purchasesData.forEach(purchase => {
+        const supplierName = String(purchase.supplierName || "Unknown supplier");
+        const key = supplierName.trim().toLowerCase();
+
+        if (!groups.has(key)) {
+          groups.set(key, { supplierName, purchases: [], total: 0 });
+        }
+
+        const group = groups.get(key);
+        group.purchases.push(purchase);
+        group.total += Number(purchase.total) || 0;
+      });
+
+      if (groups.size === 0) {
+        showEmptyRow(tbody, 4, "No purchase records yet.");
+        return;
+      }
+
+      [...groups.entries()]
+        .sort((a, b) => a[1].supplierName.localeCompare(b[1].supplierName))
+        .forEach(([key, group]) => {
+          const row = document.createElement("tr");
+          row.appendChild(makeCell(group.supplierName));
+          row.appendChild(makeCell(String(group.purchases.length), "text-right"));
+          row.appendChild(makeCell(formatCurrency(group.total), "text-right"));
+
+          const actions = document.createElement("td");
+          actions.className = "text-center";
+          actions.appendChild(makeActionButton(
+            "View", "view-btn", "view-purchases", key,
+            `View purchases from ${group.supplierName}`
+          ));
+          actions.appendChild(makeActionButton(
+            "Delete", "delete-btn", "delete-purchases", key,
+            `Delete purchases from ${group.supplierName}`
+          ));
+          row.appendChild(actions);
+          tbody.appendChild(row);
+        });
+    }
+
+    function renderReturns() {
+      const tbody = document.getElementById("returnsBody");
+      tbody.replaceChildren();
+
+      if (returnsData.length === 0) {
+        showEmptyRow(tbody, 5, "No vendor returns yet.");
+        return;
+      }
+
+      [...returnsData]
+        .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+        .forEach(record => {
+          const row = document.createElement("tr");
+          row.appendChild(makeCell(record.supplierName || "Unknown supplier"));
+          row.appendChild(makeCell(formatDate(record.date)));
+          row.appendChild(makeCell(record.items || ""));
+          row.appendChild(makeCell(formatCurrency(record.amount), "text-right"));
+
+          const actions = document.createElement("td");
+          actions.className = "text-center";
+          actions.appendChild(makeActionButton(
+            "Delete", "delete-btn", "delete-return", record.id,
+            `Delete return from ${record.supplierName || "unknown supplier"}`
+          ));
+          row.appendChild(actions);
+          tbody.appendChild(row);
+        });
+    }
+
+    function renderHistory() {
+      const tbody = document.getElementById("historyBody");
+      tbody.replaceChildren();
+
+      if (historyData.length === 0) {
+        showEmptyRow(tbody, 5, "No deleted records.");
+        return;
+      }
+
+      [...historyData]
+        .sort((a, b) => String(b.deletedAt || "").localeCompare(String(a.deletedAt || "")))
+        .forEach(record => {
+          const row = document.createElement("tr");
+          row.appendChild(makeCell(formatDateTime(record.deletedAt)));
+          row.appendChild(makeCell(record.type || ""));
+          row.appendChild(makeCell(record.supplierName || ""));
+          row.appendChild(makeCell(record.deletedBy || "Current user"));
+          row.appendChild(makeCell(formatCurrency(record.amount), "text-right"));
+          tbody.appendChild(row);
+        });
+    }
+
+    function renderAll() {
+      renderPurchases();
+      renderReturns();
+      renderHistory();
+    }
+
+    function handleTableAction(event) {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const { action, key } = button.dataset;
+
+      if (action === "view-purchases") viewPurchases(key);
+      if (action === "delete-purchases") deletePurchases(key);
+      if (action === "delete-return") deleteReturn(key);
+    }
+
+    function viewPurchases(supplierKey) {
+      const records = purchasesData.filter(
+        record => String(record.supplierName || "").trim().toLowerCase() === supplierKey
+      );
+
+      if (records.length === 0) return;
+
+      const details = records.map(record => {
+        const lines = [
+          `Bill: ${record.billNo || "—"}`,
+          `Date: ${formatDate(record.date)}`,
+          `Cost: ${formatCurrency(record.total)}`
+        ];
+        if (record.notes) lines.push(`Notes: ${record.notes}`);
+        return lines.join("\n");
+      });
+
+      alert(`${records[0].supplierName}\n\n${details.join("\n\n")}`);
+    }
+
+    function deletePurchases(supplierKey) {
+      const records = purchasesData.filter(
+        record => String(record.supplierName || "").trim().toLowerCase() === supplierKey
+      );
+
+      if (records.length === 0) return;
+
+      if (!confirm(`Delete all ${records.length} purchase record(s) for ${records[0].supplierName}?`)) {
+        return;
+      }
+
+      const deletedAt = new Date().toISOString();
+      records.forEach(record => {
+        historyData.push({
+          id: makeId(),
+          deletedAt,
+          type: "Purchase",
+          supplierName: record.supplierName,
+          deletedBy: "Current user",
+          amount: Number(record.total) || 0
+        });
+      });
+
+      purchasesData = purchasesData.filter(
+        record => String(record.supplierName || "").trim().toLowerCase() !== supplierKey
+      );
+
+      persistData();
+      renderAll();
+    }
+
+    function deleteReturn(id) {
+      const record = returnsData.find(item => item.id === id);
+      if (!record) return;
+
+      if (!confirm(`Delete the vendor return from ${record.supplierName}?`)) return;
+
+      historyData.push({
+        id: makeId(),
+        deletedAt: new Date().toISOString(),
+        type: "Vendor return",
+        supplierName: record.supplierName,
+        deletedBy: "Current user",
+        amount: Number(record.amount) || 0
+      });
+
+      returnsData = returnsData.filter(item => item.id !== id);
+      persistData();
+      renderAll();
+    }
+
+    function formatCurrency(value) {
+      const amount = Number(value);
+      if (!Number.isFinite(amount)) return "Rs 0.00";
+
+      return `Rs ${amount.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`;
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+
+      const date = new Date(`${value}T00:00:00`);
+      return Number.isNaN(date.getTime())
+        ? String(value)
+        : date.toLocaleDateString();
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "—";
+
+      const date = new Date(value);
+      return Number.isNaN(date.getTime())
+        ? String(value)
+        : date.toLocaleString();
+    }
+  </script>
+</body>
+</html>
