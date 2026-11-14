@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Payment Management — SOLO LAB MOBILE</title>
+
+  <!-- sidebar.js can populate #sidebar-container -->
+  <script src="./sidebar.js" defer></script>
 
   <style>
     * {
@@ -18,16 +21,7 @@
       color: #111827;
     }
 
-    button,
-    input,
-    select,
-    textarea {
-      font: inherit;
-    }
-
     .page-content {
-      max-width: 1400px;
-      margin: 0 auto;
       padding: 25px;
     }
 
@@ -42,18 +36,34 @@
       margin-bottom: 24px;
     }
 
-    .tabs {
+    .tabs,
+    .top-bar,
+    .search-filter,
+    .form-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
+    }
+
+    .tabs {
       margin-bottom: 20px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
     }
 
     .tab-btn,
     .btn {
-      border: none;
+      border: 0;
       border-radius: 8px;
-      cursor: pointer;
       font-size: 14px;
       font-weight: 500;
       padding: 10px 18px;
@@ -64,26 +74,13 @@
       color: #374151;
     }
 
-    .tab-btn.active {
-      background: #dc2626;
-      color: #fff;
-    }
-
-    .tab-btn:focus-visible,
-    .btn:focus-visible,
-    .delete-btn:focus-visible,
-    input:focus-visible,
-    select:focus-visible,
-    textarea:focus-visible {
-      outline: 3px solid #93c5fd;
-      outline-offset: 2px;
-    }
-
+    .tab-btn.active,
     .btn-primary {
       background: #dc2626;
       color: #fff;
     }
 
+    .tab-btn.active:hover,
     .btn-primary:hover {
       background: #b91c1c;
     }
@@ -97,19 +94,20 @@
       background: #d1d5db;
     }
 
+    .btn-sm {
+      font-size: 13px;
+      padding: 6px 10px;
+    }
+
     .top-bar {
       align-items: center;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
       justify-content: space-between;
       margin-bottom: 20px;
     }
 
-    .search-filter {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .search-filter input,
+    .search-filter select {
+      min-width: 180px;
     }
 
     input,
@@ -124,8 +122,9 @@
     .card {
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 1px 3px rgb(0 0 0 / 5%);
       margin-bottom: 20px;
+      overflow-x: auto;
       padding: 20px;
     }
 
@@ -135,10 +134,6 @@
 
     .hidden-section.show {
       display: block;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
     }
 
     table {
@@ -162,22 +157,18 @@
       font-weight: 600;
     }
 
-    tbody tr:hover {
-      background: #fefefe;
-    }
-
     .empty-state {
       color: #9ca3af;
       padding: 40px;
       text-align: center;
     }
 
-    .method {
+    .payment-method {
       border-radius: 4px;
       display: inline-block;
       font-size: 12px;
-      margin: 2px 0;
-      padding: 2px 8px;
+      margin: 0 4px 4px 0;
+      padding: 3px 8px;
     }
 
     .method-cash {
@@ -205,34 +196,9 @@
       color: #4b5563;
     }
 
-    .details {
-      color: #4b5563;
-      line-height: 1.6;
-      min-width: 150px;
-    }
-
-    .delete-btn {
-      background: none;
-      border: none;
-      color: #dc2626;
-      cursor: pointer;
-      font-size: 12px;
-      text-decoration: underline;
-    }
-
-    .summary-row {
-      border-top: 1px solid #f3f4f6;
-      display: flex;
-      font-size: 16px;
-      font-weight: 600;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding: 12px 0 0;
-    }
-
     .modal-overlay {
       align-items: center;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgb(0 0 0 / 50%);
       display: none;
       inset: 0;
       justify-content: center;
@@ -249,8 +215,7 @@
     .modal {
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      max-height: calc(100vh - 40px);
+      max-height: 90vh;
       max-width: 500px;
       overflow-y: auto;
       padding: 24px;
@@ -298,10 +263,33 @@
     }
 
     .form-actions {
-      display: flex;
-      gap: 10px;
       justify-content: flex-end;
       margin-top: 20px;
+    }
+
+    .summary-row {
+      border-top: 1px solid #f3f4f6;
+      display: flex;
+      font-size: 16px;
+      font-weight: 600;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding: 12px 0 0;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      white-space: nowrap;
+    }
+
+    .delete-btn {
+      background: none;
+      border: 0;
+      color: #dc2626;
+      font-size: 13px;
+      text-decoration: underline;
     }
 
     @media (max-width: 600px) {
@@ -309,67 +297,46 @@
         padding: 16px;
       }
 
-      .top-bar {
-        align-items: stretch;
-      }
-
+      .top-bar,
       .search-filter {
-        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
       }
 
       .search-filter input,
-      .search-filter select,
-      .top-bar > .btn {
+      .search-filter select {
         width: 100%;
-      }
-
-      .card {
-        padding: 12px;
       }
     }
   </style>
 </head>
 
 <body>
+  <!-- sidebar.js should inject the sidebar into this element. -->
+  <div id="sidebar-container"></div>
+
   <main class="page-content">
     <h1>💰 Payment Management</h1>
     <p class="subtitle">Payments to suppliers and payments received from buyers</p>
 
     <div class="tabs" role="tablist" aria-label="Payment categories">
-      <button
-        class="tab-btn active"
-        id="tabSupplier"
-        type="button"
-        role="tab"
-        aria-selected="true"
-        aria-controls="supplierSection"
-        data-tab="supplier">
+      <button class="tab-btn active" id="tabSupplier" type="button"
+              role="tab" aria-selected="true" aria-controls="supplierSection"
+              data-tab="supplier">
         📤 Payments to Suppliers
       </button>
-      <button
-        class="tab-btn"
-        id="tabReceived"
-        type="button"
-        role="tab"
-        aria-selected="false"
-        aria-controls="receivedSection"
-        data-tab="received">
+      <button class="tab-btn" id="tabReceived" type="button"
+              role="tab" aria-selected="false" aria-controls="receivedSection"
+              data-tab="received">
         📥 Received Payments
       </button>
     </div>
 
-    <section
-      id="supplierSection"
-      class="hidden-section show"
-      role="tabpanel"
-      aria-labelledby="tabSupplier">
+    <section id="supplierSection" class="hidden-section show">
       <div class="top-bar">
         <div class="search-filter">
-          <input
-            type="search"
-            id="supplierSearch"
-            placeholder="🔍 Search supplier..."
-            aria-label="Search supplier">
+          <input type="search" id="supplierSearch" placeholder="🔍 Search supplier..."
+                 aria-label="Search supplier">
           <select id="supplierFilter" aria-label="Filter supplier payments by method">
             <option value="">All Methods</option>
             <option value="cash">Cash</option>
@@ -378,26 +345,24 @@
             <option value="unallocated">Unallocated</option>
           </select>
         </div>
-        <button class="btn btn-primary" id="openSupplierModal" type="button">
+        <button class="btn btn-primary" type="button" data-action="new-supplier">
           ➕ Record a Payment
         </button>
       </div>
 
       <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Supplier Name</th>
-                <th>Total Amount</th>
-                <th>Payment Details</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="supplierTableBody"></tbody>
-          </table>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Supplier Name</th>
+              <th>Total Amount</th>
+              <th>Payment Details</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="supplierTableBody"></tbody>
+        </table>
         <div class="summary-row">
           <span>Total Paid</span>
           <span id="supplierTotal">LKR 0.00</span>
@@ -405,19 +370,11 @@
       </div>
     </section>
 
-    <section
-      id="receivedSection"
-      class="hidden-section"
-      role="tabpanel"
-      aria-labelledby="tabReceived"
-      hidden>
+    <section id="receivedSection" class="hidden-section">
       <div class="top-bar">
         <div class="search-filter">
-          <input
-            type="search"
-            id="receivedSearch"
-            placeholder="🔍 Search buyer..."
-            aria-label="Search buyer">
+          <input type="search" id="receivedSearch" placeholder="🔍 Search buyer..."
+                 aria-label="Search buyer">
           <select id="receivedFilter" aria-label="Filter received payments by method">
             <option value="">All Methods</option>
             <option value="cash">Cash</option>
@@ -426,26 +383,24 @@
             <option value="credit">Credit</option>
           </select>
         </div>
-        <button class="btn btn-primary" id="openReceivedModal" type="button">
+        <button class="btn btn-primary" type="button" data-action="new-received">
           ➕ Record a Payment
         </button>
       </div>
 
       <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Buyer / Company</th>
-                <th>Total Amount</th>
-                <th>Payment Details</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="receivedTableBody"></tbody>
-          </table>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Buyer / Company</th>
+              <th>Total Amount</th>
+              <th>Payment Details</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="receivedTableBody"></tbody>
+        </table>
         <div class="summary-row">
           <span>Total Received</span>
           <span id="receivedTotal">LKR 0.00</span>
@@ -463,57 +418,51 @@
 
         <div class="form-group">
           <label for="supplierName">Supplier Name *</label>
-          <input type="text" id="supplierName" required placeholder="e.g. ABC Distributors">
+          <input id="supplierName" required maxlength="150" placeholder="e.g. ABC Distributors">
         </div>
-
         <div class="form-group">
           <label for="supplierTotalAmount">Total Amount (LKR) *</label>
-          <input type="number" id="supplierTotalAmount" required min="0.01" step="0.01" placeholder="0.00">
+          <input id="supplierTotalAmount" type="number" required min="0.01" step="0.01" placeholder="0.00">
         </div>
-
         <div class="form-group">
           <label for="supplierDate">Payment Date</label>
-          <input type="date" id="supplierDate">
+          <input id="supplierDate" type="date">
         </div>
-
         <div class="form-group">
           <label for="supplierCash">💵 Cash Amount</label>
-          <input type="number" id="supplierCash" min="0" step="0.01" placeholder="0.00">
+          <input id="supplierCash" type="number" min="0" step="0.01" placeholder="0.00">
         </div>
-
         <div class="form-group">
           <label for="supplierCheque">🏦 Cheque Amount</label>
-          <input type="number" id="supplierCheque" min="0" step="0.01" placeholder="0.00">
+          <input id="supplierCheque" type="number" min="0" step="0.01" placeholder="0.00">
         </div>
-
         <div class="form-group">
           <label for="supplierBank">Bank Name</label>
-          <input type="text" id="supplierBank" placeholder="e.g. Bank of Ceylon">
+          <input id="supplierBank" maxlength="100" placeholder="e.g. Bank of Ceylon">
         </div>
-
         <div class="form-group">
           <label for="supplierChequeNo">Cheque Number</label>
-          <input type="text" id="supplierChequeNo" placeholder="e.g. 12345678">
+          <input id="supplierChequeNo" maxlength="50" placeholder="e.g. 12345678">
         </div>
-
         <div class="form-group">
           <label for="supplierChequeDate">Cheque Date</label>
-          <input type="date" id="supplierChequeDate">
+          <input id="supplierChequeDate" type="date">
         </div>
 
         <div class="balance-info">
-          <strong>Allocated: </strong>
-          <span id="supplierAllocated">LKR 0.00</span>
+          <strong>Allocated: </strong><span id="supplierAllocated">LKR 0.00</span>
           <span class="balance-message" id="supplierBalance"></span>
         </div>
 
-        <div class="form-group" style="margin-top: 14px;">
+        <div class="form-group" style="margin-top:14px">
           <label for="supplierNotes">Notes</label>
-          <textarea id="supplierNotes" placeholder="Description..."></textarea>
+          <textarea id="supplierNotes" maxlength="1000" placeholder="Description..."></textarea>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" data-close-modal="supplierModal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-action="close-modal">
+            Cancel
+          </button>
           <button type="submit" class="btn btn-primary">Save Payment</button>
         </div>
       </form>
@@ -529,57 +478,51 @@
 
         <div class="form-group">
           <label for="receivedName">Buyer / Company Name *</label>
-          <input type="text" id="receivedName" required placeholder="e.g. Tech Solutions">
+          <input id="receivedName" required maxlength="150" placeholder="e.g. Tech Solutions">
         </div>
-
         <div class="form-group">
           <label for="receivedTotalAmount">Total Amount (LKR) *</label>
-          <input type="number" id="receivedTotalAmount" required min="0.01" step="0.01" placeholder="0.00">
+          <input id="receivedTotalAmount" type="number" required min="0.01" step="0.01" placeholder="0.00">
         </div>
-
         <div class="form-group">
           <label for="receivedDate">Payment Date</label>
-          <input type="date" id="receivedDate">
+          <input id="receivedDate" type="date">
         </div>
-
         <div class="form-group">
           <label for="receivedCash">💵 Cash Amount</label>
-          <input type="number" id="receivedCash" min="0" step="0.01" placeholder="0.00">
+          <input id="receivedCash" type="number" min="0" step="0.01" placeholder="0.00">
         </div>
-
         <div class="form-group">
           <label for="receivedCheque">🏦 Cheque Amount</label>
-          <input type="number" id="receivedCheque" min="0" step="0.01" placeholder="0.00">
+          <input id="receivedCheque" type="number" min="0" step="0.01" placeholder="0.00">
         </div>
-
         <div class="form-group">
           <label for="receivedBank">Bank Name</label>
-          <input type="text" id="receivedBank" placeholder="e.g. Sampath Bank">
+          <input id="receivedBank" maxlength="100" placeholder="e.g. Sampath Bank">
         </div>
-
         <div class="form-group">
           <label for="receivedChequeNo">Cheque Number</label>
-          <input type="text" id="receivedChequeNo" placeholder="e.g. 87654321">
+          <input id="receivedChequeNo" maxlength="50" placeholder="e.g. 87654321">
         </div>
-
         <div class="form-group">
           <label for="receivedChequeDate">Cheque Date</label>
-          <input type="date" id="receivedChequeDate">
+          <input id="receivedChequeDate" type="date">
         </div>
 
         <div class="balance-info">
-          <strong>Allocated: </strong>
-          <span id="receivedAllocated">LKR 0.00</span>
+          <strong>Allocated: </strong><span id="receivedAllocated">LKR 0.00</span>
           <span class="balance-message" id="receivedBalance"></span>
         </div>
 
-        <div class="form-group" style="margin-top: 14px;">
+        <div class="form-group" style="margin-top:14px">
           <label for="receivedNotes">Reference / Notes</label>
-          <textarea id="receivedNotes" placeholder="Invoice #, details..."></textarea>
+          <textarea id="receivedNotes" maxlength="1000" placeholder="Invoice #, details..."></textarea>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" data-close-modal="receivedModal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-action="close-modal">
+            Cancel
+          </button>
           <button type="submit" class="btn btn-primary">Save Record</button>
         </div>
       </form>
@@ -594,26 +537,29 @@
       received: "receivedPayments"
     };
 
-    function readPayments(key) {
+    function loadPayments(key) {
       try {
-        const value = JSON.parse(localStorage.getItem(key) || "[]");
-        return Array.isArray(value) ? value : [];
+        const data = JSON.parse(localStorage.getItem(key) || "[]");
+        return Array.isArray(data) ? data : [];
       } catch (error) {
-        console.error(`Could not read ${key} from local storage:`, error);
+        console.error(`Could not read ${key} from localStorage:`, error);
         return [];
       }
     }
 
-    let supplierPayments = readPayments(STORAGE_KEYS.supplier);
-    let receivedPayments = readPayments(STORAGE_KEYS.received);
+    let supplierPayments = loadPayments(STORAGE_KEYS.supplier);
+    let receivedPayments = loadPayments(STORAGE_KEYS.received);
 
-    function savePayments(key, payments) {
+    function savePayments(type) {
+      const key = STORAGE_KEYS[type];
+      const records = type === "supplier" ? supplierPayments : receivedPayments;
+
       try {
-        localStorage.setItem(key, JSON.stringify(payments));
+        localStorage.setItem(key, JSON.stringify(records));
         return true;
       } catch (error) {
-        console.error(`Could not save ${key} to local storage:`, error);
-        alert("Your browser could not save this payment. Check that local storage is available.");
+        console.error("Could not save payments:", error);
+        alert("Could not save data in this browser. Check available storage space.");
         return false;
       }
     }
@@ -628,161 +574,171 @@
       })[character]);
     }
 
-    function formatMoney(value) {
+    function money(value) {
       const amount = Number(value) || 0;
-      return `LKR ${amount.toFixed(2)}`;
+      return "LKR " + amount.toLocaleString("en-LK", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
     }
 
-    function todayISO() {
+    function todayLocal() {
       const now = new Date();
-      const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-      return localDate.toISOString().slice(0, 10);
+      const offset = now.getTimezoneOffset();
+      return new Date(now.getTime() - offset * 60000).toISOString().slice(0, 10);
     }
 
-    function makeId(prefix) {
-      const randomPart = window.crypto && typeof window.crypto.randomUUID === "function"
-        ? window.crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-      return `${prefix}-${randomPart}`;
-    }
-
-    function getMethod(payment, isReceived) {
+    function getMethod(payment, type) {
       const cash = Number(payment.cash) || 0;
       const cheque = Number(payment.cheque) || 0;
+      const total = Number(payment.total) || 0;
+      const allocated = cash + cheque;
 
-      if (cash > 0 && cheque > 0) return "both";
-      if (cash > 0) return "cash";
-      if (cheque > 0) return "cheque";
-      return isReceived ? "credit" : "unallocated";
+      if (type === "received" && total - allocated > 0.009) {
+        return "credit";
+      }
+      if (cash > 0 && cheque > 0) {
+        return "both";
+      }
+      if (cash > 0) {
+        return "cash";
+      }
+      if (cheque > 0) {
+        return "cheque";
+      }
+      return "unallocated";
     }
 
-    function getPaymentDetails(payment) {
+    function paymentDetails(payment, type) {
       const parts = [];
       const cash = Number(payment.cash) || 0;
       const cheque = Number(payment.cheque) || 0;
+      const total = Number(payment.total) || 0;
+      const remaining = Math.max(0, total - cash - cheque);
 
-      if (cash > 0) parts.push(`Cash: ${formatMoney(cash)}`);
-      if (cheque > 0) parts.push(`Cheque: ${formatMoney(cheque)}`);
-      if (payment.bank) parts.push(`Bank: ${escapeHtml(payment.bank)}`);
-      if (payment.chequeNo) parts.push(`Cheque No: ${escapeHtml(payment.chequeNo)}`);
-      if (payment.chequeDate) parts.push(`Cheque Date: ${escapeHtml(payment.chequeDate)}`);
-      if (payment.notes) parts.push(`Notes: ${escapeHtml(payment.notes)}`);
+      if (cash > 0) parts.push(`<span class="payment-method method-cash">Cash: ${money(cash)}</span>`);
+      if (cheque > 0) parts.push(`<span class="payment-method method-cheque">Cheque: ${money(cheque)}</span>`);
 
-      const method = getMethod(payment, payment.type === "received");
-      const methodLabel = method.charAt(0).toUpperCase() + method.slice(1);
-      const className = `method-${method}`;
-
-      if (parts.length === 0) {
-        parts.push(method === "credit" ? "Credit / outstanding" : "No payment allocation");
+      if (type === "received" && remaining > 0.009) {
+        parts.push(`<span class="payment-method method-credit">Credit: ${money(remaining)}</span>`);
+      } else if (parts.length === 0) {
+        parts.push('<span class="payment-method method-unallocated">Unallocated</span>');
       }
 
-      return `<span class="method ${className}">${methodLabel}</span>
-        <div class="details">${parts.join("<br>")}</div>`;
+      const chequeInfo = [];
+      if (payment.bank) chequeInfo.push(`Bank: ${escapeHtml(payment.bank)}`);
+      if (payment.chequeNo) chequeInfo.push(`Cheque #: ${escapeHtml(payment.chequeNo)}`);
+      if (payment.chequeDate) chequeInfo.push(`Cheque date: ${escapeHtml(payment.chequeDate)}`);
+
+      if (chequeInfo.length) {
+        parts.push(`<div>${chequeInfo.join(" · ")}</div>`);
+      }
+      if (payment.notes) {
+        parts.push(`<div>${escapeHtml(payment.notes)}</div>`);
+      }
+
+      return parts.join("");
     }
 
     function renderPayments(type) {
       const isSupplier = type === "supplier";
-      const payments = isSupplier ? supplierPayments : receivedPayments;
-      const search = document.getElementById(`${type}Search`).value.trim().toLowerCase();
-      const filter = document.getElementById(`${type}Filter`).value;
-      const tbody = document.getElementById(`${type}TableBody`);
-      const totalElement = document.getElementById(`${type}Total`);
+      const records = isSupplier ? supplierPayments : receivedPayments;
+      const search = document.getElementById(isSupplier ? "supplierSearch" : "receivedSearch")
+        .value.trim().toLowerCase();
+      const filter = document.getElementById(isSupplier ? "supplierFilter" : "receivedFilter").value;
+      const tbody = document.getElementById(isSupplier ? "supplierTableBody" : "receivedTableBody");
+      const nameField = isSupplier ? "Supplier Name" : "Buyer / Company";
 
-      const filteredPayments = payments.filter(payment => {
-        const nameMatches = String(payment.name || "").toLowerCase().includes(search);
-        const methodMatches = !filter || getMethod(payment, !isSupplier) === filter;
-        return nameMatches && methodMatches;
+      const filtered = records.filter(payment => {
+        const matchesSearch = String(payment.name || "").toLowerCase().includes(search);
+        const matchesFilter = !filter || getMethod(payment, type) === filter;
+        return matchesSearch && matchesFilter;
       });
 
-      if (filteredPayments.length === 0) {
+      if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No payments found</td></tr>`;
       } else {
-        tbody.innerHTML = filteredPayments.map(payment => `
+        tbody.innerHTML = filtered.map(payment => `
           <tr>
             <td>${escapeHtml(payment.date || "—")}</td>
             <td>${escapeHtml(payment.name || "")}</td>
-            <td>${formatMoney(payment.total)}</td>
-            <td>${getPaymentDetails(payment)}</td>
+            <td>${money(payment.total)}</td>
+            <td>${paymentDetails(payment, type)}</td>
             <td>
-              <button
-                class="delete-btn"
-                type="button"
-                data-delete-type="${type}"
-                data-delete-id="${escapeHtml(payment.id)}"
-                aria-label="Delete payment">
-                Delete
-              </button>
+              <div class="row-actions">
+                <button class="btn btn-secondary btn-sm" type="button"
+                        data-action="edit" data-type="${type}" data-id="${escapeHtml(payment.id)}">
+                  Edit
+                </button>
+                <button class="delete-btn" type="button"
+                        data-action="delete" data-type="${type}" data-id="${escapeHtml(payment.id)}">
+                  Delete
+                </button>
+              </div>
             </td>
           </tr>
         `).join("");
       }
 
-      const visibleTotal = filteredPayments.reduce(
-        (sum, payment) => sum + (Number(payment.total) || 0),
-        0
-      );
-      totalElement.textContent = formatMoney(visibleTotal);
+      const total = records.reduce((sum, payment) => sum + (Number(payment.total) || 0), 0);
+      document.getElementById(isSupplier ? "supplierTotal" : "receivedTotal").textContent = money(total);
     }
 
-    function renderSupplierPayments() {
-      renderPayments("supplier");
+    function switchTab(type) {
+      const supplierActive = type === "supplier";
+
+      document.getElementById("supplierSection").classList.toggle("show", supplierActive);
+      document.getElementById("receivedSection").classList.toggle("show", !supplierActive);
+      document.getElementById("tabSupplier").classList.toggle("active", supplierActive);
+      document.getElementById("tabReceived").classList.toggle("active", !supplierActive);
+      document.getElementById("tabSupplier").setAttribute("aria-selected", String(supplierActive));
+      document.getElementById("tabReceived").setAttribute("aria-selected", String(!supplierActive));
+
+      renderPayments(type);
     }
 
-    function renderReceivedPayments() {
-      renderPayments("received");
-    }
-
-    function switchTab(tab) {
-      const isSupplier = tab === "supplier";
-      const supplierSection = document.getElementById("supplierSection");
-      const receivedSection = document.getElementById("receivedSection");
-      const supplierTab = document.getElementById("tabSupplier");
-      const receivedTab = document.getElementById("tabReceived");
-
-      supplierSection.classList.toggle("show", isSupplier);
-      supplierSection.hidden = !isSupplier;
-      receivedSection.classList.toggle("show", !isSupplier);
-      receivedSection.hidden = isSupplier;
-
-      supplierTab.classList.toggle("active", isSupplier);
-      supplierTab.setAttribute("aria-selected", String(isSupplier));
-      receivedTab.classList.toggle("active", !isSupplier);
-      receivedTab.setAttribute("aria-selected", String(!isSupplier));
-
-      if (isSupplier) {
-        renderSupplierPayments();
-      } else {
-        renderReceivedPayments();
-      }
-    }
-
-    function updateAllocation(type) {
-      const total = Number(document.getElementById(`${type}TotalAmount`).value) || 0;
-      const cash = Number(document.getElementById(`${type}Cash`).value) || 0;
-      const cheque = Number(document.getElementById(`${type}Cheque`).value) || 0;
+    function updateSplit(type) {
+      const prefix = type === "supplier" ? "supplier" : "received";
+      const total = Number(document.getElementById(`${prefix}TotalAmount`).value) || 0;
+      const cash = Number(document.getElementById(`${prefix}Cash`).value) || 0;
+      const cheque = Number(document.getElementById(`${prefix}Cheque`).value) || 0;
       const allocated = cash + cheque;
-      const remaining = Math.max(0, total - allocated);
+      const remaining = total - allocated;
 
-      document.getElementById(`${type}Allocated`).textContent = formatMoney(allocated);
-      document.getElementById(`${type}Balance`).textContent =
-        remaining > 0 ? `(Remaining: ${formatMoney(remaining)})` : "";
+      document.getElementById(`${prefix}Allocated`).textContent = money(allocated);
+      document.getElementById(`${prefix}Balance`).textContent =
+        remaining > 0.009 ? `(Remaining: ${money(remaining)})` :
+        remaining < -0.009 ? `(Over by: ${money(Math.abs(remaining))})` : "";
     }
 
-    function openModal(type) {
-      const form = document.getElementById(`${type}Form`);
+    function showModal(type, payment = null) {
+      const prefix = type === "supplier" ? "supplier" : "received";
+      const form = document.getElementById(`${prefix}Form`);
       form.reset();
-      document.getElementById(`${type}PaymentId`).value = "";
-      document.getElementById(`${type}Date`).value = todayISO();
-      document.getElementById(`${type}Modal`).classList.add("show");
-      document.getElementById(`${type}Modal`).setAttribute("aria-hidden", "false");
-      updateAllocation(type);
 
-      const firstInput = form.querySelector("input:not([type='hidden'])");
-      if (firstInput) firstInput.focus();
+      document.getElementById(`${prefix}PaymentId`).value = payment?.id || "";
+      document.getElementById(`${prefix}Name`).value = payment?.name || "";
+      document.getElementById(`${prefix}TotalAmount`).value = payment?.total ?? "";
+      document.getElementById(`${prefix}Date`).value = payment?.date || todayLocal();
+      document.getElementById(`${prefix}Cash`).value = payment?.cash ?? "";
+      document.getElementById(`${prefix}Cheque`).value = payment?.cheque ?? "";
+      document.getElementById(`${prefix}Bank`).value = payment?.bank || "";
+      document.getElementById(`${prefix}ChequeNo`).value = payment?.chequeNo || "";
+      document.getElementById(`${prefix}ChequeDate`).value = payment?.chequeDate || "";
+      document.getElementById(`${prefix}Notes`).value = payment?.notes || "";
+
+      document.getElementById(`${prefix}ModalTitle`).textContent = payment
+        ? (type === "supplier" ? "Edit Supplier Payment" : "Edit Received Payment")
+        : (type === "supplier" ? "Record Payment to Supplier" : "Record Received Payment");
+
+      updateSplit(type);
+      const modal = document.getElementById(`${prefix}Modal`);
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+      document.getElementById(`${prefix}Name`).focus();
     }
 
-    function closeModal(modalId) {
-      const modal = document.getElementById(modalId);
+    function closeModal(modal) {
       modal.classList.remove("show");
       modal.setAttribute("aria-hidden", "true");
     }
@@ -790,13 +746,14 @@
     function savePayment(event, type) {
       event.preventDefault();
 
-      const isSupplier = type === "supplier";
-      const total = Number(document.getElementById(`${type}TotalAmount`).value);
-      const cash = Number(document.getElementById(`${type}Cash`).value) || 0;
-      const cheque = Number(document.getElementById(`${type}Cheque`).value) || 0;
+      const prefix = type === "supplier" ? "supplier" : "received";
+      const id = document.getElementById(`${prefix}PaymentId`).value;
+      const total = Number(document.getElementById(`${prefix}TotalAmount`).value);
+      const cash = Number(document.getElementById(`${prefix}Cash`).value) || 0;
+      const cheque = Number(document.getElementById(`${prefix}Cheque`).value) || 0;
 
       if (!Number.isFinite(total) || total <= 0) {
-        alert("Enter a valid total amount greater than zero.");
+        alert("Enter a total amount greater than zero.");
         return;
       }
 
@@ -805,115 +762,110 @@
         return;
       }
 
-      if (cash + cheque > total + 0.000001) {
-        alert("The cash and cheque allocation cannot exceed the total amount.");
+      if (cash + cheque > total + 0.009) {
+        alert("Cash and cheque amounts cannot exceed the total amount.");
         return;
       }
 
-      const collection = isSupplier ? supplierPayments : receivedPayments;
-      const idField = document.getElementById(`${type}PaymentId`);
-      const id = idField.value || makeId(isSupplier ? "SP" : "RP");
-
       const payment = {
-        id,
-        type: isSupplier ? "supplier" : "received",
-        name: document.getElementById(isSupplier ? "supplierName" : "receivedName").value.trim(),
+        id: id || `${type === "supplier" ? "SP" : "RP"}-${Date.now()}`,
+        name: document.getElementById(`${prefix}Name`).value.trim(),
         total,
-        date: document.getElementById(`${type}Date`).value,
+        date: document.getElementById(`${prefix}Date`).value,
         cash,
         cheque,
-        bank: document.getElementById(`${type}Bank`).value.trim(),
-        chequeNo: document.getElementById(`${type}ChequeNo`).value.trim(),
-        chequeDate: document.getElementById(`${type}ChequeDate`).value,
-        notes: document.getElementById(`${type}Notes`).value.trim()
+        bank: document.getElementById(`${prefix}Bank`).value.trim(),
+        chequeNo: document.getElementById(`${prefix}ChequeNo`).value.trim(),
+        chequeDate: document.getElementById(`${prefix}ChequeDate`).value,
+        notes: document.getElementById(`${prefix}Notes`).value.trim()
       };
 
-      const existingIndex = collection.findIndex(item => item.id === id);
+      const records = type === "supplier" ? supplierPayments : receivedPayments;
+      const existingIndex = records.findIndex(record => String(record.id) === String(id));
+
       if (existingIndex >= 0) {
-        collection[existingIndex] = payment;
+        records[existingIndex] = payment;
       } else {
-        collection.push(payment);
+        records.push(payment);
       }
 
-      const storageKey = isSupplier ? STORAGE_KEYS.supplier : STORAGE_KEYS.received;
-      if (!savePayments(storageKey, collection)) return;
+      if (!savePayments(type)) return;
 
-      if (isSupplier) {
-        supplierPayments = collection;
-        renderSupplierPayments();
-      } else {
-        receivedPayments = collection;
-        renderReceivedPayments();
-      }
-
-      closeModal(`${type}Modal`);
+      closeModal(document.getElementById(`${prefix}Modal`));
+      renderPayments(type);
     }
 
-    document.querySelectorAll("[data-tab]").forEach(button => {
-      button.addEventListener("click", () => switchTab(button.dataset.tab));
-    });
+    function deletePayment(type, id) {
+      const records = type === "supplier" ? supplierPayments : receivedPayments;
+      const record = records.find(item => String(item.id) === String(id));
+      if (!record) return;
 
-    document.getElementById("openSupplierModal").addEventListener("click", () => openModal("supplier"));
-    document.getElementById("openReceivedModal").addEventListener("click", () => openModal("received"));
-
-    document.querySelectorAll("[data-close-modal]").forEach(button => {
-      button.addEventListener("click", () => closeModal(button.dataset.closeModal));
-    });
-
-    document.getElementById("supplierForm").addEventListener("submit", event => {
-      savePayment(event, "supplier");
-    });
-
-    document.getElementById("receivedForm").addEventListener("submit", event => {
-      savePayment(event, "received");
-    });
-
-    ["supplier", "received"].forEach(type => {
-      document.getElementById(`${type}Search`).addEventListener("input", () => renderPayments(type));
-      document.getElementById(`${type}Filter`).addEventListener("change", () => renderPayments(type));
-
-      ["TotalAmount", "Cash", "Cheque"].forEach(field => {
-        document.getElementById(`${type}${field}`).addEventListener("input", () => updateAllocation(type));
-      });
-
-      document.getElementById(`${type}Modal`).addEventListener("click", event => {
-        if (event.target === event.currentTarget) {
-          closeModal(`${type}Modal`);
-        }
-      });
-    });
-
-    document.addEventListener("click", event => {
-      const deleteButton = event.target.closest("[data-delete-type]");
-      if (!deleteButton) return;
-
-      const type = deleteButton.dataset.deleteType;
-      const id = deleteButton.dataset.deleteId;
-
-      if (!window.confirm("Delete this payment record?")) return;
+      if (!confirm(`Delete the payment for "${record.name}"?`)) return;
 
       if (type === "supplier") {
-        supplierPayments = supplierPayments.filter(payment => payment.id !== id);
-        if (savePayments(STORAGE_KEYS.supplier, supplierPayments)) {
-          renderSupplierPayments();
-        }
+        supplierPayments = supplierPayments.filter(item => String(item.id) !== String(id));
       } else {
-        receivedPayments = receivedPayments.filter(payment => payment.id !== id);
-        if (savePayments(STORAGE_KEYS.received, receivedPayments)) {
-          renderReceivedPayments();
+        receivedPayments = receivedPayments.filter(item => String(item.id) !== String(id));
+      }
+
+      if (savePayments(type)) renderPayments(type);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderPayments("supplier");
+      renderPayments("received");
+
+      document.querySelectorAll("[data-tab]").forEach(button => {
+        button.addEventListener("click", () => switchTab(button.dataset.tab));
+      });
+
+      document.getElementById("supplierSearch").addEventListener("input", () => renderPayments("supplier"));
+      document.getElementById("supplierFilter").addEventListener("change", () => renderPayments("supplier"));
+      document.getElementById("receivedSearch").addEventListener("input", () => renderPayments("received"));
+      document.getElementById("receivedFilter").addEventListener("change", () => renderPayments("received"));
+
+      document.querySelectorAll("#supplierTotalAmount, #supplierCash, #supplierCheque")
+        .forEach(input => input.addEventListener("input", () => updateSplit("supplier")));
+      document.querySelectorAll("#receivedTotalAmount, #receivedCash, #receivedCheque")
+        .forEach(input => input.addEventListener("input", () => updateSplit("received")));
+
+      document.getElementById("supplierForm").addEventListener("submit", event => savePayment(event, "supplier"));
+      document.getElementById("receivedForm").addEventListener("submit", event => savePayment(event, "received"));
+
+      document.addEventListener("click", event => {
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
+
+        const { action, type, id } = button.dataset;
+
+        if (action === "new-supplier") showModal("supplier");
+        if (action === "new-received") showModal("received");
+
+        if (action === "close-modal") {
+          closeModal(button.closest(".modal-overlay"));
         }
-      }
-    });
 
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        closeModal("supplierModal");
-        closeModal("receivedModal");
-      }
-    });
+        if (action === "edit") {
+          const records = type === "supplier" ? supplierPayments : receivedPayments;
+          const payment = records.find(item => String(item.id) === String(id));
+          if (payment) showModal(type, payment);
+        }
 
-    renderSupplierPayments();
-    renderReceivedPayments();
+        if (action === "delete") deletePayment(type, id);
+      });
+
+      document.querySelectorAll(".modal-overlay").forEach(modal => {
+        modal.addEventListener("click", event => {
+          if (event.target === modal) closeModal(modal);
+        });
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          document.querySelectorAll(".modal-overlay.show").forEach(closeModal);
+        }
+      });
+    });
   </script>
 </body>
 </html>
