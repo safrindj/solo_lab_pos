@@ -1,1126 +1,871 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1e293b">
-    <title>Payment Management — Solo Lab Mobiles</title>
-    <link rel="manifest" href="manifest.json">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", sans-serif;
-        }
-
-        [hidden] {
-            display: none !important;
-        }
-
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        body {
-            min-height: 100vh;
-            padding: 20px;
-            background: #f1f5f9;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 24px;
-            padding: 16px 24px;
-            border-radius: 10px;
-            background: #1e293b;
-            color: #fff;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-        }
-
-        .back-btn {
-            padding: 8px 16px;
-            border: 1px solid #fff;
-            border-radius: 6px;
-            background: transparent;
-            color: #fff;
-            font-size: 14px;
-            text-decoration: none;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .card {
-            padding: 24px;
-            border-radius: 12px;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .tab {
-            padding: 12px 24px;
-            border: 0;
-            border-bottom: 3px solid transparent;
-            background: transparent;
-            color: #64748b;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .tab:hover {
-            background: #f1f5f9;
-        }
-
-        .tab.active {
-            border-bottom-color: #2563eb;
-            color: #2563eb;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        button:focus-visible,
-        a:focus-visible,
-        input:focus-visible,
-        select:focus-visible,
-        textarea:focus-visible {
-            outline: 3px solid #93c5fd;
-            outline-offset: 2px;
-        }
-
-        .btn-primary,
-        .btn-success,
-        .btn-cancel {
-            padding: 10px 20px;
-            border: 0;
-            border-radius: 6px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            margin-bottom: 20px;
-            background: #2563eb;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-success {
-            background: #16a34a;
-        }
-
-        .btn-success:hover {
-            background: #15803d;
-        }
-
-        .btn-cancel {
-            background: #ef4444;
-        }
-
-        .btn-cancel:hover {
-            background: #dc2626;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 14px;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        th {
-            background: #f8fafc;
-            color: #374151;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        tbody tr:hover {
-            background: #f8fafc;
-        }
-
-        .empty-state {
-            padding: 40px;
-            color: #64748b;
-            text-align: center;
-        }
-
-        .amount-negative {
-            color: #ef4444;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .amount-positive {
-            color: #16a34a;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .summary-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-            padding: 16px;
-            border-radius: 8px;
-            background: #f8fafc;
-        }
-
-        .summary-label {
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        .summary-value {
-            margin-top: 4px;
-            color: #1e293b;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .summary-value.credit {
-            color: #16a34a;
-        }
-
-        .summary-value.debit {
-            color: #ef4444;
-        }
-
-        .row-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .edit-btn,
-        .delete-btn {
-            padding: 4px 10px;
-            border: 0;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .edit-btn {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .delete-btn {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal {
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border-radius: 12px;
-            background: #fff;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-radius: 12px 12px 0 0;
-            background: #1e293b;
-            color: #fff;
-        }
-
-        .modal-header h2 {
-            font-size: 17px;
-        }
-
-        .close-btn {
-            border: 0;
-            background: none;
-            color: #fff;
-            cursor: pointer;
-            font-size: 24px;
-            line-height: 1;
-        }
-
-        .modal-body {
-            padding: 24px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #374151;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            background: #fff;
-            font-size: 15px;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: #2563eb;
-            outline: none;
-        }
-
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            padding-top: 16px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 12px;
-            }
-
-            .header {
-                align-items: flex-start;
-                flex-direction: column;
-                padding: 16px;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .tab {
-                flex: 1;
-                padding: 10px 8px;
-                font-size: 13px;
-            }
-
-            .form-row,
-            .summary-box {
-                grid-template-columns: 1fr;
-                gap: 0;
-            }
-
-            .summary-box {
-                gap: 12px;
-            }
-
-            .modal-body {
-                padding: 18px;
-            }
-        }
-    </style>
-    <script>
-// ==========================================
-// Google Sheets Sync — SOLO LAB MOBILES
-// ==========================================
-const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwdVCmtSvSo5deT_5Os6yXRp1EE7hroItOe6ufemZe-rgH-yzsM9xq02bLqWsSUjBPw/exec"; // ← PASTE YOUR URL HERE
-
-async function gsRead(tabName) {
-  try {
-    const res = await fetch(`${GS_WEB_APP_URL}?action=read&tab=${tabName}`);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    
-    // Convert sheet rows to objects (first row = headers)
-    const rows = json.data;
-    if (rows.length < 2) return [];
-    
-    const headers = rows[0].map(h => h.trim());
-    return rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((h, i) => {
-        let val = row[i];
-        // Convert numbers where possible
-        if (!isNaN(parseFloat(val)) && isFinite(val)) val = Number(val);
-        obj[h] = val;
-      });
-      return obj;
-    });
-  } catch (err) {
-    console.error('Google Sheets Read Error:', err);
-    alert('Could not load data: ' + err.message);
-    return [];
-  }
-}
-
-async function gsSave(tabName, objects, headers) {
-  try {
-    // Convert objects back to sheet rows
-    const rows = [headers];
-    objects.forEach(obj => {
-      rows.push(headers.map(h => obj[h] ?? ''));
-    });
-    
-    const res = await fetch(`${GS_WEB_APP_URL}?action=save`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tab: tabName, data: rows })
-    });
-    
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    return true;
-  } catch (err) {
-    console.error('Google Sheets Save Error:', err);
-    alert('Could not save data: ' + err.message);
-    return false;
-  }
-}
-</script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment Management — SOLO LAB MOBILE</title>
+
+  <!-- sidebar.js can populate #sidebar-container -->
+  <script src="./sidebar.js" defer></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .page-content {
+      padding: 25px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .tabs,
+    .top-bar,
+    .search-filter,
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tabs {
+      margin-bottom: 20px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .tab-btn,
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 18px;
+    }
+
+    .tab-btn {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .tab-btn.active,
+    .btn-primary {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .tab-btn.active:hover,
+    .btn-primary:hover {
+      background: #b91c1c;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    .btn-sm {
+      font-size: 13px;
+      padding: 6px 10px;
+    }
+
+    .top-bar {
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .search-filter input,
+    .search-filter select {
+      min-width: 180px;
+    }
+
+    input,
+    select,
+    textarea {
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      padding: 10px 12px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 5%);
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding: 20px;
+    }
+
+    .hidden-section {
+      display: none;
+    }
+
+    .hidden-section.show {
+      display: block;
+    }
+
+    table {
+      border-collapse: collapse;
+      min-width: 700px;
+      width: 100%;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f9fafb;
+      color: #374151;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      color: #9ca3af;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .payment-method {
+      border-radius: 4px;
+      display: inline-block;
+      font-size: 12px;
+      margin: 0 4px 4px 0;
+      padding: 3px 8px;
+    }
+
+    .method-cash {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .method-cheque {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .method-both {
+      background: #ede9fe;
+      color: #5b21b6;
+    }
+
+    .method-credit {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .method-unallocated {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .modal-overlay {
+      align-items: center;
+      background: rgb(0 0 0 / 50%);
+      display: none;
+      inset: 0;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 20px;
+      position: fixed;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      max-height: 90vh;
+      max-width: 500px;
+      overflow-y: auto;
+      padding: 24px;
+      width: 100%;
+    }
+
+    .modal h2 {
+      color: #111827;
+      font-size: 18px;
+      margin-bottom: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      color: #374151;
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+    }
+
+    .form-group textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    .balance-info {
+      background: #f9fafb;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-top: 10px;
+      padding: 10px;
+    }
+
+    .balance-message {
+      color: #dc2626;
+      margin-left: 10px;
+    }
+
+    .form-actions {
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .summary-row {
+      border-top: 1px solid #f3f4f6;
+      display: flex;
+      font-size: 16px;
+      font-weight: 600;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding: 12px 0 0;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      white-space: nowrap;
+    }
+
+    .delete-btn {
+      background: none;
+      border: 0;
+      color: #dc2626;
+      font-size: 13px;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .page-content {
+        padding: 16px;
+      }
+
+      .top-bar,
+      .search-filter {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .search-filter input,
+      .search-filter select {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <header class="header">
-        <h1>💰 Payment Management</h1>
-        <a href="index.html" class="back-btn">← Back to Dashboard</a>
-    </header>
+  <!-- sidebar.js should inject the sidebar into this element. -->
+  <div id="sidebar-container"></div>
 
-    <main class="container">
-        <section class="card" aria-label="Payment records">
-            <div class="tabs" role="tablist" aria-label="Payment type">
-                <button
-                    class="tab active"
-                    id="supplier-tab-button"
-                    type="button"
-                    role="tab"
-                    aria-selected="true"
-                    aria-controls="supplier-tab"
-                    tabindex="0"
-                    data-tab="supplier">
-                    📤 Payment to Supplier
-                </button>
-                <button
-                    class="tab"
-                    id="customer-tab-button"
-                    type="button"
-                    role="tab"
-                    aria-selected="false"
-                    aria-controls="customer-tab"
-                    tabindex="-1"
-                    data-tab="customer">
-                    📥 Received from Customer
-                </button>
-            </div>
+  <main class="page-content">
+    <h1>💰 Payment Management</h1>
+    <p class="subtitle">Payments to suppliers and payments received from buyers</p>
 
-            <section class="summary-box" aria-label="Payment totals">
-                <div>
-                    <div class="summary-label">Total Paid to Suppliers</div>
-                    <div class="summary-value debit" id="totalSupplier">LKR 0.00</div>
-                </div>
-                <div>
-                    <div class="summary-label">Total Received from Customers</div>
-                    <div class="summary-value credit" id="totalCustomer">LKR 0.00</div>
-                </div>
-            </section>
-
-            <section
-                class="tab-content active"
-                id="supplier-tab"
-                role="tabpanel"
-                aria-labelledby="supplier-tab-button">
-                <button class="btn-primary" type="button" data-open-modal="supplier">
-                    ➕ Record Payment to Supplier
-                </button>
-
-                <div class="table-wrap">
-                    <table>
-                        <caption class="visually-hidden">Payments made to suppliers</caption>
-                        <thead>
-                            <tr>
-                                <th scope="col">Date</th>
-                                <th scope="col">Supplier Name</th>
-                                <th scope="col">Bank</th>
-                                <th scope="col">Cheque Number</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Notes</th>
-                                <th scope="col">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="supplier-list"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section
-                class="tab-content"
-                id="customer-tab"
-                role="tabpanel"
-                aria-labelledby="customer-tab-button"
-                hidden>
-                <button class="btn-primary" type="button" data-open-modal="customer">
-                    ➕ Record Payment from Customer
-                </button>
-
-                <div class="table-wrap">
-                    <table>
-                        <caption class="visually-hidden">Payments received from customers</caption>
-                        <thead>
-                            <tr>
-                                <th scope="col">Date</th>
-                                <th scope="col">Customer Name</th>
-                                <th scope="col">Bank</th>
-                                <th scope="col">Cheque Number</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Notes</th>
-                                <th scope="col">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customer-list"></tbody>
-                    </table>
-                </div>
-            </section>
-        </section>
-    </main>
-
-    <div class="modal-overlay" id="paymentModal" aria-hidden="true">
-        <section
-            class="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modalTitle">
-            <div class="modal-header">
-                <h2 id="modalTitle">Record Payment</h2>
-                <button
-                    class="close-btn"
-                    type="button"
-                    data-close-modal
-                    aria-label="Close dialog">
-                    &times;
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <form id="paymentForm">
-                    <input type="hidden" id="paymentType">
-                    <input type="hidden" id="editId">
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="partyName" id="partyLabel">Supplier Name *</label>
-                            <input
-                                type="text"
-                                id="partyName"
-                                placeholder="Enter name"
-                                autocomplete="name"
-                                required>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentDate">Date *</label>
-                            <input type="date" id="paymentDate" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="bankName">Bank or payment method *</label>
-                            <select id="bankName" required>
-                                <option value="">— Select Bank —</option>
-                                <option>Amana Bank</option>
-                                <option>Bank of Ceylon (BOC)</option>
-                                <option>Cargills Bank</option>
-                                <option>Commercial Bank</option>
-                                <option>DFCC Bank</option>
-                                <option>Habib Bank</option>
-                                <option>Hatton National Bank (HNB)</option>
-                                <option>MCB Bank</option>
-                                <option>National Development Bank (NDB)</option>
-                                <option>Nations Trust Bank (NTB)</option>
-                                <option>Pan Asia Bank</option>
-                                <option>People's Bank</option>
-                                <option>Sampath Bank</option>
-                                <option>Seylan Bank</option>
-                                <option>HSBC</option>
-                                <option>Cash</option>
-                                <option>Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="chequeNumber">Cheque / Reference No.</label>
-                            <input
-                                type="text"
-                                id="chequeNumber"
-                                placeholder="e.g. CHQ-12345">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="amount">Amount (LKR) *</label>
-                        <input
-                            type="number"
-                            id="amount"
-                            min="0.01"
-                            step="0.01"
-                            placeholder="0.00"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="notes">Notes / Description</label>
-                        <textarea id="notes" placeholder="Optional notes..."></textarea>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn-cancel" type="button" data-close-modal>
-                            Cancel
-                        </button>
-                        <button class="btn-success" type="submit">💾 Save Record</button>
-                    </div>
-                </form>
-            </div>
-        </section>
+    <div class="tabs" role="tablist" aria-label="Payment categories">
+      <button class="tab-btn active" id="tabSupplier" type="button"
+              role="tab" aria-selected="true" aria-controls="supplierSection"
+              data-tab="supplier">
+        📤 Payments to Suppliers
+      </button>
+      <button class="tab-btn" id="tabReceived" type="button"
+              role="tab" aria-selected="false" aria-controls="receivedSection"
+              data-tab="received">
+        📥 Received Payments
+      </button>
     </div>
 
-    <script>
-        (() => {
-            let currentUser = null;
-
-            try {
-                currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-            } catch (error) {
-                console.warn("The saved user session is invalid.", error);
-            }
-
-            if (!currentUser) {
-                window.location.replace("login.html");
-                return;
-            }
-
-            const STORAGE_KEYS = {
-                supplier: "supplierPayments",
-                customer: "customerPayments"
-            };
-
-            const modal = document.getElementById("paymentModal");
-            const dialog = modal.querySelector('[role="dialog"]');
-            const form = document.getElementById("paymentForm");
-            const partyNameInput = document.getElementById("partyName");
-            const paymentDateInput = document.getElementById("paymentDate");
-            const bankNameInput = document.getElementById("bankName");
-            const chequeNumberInput = document.getElementById("chequeNumber");
-            const amountInput = document.getElementById("amount");
-            const notesInput = document.getElementById("notes");
-            const paymentTypeInput = document.getElementById("paymentType");
-            const editIdInput = document.getElementById("editId");
-            const modalTitle = document.getElementById("modalTitle");
-            const partyLabel = document.getElementById("partyLabel");
-            const submitButton = form.querySelector('[type="submit"]');
-
-            let previouslyFocusedElement = null;
-
-            function readPayments(type) {
-                try {
-                    const value = JSON.parse(
-                        localStorage.getItem(STORAGE_KEYS[type]) || "[]"
-                    );
-
-                    return Array.isArray(value)
-                        ? value.filter(record => record && typeof record === "object")
-                        : [];
-                } catch (error) {
-                    console.warn(`Could not read ${type} payment records.`, error);
-                    return [];
-                }
-            }
-
-            function writePayments(type, records) {
-                try {
-                    localStorage.setItem(
-                        STORAGE_KEYS[type],
-                        JSON.stringify(records)
-                    );
-                    return true;
-                } catch (error) {
-                    console.error(`Could not save ${type} payment records.`, error);
-                    alert(
-                        "The payment could not be saved. Please check browser storage and try again."
-                    );
-                    return false;
-                }
-            }
-
-            function formatAmount(amount) {
-                const numericAmount = Number(amount);
-
-                return new Intl.NumberFormat("en-LK", {
-                    style: "currency",
-                    currency: "LKR",
-                    minimumFractionDigits: 2
-                }).format(Number.isFinite(numericAmount) ? numericAmount : 0);
-            }
-
-            function formatDate(dateString) {
-                if (typeof dateString !== "string") {
-                    return "";
-                }
-
-                const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString);
-                if (!match) {
-                    return dateString;
-                }
-
-                const year = Number(match[1]);
-                const month = Number(match[2]);
-                const day = Number(match[3]);
-                const date = new Date(year, month - 1, day);
-
-                // Reject invalid dates instead of allowing Date to roll them over.
-                if (
-                    date.getFullYear() !== year ||
-                    date.getMonth() !== month - 1 ||
-                    date.getDate() !== day
-                ) {
-                    return dateString;
-                }
-
-                return new Intl.DateTimeFormat("en-LK").format(date);
-            }
-
-            function makeCell(text, className) {
-                const cell = document.createElement("td");
-                cell.textContent = text == null ? "" : String(text);
-
-                if (className) {
-                    cell.className = className;
-                }
-
-                return cell;
-            }
-
-            function renderList(type) {
-                const tbody = document.getElementById(`${type}-list`);
-                const records = readPayments(type);
-
-                tbody.replaceChildren();
-
-                if (records.length === 0) {
-                    const row = document.createElement("tr");
-                    const cell = makeCell(
-                        `No ${type === "supplier" ? "payments" : "receipts"} recorded yet.`
-                    );
-                    cell.colSpan = 7;
-                    cell.className = "empty-state";
-                    row.appendChild(cell);
-                    tbody.appendChild(row);
-                    return;
-                }
-
-                records.forEach(record => {
-                    const row = document.createElement("tr");
-
-                    row.append(
-                        makeCell(formatDate(record.date)),
-                        makeCell(record.partyName),
-                        makeCell(record.bankName),
-                        makeCell(record.chequeNumber),
-                        makeCell(
-                            formatAmount(record.amount),
-                            type === "supplier" ? "amount-negative" : "amount-positive"
-                        ),
-                        makeCell(record.notes)
-                    );
-
-                    const actionCell = document.createElement("td");
-                    const actionGroup = document.createElement("div");
-                    actionGroup.className = "row-actions";
-
-                    const editButton = document.createElement("button");
-                    editButton.type = "button";
-                    editButton.className = "edit-btn";
-                    editButton.textContent = "Edit";
-                    editButton.dataset.action = "edit";
-                    editButton.dataset.type = type;
-                    editButton.dataset.id = String(record.id ?? "");
-
-                    const deleteButton = document.createElement("button");
-                    deleteButton.type = "button";
-                    deleteButton.className = "delete-btn";
-                    deleteButton.textContent = "Delete";
-                    deleteButton.dataset.action = "delete";
-                    deleteButton.dataset.type = type;
-                    deleteButton.dataset.id = String(record.id ?? "");
-
-                    actionGroup.append(editButton, deleteButton);
-                    actionCell.appendChild(actionGroup);
-                    row.appendChild(actionCell);
-                    tbody.appendChild(row);
-                });
-            }
-
-            function renderSummary() {
-                const sumAmounts = type =>
-                    readPayments(type).reduce((total, record) => {
-                        const amount = Number(record.amount);
-                        return total + (Number.isFinite(amount) ? amount : 0);
-                    }, 0);
-
-                document.getElementById("totalSupplier").textContent =
-                    formatAmount(sumAmounts("supplier"));
-                document.getElementById("totalCustomer").textContent =
-                    formatAmount(sumAmounts("customer"));
-            }
-
-            function renderAll() {
-                renderList("supplier");
-                renderList("customer");
-                renderSummary();
-            }
-
-            function todayAsISODate() {
-                const now = new Date();
-                const localDate = new Date(
-                    now.getTime() - now.getTimezoneOffset() * 60000
-                );
-                return localDate.toISOString().slice(0, 10);
-            }
-
-            function openModal(type, record = null) {
-                if (!STORAGE_KEYS[type]) {
-                    return;
-                }
-
-                previouslyFocusedElement = document.activeElement;
-                form.reset();
-
-                paymentTypeInput.value = type;
-                editIdInput.value = record ? String(record.id ?? "") : "";
-                partyLabel.textContent =
-                    `${type === "supplier" ? "Supplier" : "Customer"} Name *`;
-
-                modalTitle.textContent = record
-                    ? `Edit ${type === "supplier" ? "Supplier Payment" : "Customer Receipt"}`
-                    : `Record ${type === "supplier" ? "Payment to Supplier" : "Payment from Customer"}`;
-
-                submitButton.textContent = record
-                    ? "💾 Update Record"
-                    : "💾 Save Record";
-
-                paymentDateInput.value = record?.date || todayAsISODate();
-                partyNameInput.value = record?.partyName || "";
-                bankNameInput.value = record?.bankName || "";
-                chequeNumberInput.value = record?.chequeNumber || "";
-                amountInput.value = record?.amount ?? "";
-                notesInput.value = record?.notes || "";
-
-                modal.classList.add("show");
-                modal.setAttribute("aria-hidden", "false");
-                partyNameInput.focus();
-            }
-
-            function closeModal() {
-                if (!modal.classList.contains("show")) {
-                    return;
-                }
-
-                modal.classList.remove("show");
-                modal.setAttribute("aria-hidden", "true");
-
-                if (previouslyFocusedElement instanceof HTMLElement) {
-                    previouslyFocusedElement.focus();
-                }
-            }
-
-            function activateTab(tab, moveFocus = false) {
-                const selectedType = tab.dataset.tab;
-
-                document.querySelectorAll("[data-tab]").forEach(button => {
-                    const selected = button === tab;
-                    button.classList.toggle("active", selected);
-                    button.setAttribute("aria-selected", String(selected));
-                    button.tabIndex = selected ? 0 : -1;
-                });
-
-                document.querySelectorAll(".tab-content").forEach(panel => {
-                    const selected = panel.id === `${selectedType}-tab`;
-                    panel.classList.toggle("active", selected);
-                    panel.hidden = !selected;
-                });
-
-                if (moveFocus) {
-                    tab.focus();
-                }
-            }
-
-            document.querySelectorAll("[data-tab]").forEach(tab => {
-                tab.addEventListener("click", () => activateTab(tab));
-
-                tab.addEventListener("keydown", event => {
-                    const tabs = [...document.querySelectorAll("[data-tab]")];
-                    const currentIndex = tabs.indexOf(tab);
-                    let nextIndex = currentIndex;
-
-                    if (event.key === "ArrowRight") {
-                        nextIndex = (currentIndex + 1) % tabs.length;
-                    } else if (event.key === "ArrowLeft") {
-                        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-                    } else if (event.key === "Home") {
-                        nextIndex = 0;
-                    } else if (event.key === "End") {
-                        nextIndex = tabs.length - 1;
-                    } else {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    activateTab(tabs[nextIndex], true);
-                });
-            });
-
-            document.querySelectorAll("[data-open-modal]").forEach(button => {
-                button.addEventListener("click", () => {
-                    openModal(button.dataset.openModal);
-                });
-            });
-
-            document.querySelectorAll("[data-close-modal]").forEach(button => {
-                button.addEventListener("click", closeModal);
-            });
-
-            modal.addEventListener("click", event => {
-                if (event.target === modal) {
-                    closeModal();
-                }
-            });
-
-            document.addEventListener("keydown", event => {
-                if (!modal.classList.contains("show")) {
-                    return;
-                }
-
-                if (event.key === "Escape") {
-                    event.preventDefault();
-                    closeModal();
-                    return;
-                }
-
-                if (event.key !== "Tab") {
-                    return;
-                }
-
-                const focusableElements = [
-                    ...dialog.querySelectorAll(
-                        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
-                    )
-                ].filter(element => element.getClientRects().length > 0);
-
-                if (focusableElements.length === 0) {
-                    event.preventDefault();
-                    dialog.focus();
-                    return;
-                }
-
-                const first = focusableElements[0];
-                const last = focusableElements[focusableElements.length - 1];
-
-                if (event.shiftKey && document.activeElement === first) {
-                    event.preventDefault();
-                    last.focus();
-                } else if (!event.shiftKey && document.activeElement === last) {
-                    event.preventDefault();
-                    first.focus();
-                }
-            });
-
-            document.querySelectorAll("tbody").forEach(tbody => {
-                tbody.addEventListener("click", event => {
-                    const button = event.target.closest("button[data-action]");
-                    if (!button) {
-                        return;
-                    }
-
-                    const { action, type, id } = button.dataset;
-                    if (!STORAGE_KEYS[type]) {
-                        return;
-                    }
-
-                    const records = readPayments(type);
-                    const record = records.find(item => String(item.id ?? "") === id);
-                    if (!record) {
-                        return;
-                    }
-
-                    if (action === "edit") {
-                        openModal(type, record);
-                    } else if (action === "delete") {
-                        const partyType = type === "supplier"
-                            ? "supplier payment"
-                            : "customer receipt";
-
-                        if (!confirm(`Delete this ${partyType}? This cannot be undone.`)) {
-                            return;
-                        }
-
-                        const updatedRecords = records.filter(
-                            item => String(item.id ?? "") !== id
-                        );
-
-                        if (writePayments(type, updatedRecords)) {
-                            renderAll();
-                        }
-                    }
-                });
-            });
-
-            form.addEventListener("submit", event => {
-                event.preventDefault();
-
-                if (!form.reportValidity()) {
-                    return;
-                }
-
-                const type = paymentTypeInput.value;
-                if (!STORAGE_KEYS[type]) {
-                    alert("Invalid payment type.");
-                    return;
-                }
-
-                const amount = Number(amountInput.value);
-                if (!Number.isFinite(amount) || amount <= 0) {
-                    amountInput.setCustomValidity(
-                        "Enter an amount greater than zero."
-                    );
-                    amountInput.reportValidity();
-                    amountInput.setCustomValidity("");
-                    return;
-                }
-
-                const partyName = partyNameInput.value.trim();
-                if (!partyName) {
-                    partyNameInput.setCustomValidity("Enter a name.");
-                    partyNameInput.reportValidity();
-                    partyNameInput.setCustomValidity("");
-                    return;
-                }
-
-                const records = readPayments(type);
-                const editId = editIdInput.value;
-                const existingIndex = editId
-                    ? records.findIndex(item => String(item.id ?? "") === editId)
-                    : -1;
-
-                // Do not turn a failed edit into a new record.
-                if (editId && existingIndex === -1) {
-                    alert("This record no longer exists. Refresh the page and try again.");
-                    closeModal();
-                    renderAll();
-                    return;
-                }
-
-                const generatedId =
-                    globalThis.crypto?.randomUUID?.() ||
-                    `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-                const payment = {
-                    id: editId || generatedId,
-                    partyName,
-                    date: paymentDateInput.value,
-                    bankName: bankNameInput.value,
-                    chequeNumber: chequeNumberInput.value.trim(),
-                    amount,
-                    notes: notesInput.value.trim()
-                };
-
-                if (existingIndex !== -1) {
-                    records[existingIndex] = payment;
-                } else {
-                    records.push(payment);
-                }
-
-                if (writePayments(type, records)) {
-                    closeModal();
-                    renderAll();
-                }
-            });
-
-            renderAll();
-        })();
-    </script>
+    <section id="supplierSection" class="hidden-section show">
+      <div class="top-bar">
+        <div class="search-filter">
+          <input type="search" id="supplierSearch" placeholder="🔍 Search supplier..."
+                 aria-label="Search supplier">
+          <select id="supplierFilter" aria-label="Filter supplier payments by method">
+            <option value="">All Methods</option>
+            <option value="cash">Cash</option>
+            <option value="cheque">Cheque</option>
+            <option value="both">Both</option>
+            <option value="unallocated">Unallocated</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="button" data-action="new-supplier">
+          ➕ Record a Payment
+        </button>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Supplier Name</th>
+              <th>Total Amount</th>
+              <th>Payment Details</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="supplierTableBody"></tbody>
+        </table>
+        <div class="summary-row">
+          <span>Total Paid</span>
+          <span id="supplierTotal">LKR 0.00</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="receivedSection" class="hidden-section">
+      <div class="top-bar">
+        <div class="search-filter">
+          <input type="search" id="receivedSearch" placeholder="🔍 Search buyer..."
+                 aria-label="Search buyer">
+          <select id="receivedFilter" aria-label="Filter received payments by method">
+            <option value="">All Methods</option>
+            <option value="cash">Cash</option>
+            <option value="cheque">Cheque</option>
+            <option value="both">Both</option>
+            <option value="credit">Credit</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="button" data-action="new-received">
+          ➕ Record a Payment
+        </button>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Buyer / Company</th>
+              <th>Total Amount</th>
+              <th>Payment Details</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="receivedTableBody"></tbody>
+        </table>
+        <div class="summary-row">
+          <span>Total Received</span>
+          <span id="receivedTotal">LKR 0.00</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Supplier payment modal -->
+  <div class="modal-overlay" id="supplierModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="supplierModalTitle">
+      <h2 id="supplierModalTitle">Record Payment to Supplier</h2>
+      <form id="supplierForm">
+        <input type="hidden" id="supplierPaymentId">
+
+        <div class="form-group">
+          <label for="supplierName">Supplier Name *</label>
+          <input id="supplierName" required maxlength="150" placeholder="e.g. ABC Distributors">
+        </div>
+        <div class="form-group">
+          <label for="supplierTotalAmount">Total Amount (LKR) *</label>
+          <input id="supplierTotalAmount" type="number" required min="0.01" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="supplierDate">Payment Date</label>
+          <input id="supplierDate" type="date">
+        </div>
+        <div class="form-group">
+          <label for="supplierCash">💵 Cash Amount</label>
+          <input id="supplierCash" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="supplierCheque">🏦 Cheque Amount</label>
+          <input id="supplierCheque" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="supplierBank">Bank Name</label>
+          <input id="supplierBank" maxlength="100" placeholder="e.g. Bank of Ceylon">
+        </div>
+        <div class="form-group">
+          <label for="supplierChequeNo">Cheque Number</label>
+          <input id="supplierChequeNo" maxlength="50" placeholder="e.g. 12345678">
+        </div>
+        <div class="form-group">
+          <label for="supplierChequeDate">Cheque Date</label>
+          <input id="supplierChequeDate" type="date">
+        </div>
+
+        <div class="balance-info">
+          <strong>Allocated: </strong><span id="supplierAllocated">LKR 0.00</span>
+          <span class="balance-message" id="supplierBalance"></span>
+        </div>
+
+        <div class="form-group" style="margin-top:14px">
+          <label for="supplierNotes">Notes</label>
+          <textarea id="supplierNotes" maxlength="1000" placeholder="Description..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" data-action="close-modal">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Save Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Received payment modal -->
+  <div class="modal-overlay" id="receivedModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="receivedModalTitle">
+      <h2 id="receivedModalTitle">Record Received Payment</h2>
+      <form id="receivedForm">
+        <input type="hidden" id="receivedPaymentId">
+
+        <div class="form-group">
+          <label for="receivedName">Buyer / Company Name *</label>
+          <input id="receivedName" required maxlength="150" placeholder="e.g. Tech Solutions">
+        </div>
+        <div class="form-group">
+          <label for="receivedTotalAmount">Total Amount (LKR) *</label>
+          <input id="receivedTotalAmount" type="number" required min="0.01" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="receivedDate">Payment Date</label>
+          <input id="receivedDate" type="date">
+        </div>
+        <div class="form-group">
+          <label for="receivedCash">💵 Cash Amount</label>
+          <input id="receivedCash" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="receivedCheque">🏦 Cheque Amount</label>
+          <input id="receivedCheque" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="receivedBank">Bank Name</label>
+          <input id="receivedBank" maxlength="100" placeholder="e.g. Sampath Bank">
+        </div>
+        <div class="form-group">
+          <label for="receivedChequeNo">Cheque Number</label>
+          <input id="receivedChequeNo" maxlength="50" placeholder="e.g. 87654321">
+        </div>
+        <div class="form-group">
+          <label for="receivedChequeDate">Cheque Date</label>
+          <input id="receivedChequeDate" type="date">
+        </div>
+
+        <div class="balance-info">
+          <strong>Allocated: </strong><span id="receivedAllocated">LKR 0.00</span>
+          <span class="balance-message" id="receivedBalance"></span>
+        </div>
+
+        <div class="form-group" style="margin-top:14px">
+          <label for="receivedNotes">Reference / Notes</label>
+          <textarea id="receivedNotes" maxlength="1000" placeholder="Invoice #, details..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" data-action="close-modal">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const STORAGE_KEYS = {
+      supplier: "supplierPayments",
+      received: "receivedPayments"
+    };
+
+    function loadPayments(key) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key) || "[]");
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error(`Could not read ${key} from localStorage:`, error);
+        return [];
+      }
+    }
+
+    let supplierPayments = loadPayments(STORAGE_KEYS.supplier);
+    let receivedPayments = loadPayments(STORAGE_KEYS.received);
+
+    function savePayments(type) {
+      const key = STORAGE_KEYS[type];
+      const records = type === "supplier" ? supplierPayments : receivedPayments;
+
+      try {
+        localStorage.setItem(key, JSON.stringify(records));
+        return true;
+      } catch (error) {
+        console.error("Could not save payments:", error);
+        alert("Could not save data in this browser. Check available storage space.");
+        return false;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function money(value) {
+      const amount = Number(value) || 0;
+      return "LKR " + amount.toLocaleString("en-LK", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function todayLocal() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset();
+      return new Date(now.getTime() - offset * 60000).toISOString().slice(0, 10);
+    }
+
+    function getMethod(payment, type) {
+      const cash = Number(payment.cash) || 0;
+      const cheque = Number(payment.cheque) || 0;
+      const total = Number(payment.total) || 0;
+      const allocated = cash + cheque;
+
+      if (type === "received" && total - allocated > 0.009) {
+        return "credit";
+      }
+      if (cash > 0 && cheque > 0) {
+        return "both";
+      }
+      if (cash > 0) {
+        return "cash";
+      }
+      if (cheque > 0) {
+        return "cheque";
+      }
+      return "unallocated";
+    }
+
+    function paymentDetails(payment, type) {
+      const parts = [];
+      const cash = Number(payment.cash) || 0;
+      const cheque = Number(payment.cheque) || 0;
+      const total = Number(payment.total) || 0;
+      const remaining = Math.max(0, total - cash - cheque);
+
+      if (cash > 0) parts.push(`<span class="payment-method method-cash">Cash: ${money(cash)}</span>`);
+      if (cheque > 0) parts.push(`<span class="payment-method method-cheque">Cheque: ${money(cheque)}</span>`);
+
+      if (type === "received" && remaining > 0.009) {
+        parts.push(`<span class="payment-method method-credit">Credit: ${money(remaining)}</span>`);
+      } else if (parts.length === 0) {
+        parts.push('<span class="payment-method method-unallocated">Unallocated</span>');
+      }
+
+      const chequeInfo = [];
+      if (payment.bank) chequeInfo.push(`Bank: ${escapeHtml(payment.bank)}`);
+      if (payment.chequeNo) chequeInfo.push(`Cheque #: ${escapeHtml(payment.chequeNo)}`);
+      if (payment.chequeDate) chequeInfo.push(`Cheque date: ${escapeHtml(payment.chequeDate)}`);
+
+      if (chequeInfo.length) {
+        parts.push(`<div>${chequeInfo.join(" · ")}</div>`);
+      }
+      if (payment.notes) {
+        parts.push(`<div>${escapeHtml(payment.notes)}</div>`);
+      }
+
+      return parts.join("");
+    }
+
+    function renderPayments(type) {
+      const isSupplier = type === "supplier";
+      const records = isSupplier ? supplierPayments : receivedPayments;
+      const search = document.getElementById(isSupplier ? "supplierSearch" : "receivedSearch")
+        .value.trim().toLowerCase();
+      const filter = document.getElementById(isSupplier ? "supplierFilter" : "receivedFilter").value;
+      const tbody = document.getElementById(isSupplier ? "supplierTableBody" : "receivedTableBody");
+      const nameField = isSupplier ? "Supplier Name" : "Buyer / Company";
+
+      const filtered = records.filter(payment => {
+        const matchesSearch = String(payment.name || "").toLowerCase().includes(search);
+        const matchesFilter = !filter || getMethod(payment, type) === filter;
+        return matchesSearch && matchesFilter;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No payments found</td></tr>`;
+      } else {
+        tbody.innerHTML = filtered.map(payment => `
+          <tr>
+            <td>${escapeHtml(payment.date || "—")}</td>
+            <td>${escapeHtml(payment.name || "")}</td>
+            <td>${money(payment.total)}</td>
+            <td>${paymentDetails(payment, type)}</td>
+            <td>
+              <div class="row-actions">
+                <button class="btn btn-secondary btn-sm" type="button"
+                        data-action="edit" data-type="${type}" data-id="${escapeHtml(payment.id)}">
+                  Edit
+                </button>
+                <button class="delete-btn" type="button"
+                        data-action="delete" data-type="${type}" data-id="${escapeHtml(payment.id)}">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join("");
+      }
+
+      const total = records.reduce((sum, payment) => sum + (Number(payment.total) || 0), 0);
+      document.getElementById(isSupplier ? "supplierTotal" : "receivedTotal").textContent = money(total);
+    }
+
+    function switchTab(type) {
+      const supplierActive = type === "supplier";
+
+      document.getElementById("supplierSection").classList.toggle("show", supplierActive);
+      document.getElementById("receivedSection").classList.toggle("show", !supplierActive);
+      document.getElementById("tabSupplier").classList.toggle("active", supplierActive);
+      document.getElementById("tabReceived").classList.toggle("active", !supplierActive);
+      document.getElementById("tabSupplier").setAttribute("aria-selected", String(supplierActive));
+      document.getElementById("tabReceived").setAttribute("aria-selected", String(!supplierActive));
+
+      renderPayments(type);
+    }
+
+    function updateSplit(type) {
+      const prefix = type === "supplier" ? "supplier" : "received";
+      const total = Number(document.getElementById(`${prefix}TotalAmount`).value) || 0;
+      const cash = Number(document.getElementById(`${prefix}Cash`).value) || 0;
+      const cheque = Number(document.getElementById(`${prefix}Cheque`).value) || 0;
+      const allocated = cash + cheque;
+      const remaining = total - allocated;
+
+      document.getElementById(`${prefix}Allocated`).textContent = money(allocated);
+      document.getElementById(`${prefix}Balance`).textContent =
+        remaining > 0.009 ? `(Remaining: ${money(remaining)})` :
+        remaining < -0.009 ? `(Over by: ${money(Math.abs(remaining))})` : "";
+    }
+
+    function showModal(type, payment = null) {
+      const prefix = type === "supplier" ? "supplier" : "received";
+      const form = document.getElementById(`${prefix}Form`);
+      form.reset();
+
+      document.getElementById(`${prefix}PaymentId`).value = payment?.id || "";
+      document.getElementById(`${prefix}Name`).value = payment?.name || "";
+      document.getElementById(`${prefix}TotalAmount`).value = payment?.total ?? "";
+      document.getElementById(`${prefix}Date`).value = payment?.date || todayLocal();
+      document.getElementById(`${prefix}Cash`).value = payment?.cash ?? "";
+      document.getElementById(`${prefix}Cheque`).value = payment?.cheque ?? "";
+      document.getElementById(`${prefix}Bank`).value = payment?.bank || "";
+      document.getElementById(`${prefix}ChequeNo`).value = payment?.chequeNo || "";
+      document.getElementById(`${prefix}ChequeDate`).value = payment?.chequeDate || "";
+      document.getElementById(`${prefix}Notes`).value = payment?.notes || "";
+
+      document.getElementById(`${prefix}ModalTitle`).textContent = payment
+        ? (type === "supplier" ? "Edit Supplier Payment" : "Edit Received Payment")
+        : (type === "supplier" ? "Record Payment to Supplier" : "Record Received Payment");
+
+      updateSplit(type);
+      const modal = document.getElementById(`${prefix}Modal`);
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
+      document.getElementById(`${prefix}Name`).focus();
+    }
+
+    function closeModal(modal) {
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    function savePayment(event, type) {
+      event.preventDefault();
+
+      const prefix = type === "supplier" ? "supplier" : "received";
+      const id = document.getElementById(`${prefix}PaymentId`).value;
+      const total = Number(document.getElementById(`${prefix}TotalAmount`).value);
+      const cash = Number(document.getElementById(`${prefix}Cash`).value) || 0;
+      const cheque = Number(document.getElementById(`${prefix}Cheque`).value) || 0;
+
+      if (!Number.isFinite(total) || total <= 0) {
+        alert("Enter a total amount greater than zero.");
+        return;
+      }
+
+      if (cash < 0 || cheque < 0) {
+        alert("Cash and cheque amounts cannot be negative.");
+        return;
+      }
+
+      if (cash + cheque > total + 0.009) {
+        alert("Cash and cheque amounts cannot exceed the total amount.");
+        return;
+      }
+
+      const payment = {
+        id: id || `${type === "supplier" ? "SP" : "RP"}-${Date.now()}`,
+        name: document.getElementById(`${prefix}Name`).value.trim(),
+        total,
+        date: document.getElementById(`${prefix}Date`).value,
+        cash,
+        cheque,
+        bank: document.getElementById(`${prefix}Bank`).value.trim(),
+        chequeNo: document.getElementById(`${prefix}ChequeNo`).value.trim(),
+        chequeDate: document.getElementById(`${prefix}ChequeDate`).value,
+        notes: document.getElementById(`${prefix}Notes`).value.trim()
+      };
+
+      const records = type === "supplier" ? supplierPayments : receivedPayments;
+      const existingIndex = records.findIndex(record => String(record.id) === String(id));
+
+      if (existingIndex >= 0) {
+        records[existingIndex] = payment;
+      } else {
+        records.push(payment);
+      }
+
+      if (!savePayments(type)) return;
+
+      closeModal(document.getElementById(`${prefix}Modal`));
+      renderPayments(type);
+    }
+
+    function deletePayment(type, id) {
+      const records = type === "supplier" ? supplierPayments : receivedPayments;
+      const record = records.find(item => String(item.id) === String(id));
+      if (!record) return;
+
+      if (!confirm(`Delete the payment for "${record.name}"?`)) return;
+
+      if (type === "supplier") {
+        supplierPayments = supplierPayments.filter(item => String(item.id) !== String(id));
+      } else {
+        receivedPayments = receivedPayments.filter(item => String(item.id) !== String(id));
+      }
+
+      if (savePayments(type)) renderPayments(type);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderPayments("supplier");
+      renderPayments("received");
+
+      document.querySelectorAll("[data-tab]").forEach(button => {
+        button.addEventListener("click", () => switchTab(button.dataset.tab));
+      });
+
+      document.getElementById("supplierSearch").addEventListener("input", () => renderPayments("supplier"));
+      document.getElementById("supplierFilter").addEventListener("change", () => renderPayments("supplier"));
+      document.getElementById("receivedSearch").addEventListener("input", () => renderPayments("received"));
+      document.getElementById("receivedFilter").addEventListener("change", () => renderPayments("received"));
+
+      document.querySelectorAll("#supplierTotalAmount, #supplierCash, #supplierCheque")
+        .forEach(input => input.addEventListener("input", () => updateSplit("supplier")));
+      document.querySelectorAll("#receivedTotalAmount, #receivedCash, #receivedCheque")
+        .forEach(input => input.addEventListener("input", () => updateSplit("received")));
+
+      document.getElementById("supplierForm").addEventListener("submit", event => savePayment(event, "supplier"));
+      document.getElementById("receivedForm").addEventListener("submit", event => savePayment(event, "received"));
+
+      document.addEventListener("click", event => {
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
+
+        const { action, type, id } = button.dataset;
+
+        if (action === "new-supplier") showModal("supplier");
+        if (action === "new-received") showModal("received");
+
+        if (action === "close-modal") {
+          closeModal(button.closest(".modal-overlay"));
+        }
+
+        if (action === "edit") {
+          const records = type === "supplier" ? supplierPayments : receivedPayments;
+          const payment = records.find(item => String(item.id) === String(id));
+          if (payment) showModal(type, payment);
+        }
+
+        if (action === "delete") deletePayment(type, id);
+      });
+
+      document.querySelectorAll(".modal-overlay").forEach(modal => {
+        modal.addEventListener("click", event => {
+          if (event.target === modal) closeModal(modal);
+        });
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          document.querySelectorAll(".modal-overlay.show").forEach(closeModal);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
