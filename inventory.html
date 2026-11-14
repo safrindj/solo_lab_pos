@@ -6,373 +6,1026 @@
   <meta name="theme-color" content="#F57C00">
   <title>Inventory — SOLO LAB MOBILES</title>
   <script src="./sidebar.js" defer></script>
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #F9FAFB; color: #212121; font-family: Arial, sans-serif; }
-    button, input, select, textarea { font: inherit; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    .main-content { margin-left: 250px; padding: 24px; min-height: 100vh; }
-    
-    .page-header { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #FFE0B2; }
-    .page-header h1 { font-size: 24px; }
-    .page-header p { margin-top: 5px; color: #757575; }
+    body {
+      min-height: 100vh;
+      background: #F9FAFB;
+      color: #212121;
+      font-family: Arial, sans-serif;
+    }
 
-    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-    .stat-card { padding: 15px; border-left: 4px solid #F57C00; border-radius: 8px; background: white; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .stat-value { color: #E65100; font-size: 24px; font-weight: bold; }
-    .stat-label { margin-top: 5px; color: #757575; font-size: 12px; }
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
 
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-    input, select, textarea { padding: 10px; border: 2px solid #FFE0B2; border-radius: 6px; background: white; font-size: 14px; }
-    input:focus, select:focus, button:focus-visible { outline: 2px solid #F57C00; outline-offset: 2px; }
-    
-    button { padding: 10px 16px; border: 0; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; }
-    button:hover { opacity: 0.9; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    
-    .btn-primary, .btn-warning { background: #F57C00; color: white; }
-    .btn-success { background: #2E7D32; color: white; }
-    .btn-danger { background: #C62828; color: white; }
-    .btn-secondary { background: #E0E0E0; color: #333; }
-    .btn-sm { padding: 5px 10px; font-size: 12px; margin: 0 2px; }
+    /* Main content — leaves space for the sidebar */
+    .main-content {
+      min-width: 0;
+      margin-left: 250px;
+      padding: 24px;
+    }
 
-    #searchInput { flex: 1 1 220px; }
-    #catFilter { flex: 0 1 190px; }
+    .page-header {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #FFE0B2;
+    }
 
-    .status-message { min-height: 20px; margin: 0 0 12px; color: #757575; font-size: 14px; }
-    .status-message.error { color: #C62828; }
+    .page-header h1 {
+      font-size: 24px;
+    }
 
-    .table-wrap { overflow-x: auto; border-radius: 8px; }
-    table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    th { padding: 12px 10px; background: #F57C00; color: white; font-size: 13px; text-align: left; white-space: nowrap; }
-    td { padding: 12px 10px; border-bottom: 1px solid #FFE0B2; font-size: 14px; }
-    tbody tr:hover td { background: #FFF8F0; }
-    .empty { padding: 40px; color: #757575; text-align: center; }
-    tbody tr.out-of-stock td { background: #FFEBEE; color: #C62828; }
-    tbody tr.low-stock td { background: #FFF3E0; color: #E65100; }
+    .page-header p {
+      margin-top: 5px;
+      color: #757575;
+    }
 
-    .modal-overlay { position: fixed; inset: 0; z-index: 2000; display: none; align-items: center; justify-content: center; padding: 15px; background: rgba(0,0,0,0.5); }
-    .modal-overlay.active { display: flex; }
-    .modal { width: min(500px, 100%); max-height: 90vh; overflow-y: auto; padding: 25px; border-radius: 10px; background: white; }
-    .modal h2 { margin-bottom: 20px; font-size: 20px; }
-    .modal-description { margin-bottom: 15px; color: #666; font-size: 13px; line-height: 1.5; }
-    
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; margin-bottom: 5px; color: #424242; font-size: 14px; font-weight: 500; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; }
-    
-    .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    textarea { min-height: 120px; font-family: monospace; font-size: 12px; resize: vertical; }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      padding: 15px;
+      border-left: 4px solid #F57C00;
+      border-radius: 8px;
+      background: white;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-value {
+      color: #E65100;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .stat-label {
+      margin-top: 5px;
+      color: #757575;
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    input,
+    select,
+    textarea {
+      min-width: 0;
+      padding: 10px;
+      border: 2px solid #FFE0B2;
+      border-radius: 6px;
+      background: white;
+      font-size: 14px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus-visible {
+      outline: 2px solid #F57C00;
+      outline-offset: 2px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .btn-primary,
+    .btn-warning {
+      background: #F57C00;
+      color: white;
+    }
+
+    .btn-success {
+      background: #2E7D32;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #C62828;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #E0E0E0;
+      color: #333;
+    }
+
+    .btn-sm {
+      margin: 0 2px;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    #searchInput {
+      flex: 1 1 220px;
+    }
+
+    #catFilter {
+      flex: 0 1 190px;
+    }
+
+    .status-message {
+      min-height: 20px;
+      margin: 0 0 12px;
+      color: #757575;
+      font-size: 14px;
+    }
+
+    .status-message.error {
+      color: #C62828;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    th {
+      padding: 12px 10px;
+      background: #F57C00;
+      color: white;
+      font-size: 13px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #FFE0B2;
+      font-size: 14px;
+    }
+
+    tbody tr:hover td {
+      background: #FFF8F0;
+    }
+
+    .empty {
+      padding: 40px;
+      color: #757575;
+      text-align: center;
+    }
+
+    tbody tr.out-of-stock td {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+
+    tbody tr.low-stock td {
+      background: #FFF3E0;
+      color: #E65100;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      width: min(500px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 25px;
+      border-radius: 10px;
+      background: white;
+    }
+
+    .modal h2 {
+      margin-bottom: 20px;
+      color: #212121;
+      font-size: 20px;
+    }
+
+    .modal-description {
+      margin-bottom: 15px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #424242;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    textarea {
+      min-height: 120px;
+      font-family: monospace;
+      font-size: 12px;
+      resize: vertical;
+    }
 
     @media (max-width: 900px) {
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
+
     @media (max-width: 640px) {
-      .main-content { margin-left: 0; padding: 16px; }
-      .toolbar > input, .toolbar > select { flex: 1 1 100%; }
+      .main-content {
+        margin-left: 0;
+        padding: 16px;
+      }
+
+      .toolbar > input,
+      .toolbar > select {
+        flex: 1 1 100%;
+        width: 100%;
+      }
     }
   </style>
 </head>
+
 <body>
+  <!-- The sidebar is loaded by sidebar.js. -->
 
-<main class="main-content">
-  <header class="page-header">
-    <h1>📦 Inventory Management</h1>
-    <p>Add, edit and manage your products</p>
-  </header>
+  <main class="main-content">
+    <header class="page-header">
+      <h1>📦 Inventory Management</h1>
+      <p>Add, edit and manage your products</p>
+    </header>
 
-  <section class="stats-row">
-    <div class="stat-card"><div class="stat-value" id="totalProducts">0</div><div class="stat-label">Total Products</div></div>
-    <div class="stat-card"><div class="stat-value" id="totalQty">0</div><div class="stat-label">Total Stock</div></div>
-    <div class="stat-card"><div class="stat-value" id="lowStock">0</div><div class="stat-label">Low Stock</div></div>
-    <div class="stat-card"><div class="stat-value" id="outOfStock">0</div><div class="stat-label">Out of Stock</div></div>
-  </section>
-
-  <section class="toolbar">
-    <input type="search" id="searchInput" placeholder="🔍 Search products...">
-    <select id="catFilter"><option value="">All Categories</option></select>
-    <button type="button" class="btn-success" id="btnAdd">➕ Add Product</button>
-    <button type="button" class="btn-warning" id="btnBulk">📥 Bulk Import</button>
-    <button type="button" class="btn-secondary" id="btnExport">📋 Export</button>
-  </section>
-
-  <p class="status-message" id="statusMessage"></p>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Cost</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
-      <tbody id="productTableBody"><tr><td colspan="7" class="empty">Loading products...</td></tr></tbody>
-    </table>
-  </div>
-</main>
-
-<!-- Add/Edit Modal -->
-<div class="modal-overlay" id="productModal">
-  <div class="modal">
-    <h2 id="modalTitle">Add New Product</h2>
-    <form id="productForm">
-      <div class="form-group"><label>Product Code *</label><input type="text" id="pCode" required></div>
-      <div class="form-group"><label>Product Name *</label><input type="text" id="pName" required></div>
-      <div class="form-group"><label>Category *</label>
-        <select id="pCat" required>
-          <option value="">Select Category</option>
-          <option value="Mobile Phones">Mobile Phones</option>
-          <option value="Cables">Cables</option>
-          <option value="Chargers">Chargers</option>
-          <option value="Headphones">Headphones</option>
-          <option value="Speakers">Speakers</option>
-          <option value="Accessories">Accessories</option>
-        </select>
+    <section class="stats-row" aria-label="Inventory statistics">
+      <div class="stat-card">
+        <div class="stat-value" id="totalProducts">0</div>
+        <div class="stat-label">Total Products</div>
       </div>
-      <div class="form-group"><label>Cost Price (LKR) *</label><input type="number" step="0.01" min="0" id="pCost" required></div>
-      <div class="form-group"><label>Retail Price (LKR) *</label><input type="number" step="0.01" min="0" id="pPrice" required></div>
-      <div class="form-group"><label>Stock Quantity *</label><input type="number" step="1" min="0" id="pStock" required></div>
-      <div class="modal-buttons">
-        <button type="button" class="btn-secondary" id="closeModalBtn">Cancel</button>
-        <button type="submit" class="btn-primary">Save Product</button>
+      <div class="stat-card">
+        <div class="stat-value" id="totalQty">0</div>
+        <div class="stat-label">Total Stock</div>
       </div>
-    </form>
-  </div>
-</div>
+      <div class="stat-card">
+        <div class="stat-value" id="lowStock">0</div>
+        <div class="stat-label">Low Stock</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="outOfStock">0</div>
+        <div class="stat-label">Out of Stock</div>
+      </div>
+    </section>
 
-<!-- Bulk Import Modal -->
-<div class="modal-overlay" id="bulkModal">
-  <div class="modal">
-    <h2>📥 Bulk Import Products</h2>
-    <p class="modal-description">Format: Code,Name,Category,Cost,Price,Stock — one per line</p>
-    <div class="form-group"><textarea id="bulkData" placeholder="P001,iPhone,Accessories,50000,65000,10"></textarea></div>
-    <div class="modal-buttons">
-      <button type="button" class="btn-secondary" id="closeBulkBtn">Cancel</button>
-      <button type="button" class="btn-primary" id="doBulkImport">Import All</button>
+    <section class="toolbar" aria-label="Inventory actions">
+      <input
+        type="search"
+        id="searchInput"
+        placeholder="🔍 Search products..."
+        aria-label="Search products"
+      >
+      <select id="catFilter" aria-label="Filter by category">
+        <option value="">All Categories</option>
+      </select>
+      <button type="button" class="btn-success" id="btnAdd" disabled>➕ Add Product</button>
+      <button type="button" class="btn-warning" id="btnBulk" disabled>📥 Bulk Import</button>
+      <button type="button" class="btn-secondary" id="btnExport">📋 Export</button>
+    </section>
+
+    <p class="status-message" id="statusMessage" role="status" aria-live="polite"></p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Code</th>
+            <th scope="col">Name</th>
+            <th scope="col">Category</th>
+            <th scope="col">Cost</th>
+            <th scope="col">Price</th>
+            <th scope="col">Stock</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="productTableBody">
+          <tr><td colspan="7" class="empty">Loading products...</td></tr>
+        </tbody>
+      </table>
     </div>
+  </main>
+
+  <!-- Add/Edit Product Modal -->
+  <div class="modal-overlay" id="productModal" aria-hidden="true">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <h2 id="modalTitle">Add New Product</h2>
+      <form id="productForm">
+        <div class="form-group">
+          <label for="pCode">Product Code *</label>
+          <input type="text" id="pCode" placeholder="Auto-generated" required>
+        </div>
+        <div class="form-group">
+          <label for="pName">Product Name *</label>
+          <input type="text" id="pName" placeholder="Product name" required>
+        </div>
+        <div class="form-group">
+          <label for="pCat">Category *</label>
+          <select id="pCat" required>
+            <option value="">Select Category</option>
+            <option value="Mobile Phones">Mobile Phones</option>
+            <option value="Cables">Cables</option>
+            <option value="Chargers">Chargers</option>
+            <option value="Headphones">Headphones</option>
+            <option value="Speakers">Speakers</option>
+            <option value="Accessories">Accessories</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pCost">Cost Price (LKR) *</label>
+          <input type="number" step="0.01" min="0" id="pCost" placeholder="0.00" required>
+        </div>
+        <div class="form-group">
+          <label for="pPrice">Retail Price (LKR) *</label>
+          <input type="number" step="0.01" min="0" id="pPrice" placeholder="0.00" required>
+        </div>
+        <div class="form-group">
+          <label for="pStock">Stock Quantity *</label>
+          <input type="number" step="1" min="0" id="pStock" placeholder="0" required>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="btn-secondary" id="closeModalBtn">Cancel</button>
+          <button type="submit" class="btn-primary" id="saveProductBtn">Save Product</button>
+        </div>
+      </form>
+    </section>
   </div>
-</div>
 
-<script>
-'use strict';
+  <!-- Bulk Import Modal -->
+  <div class="modal-overlay" id="bulkModal" aria-hidden="true">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bulkTitle"
+    >
+      <h2 id="bulkTitle">📥 Bulk Import Products</h2>
+      <p class="modal-description">
+        Format: Code, Name, Category, Cost, Price, Stock — one product per line.
+        Fields containing commas should be enclosed in double quotes.
+      </p>
+      <div class="form-group">
+        <label for="bulkData">Paste products here:</label>
+        <textarea
+          id="bulkData"
+          placeholder="MB001,Samsung A54,Mobile Phones,65000,72000,8"
+        ></textarea>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn-secondary" id="closeBulkBtn">Cancel</button>
+        <button type="button" class="btn-primary" id="doBulkImport">Import All</button>
+      </div>
+    </section>
+  </div>
 
-const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBDZu5GWBEq5gJVBoSNusLWW_a4DWC-Lx4WJTjKMxjd_JVr7am4gmeV4liQkaEqvZBjA/exec";
-const PRODUCT_HEADERS = ['id','code','name','category','cost','price','stock'];
+  <script>
+    'use strict';
 
-let products = [];
-let editingId = null;
-let isSaving = false;
+    const GS_WEB_APP_URL =
+      'https://script.google.com/macros/s/AKfycbzBDZu5GWBEq5gJVBoSNusLWW_a4DWC-Lx4WJTjKMxjd_JVr7am4gmeV4liQkaEqvZBjA/exec';
+    const PRODUCT_HEADERS = ['id', 'code', 'name', 'category', 'cost', 'price', 'stock'];
 
-const $ = id => document.getElementById(id);
-function setStatus(msg, isError=false) {
-  const s = $('statusMessage');
-  s.textContent = msg;
-  s.classList.toggle('error', isError);
-}
+    let products = [];
+    let editingId = null;
+    let isSaving = false;
+    let dataLoaded = false;
+    let previouslyFocusedElement = null;
 
-async function gsRead(tabName) {
-  const url = new URL(GS_WEB_APP_URL);
-  url.searchParams.set('action','read');
-  url.searchParams.set('tab',tabName);
-  const res = await fetch(url);
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error || 'Read failed');
-  if (!Array.isArray(json.data) || json.data.length < 2) return [];
-  const headers = json.data[0].map(v=>String(v||'').trim());
-  return json.data.slice(1).map(row=>{
-    const p = {};
-    headers.forEach((h,i)=>p[h]=row[i]||'');
-    return p;
-  }).filter(p=>p.id||p.code||p.name);
-}
+    const $ = (id) => document.getElementById(id);
 
-async function gsSave(tabName, objects, headers) {
-  const rows = [headers, ...objects.map(o=>headers.map(h=>o[h]||''))];
-  const res = await fetch(GS_WEB_APP_URL, {
-    method: 'POST',
-    headers: {'Content-Type':'text/plain'},
-    body: JSON.stringify({action:'save', tab:tabName, data:rows})
-  });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error || 'Save failed');
-}
+    function setStatus(message, isError = false) {
+      const status = $('statusMessage');
+      status.textContent = message;
+      status.classList.toggle('error', isError);
+    }
 
-function getNextCode() {
-  const max = products.reduce((m,p)=>{
-    const n = parseInt((p.code||'').replace(/\D/g,''))||0;
-    return Math.max(m,n);
-  },0);
-  return 'P'+String(max+1).padStart(3,'0');
-}
-function getNextId() {
-  return (products.reduce((m,p)=>Math.max(m,Number(p.id)||0),0))+1;
-}
+    async function gsRead(tabName) {
+      const url = new URL(GS_WEB_APP_URL);
+      url.searchParams.set('action', 'read');
+      url.searchParams.set('tab', tabName);
 
-async function loadData() {
-  $('productTableBody').innerHTML = '<tr><td colspan="7" class="empty">Loading...</td></tr>';
-  try {
-    products = await gsRead('products');
-    setStatus('');
-  } catch(e) {
-    setStatus(`Load error: ${e.message}`, true);
-    products = [];
-  }
-  updateStats();
-  updateCategories();
-  renderProducts();
-}
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Read failed: ${response.status}`);
+      }
 
-async function saveProducts(nextProducts) {
-  if (isSaving) return false;
-  isSaving = true;
-  $('btnAdd').disabled = true;
-  $('doBulkImport').disabled = true;
-  try {
-    await gsSave('products', nextProducts, PRODUCT_HEADERS);
-    products = nextProducts;
-    setStatus('✅ Saved successfully!');
-    updateStats();
-    updateCategories();
-    renderProducts();
-    return true;
-  } catch(e) {
-    setStatus(`Save error: ${e.message}`, true);
-    return false;
-  } finally {
-    isSaving = false;
-    $('btnAdd').disabled = false;
-    $('doBulkImport').disabled = false;
-  }
-}
+      const json = await response.json();
+      if (!json.success) {
+        throw new Error(json.error || 'Read failed');
+      }
 
-function updateStats() {
-  $('totalProducts').textContent = products.length;
-  $('totalQty').textContent = products.reduce((s,p)=>s+(Number(p.stock)||0),0);
-  $('lowStock').textContent = products.filter(p=>(Number(p.stock)||0)>0&&(Number(p.stock)||0)<=3).length;
-  $('outOfStock').textContent = products.filter(p=>!(Number(p.stock)||0)).length;
-}
+      const rows = json.data;
+      if (!Array.isArray(rows) || rows.length < 2) {
+        return [];
+      }
 
-function updateCategories() {
-  const sel = $('catFilter');
-  const val = sel.value;
-  sel.innerHTML = '<option value="">All Categories</option>';
-  [...new Set(products.map(p=>p.category).filter(Boolean))].sort().forEach(c=>sel.add(new Option(c,c)));
-  sel.value = val;
-}
+      const headers = rows[0].map((value) => String(value ?? '').trim());
+      return rows.slice(1)
+        .filter(Array.isArray)
+        .map((row) => {
+          const product = {};
+          headers.forEach((header, index) => {
+            product[header] = row[index] ?? '';
+          });
+          return product;
+        })
+        .filter((product) => product.id || product.code || product.name);
+    }
 
-function renderProducts() {
-  const tbody = $('productTableBody');
-  const q = $('searchInput').value.toLowerCase();
-  const cat = $('catFilter').value;
-  const filtered = products.filter(p=>{
-    const matchSearch = !q || [p.code,p.name,p.category].some(v=>String(v||'').toLowerCase().includes(q));
-    const matchCat = !cat || p.category === cat;
-    return matchSearch && matchCat;
-  });
-  
-  tbody.innerHTML = '';
-  if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty">${products.length?'No matches found.':'No products found.'}</td></tr>`;
-    return;
-  }
-  filtered.forEach(p=>{
-    const tr = document.createElement('tr');
-    if (Number(p.stock)===0) tr.classList.add('out-of-stock');
-    else if (Number(p.stock)<=3) tr.classList.add('low-stock');
-    tr.innerHTML = `
-      <td>${p.code}</td>
-      <td>${p.name}</td>
-      <td>${p.category}</td>
-      <td>${Number(p.cost).toFixed(2)}</td>
-      <td>${Number(p.price).toFixed(2)}</td>
-      <td>${p.stock}</td>
-      <td>
-        <button class="btn-primary btn-sm edit-btn" data-id="${p.id}">Edit</button>
-        <button class="btn-danger btn-sm delete-btn" data-id="${p.id}">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+    async function gsSave(tabName, objects, headers) {
+      const rows = [
+        headers,
+        ...objects.map((object) => headers.map((header) => object[header] ?? ''))
+      ];
 
-function openAddModal() {
-  editingId = null;
-  $('modalTitle').textContent = 'Add New Product';
-  $('productForm').reset();
-  $('pCode').value = getNextCode();
-  $('productModal').classList.add('active');
-}
+      const response = await fetch(GS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'save', tab: tabName, data: rows })
+      });
 
-function openEditModal(id) {
-  const p = products.find(x=>x.id==id);
-  if (!p) return;
-  editingId = id;
-  $('modalTitle').textContent = 'Edit Product';
-  $('pCode').value = p.code;
-  $('pName').value = p.name;
-  $('pCat').value = p.category;
-  $('pCost').value = p.cost;
-  $('pPrice').value = p.price;
-  $('pStock').value = p.stock;
-  $('productModal').classList.add('active');
-}
+      if (!response.ok) {
+        throw new Error(`Save failed: ${response.status}`);
+      }
 
-function closeModals() {
-  document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('active'));
-  editingId = null;
-}
+      const json = await response.json();
+      if (!json.success) {
+        throw new Error(json.error || 'Save failed');
+      }
+    }
 
-async function handleFormSubmit(e) {
-  e.preventDefault();
-  const code = $('pCode').value.trim();
-  const name = $('pName').value.trim();
-  const category = $('pCat').value;
-  const cost = parseFloat($('pCost').value);
-  const price = parseFloat($('pPrice').value);
-  const stock = parseInt($('pStock').value);
+    function getNextProductCode() {
+      const max = products.reduce((largest, product) => {
+        const match = String(product.code || '').match(/^P(\d+)$/i);
+        return match ? Math.max(largest, Number(match[1])) : largest;
+      }, 0);
 
-  if (!code || !name || !category || isNaN(cost) || isNaN(price) || isNaN(stock)) {
-    alert('Please fill all fields correctly');
-    return;
-  }
+      return `P${String(max + 1).padStart(3, '0')}`;
+    }
 
-  const duplicate = products.some(p=>p.id!=editingId && p.code.trim().toLowerCase()===code.toLowerCase());
-  if (duplicate) {
-    alert('Product code already exists!');
-    return;
-  }
+    function getNextId() {
+      return products.reduce((largest, product) => {
+        const id = Number(product.id);
+        return Number.isFinite(id) && id > 0 ? Math.max(largest, id) : largest;
+      }, 0) + 1;
+    }
 
-  const product = { id: editingId||getNextId(), code, name, category, cost, price, stock };
-  let nextProducts;
-  if (editingId) {
-    nextProducts = products.map(p=>p.id==editingId?product:p);
-  } else {
-    nextProducts = [...products, product];
-  }
-  
-  if (await saveProducts(nextProducts)) {
-    closeModals();
-  }
-}
+    async function loadData() {
+      $('productTableBody').innerHTML =
+        '<tr><td colspan="7" class="empty">Loading from Google Sheets...</td></tr>';
 
-async function handleDelete(id) {
-  const p = products.find(x=>x.id==id);
-  if (!confirm(`Delete "${p.name}"?`)) return;
-  await saveProducts(products.filter(x=>x.id!=id));
-}
+      try {
+        products = await gsRead('products');
+        dataLoaded = true;
+        $('btnAdd').disabled = false;
+        $('btnBulk').disabled = false;
+        setStatus('');
+      } catch (error) {
+        console.error(error);
+        products = [];
+        dataLoaded = false;
+        $('btnAdd').disabled = true;
+        $('btnBulk').disabled = true;
+        setStatus(`Could not load products: ${error.message}. Reload the page and try again.`, true);
+      }
 
-function exportCSV() {
-  const rows = [PRODUCT_HEADERS, ...products.map(p=>PRODUCT_HEADERS.map(h=>p[h]||''))];
-  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'products.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
+      updateStats();
+      updateCategoryFilter();
+      renderProducts();
+    }
 
-async function importBulk() {
-  const text = $('bulkData').value.trim();
-  if (!text) { alert('Paste data first!'); return; }
-  const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
-  const imported = [];
-  for (const line of lines) {
-    const parts = line.split(',');
-    if (parts.length !==
+    async function saveProducts(nextProducts) {
+      if (isSaving || !dataLoaded) {
+        return false;
+      }
+
+      isSaving = true;
+      $('saveProductBtn').disabled = true;
+      $('btnAdd').disabled = true;
+      $('btnBulk').disabled = true;
+      $('doBulkImport').disabled = true;
+
+      try {
+        await gsSave('products', nextProducts, PRODUCT_HEADERS);
+        products = nextProducts;
+        setStatus('✅ Changes saved successfully!');
+        updateStats();
+        updateCategoryFilter();
+        renderProducts();
+        return true;
+      } catch (error) {
+        console.error(error);
+        setStatus(`Could not save data: ${error.message}`, true);
+        return false;
+      } finally {
+        isSaving = false;
+        $('saveProductBtn').disabled = false;
+        $('btnAdd').disabled = !dataLoaded;
+        $('btnBulk').disabled = !dataLoaded;
+        $('doBulkImport').disabled = false;
+      }
+    }
+
+    function getStock(product) {
+      const stock = Number(product.stock);
+      return Number.isFinite(stock) ? stock : 0;
+    }
+
+    function updateStats() {
+      $('totalProducts').textContent = products.length;
+      $('totalQty').textContent = products.reduce((sum, product) => sum + getStock(product), 0);
+      $('lowStock').textContent = products.filter((product) => {
+        const stock = getStock(product);
+        return stock > 0 && stock <= 3;
+      }).length;
+      $('outOfStock').textContent = products.filter((product) => getStock(product) <= 0).length;
+    }
+
+    function updateCategoryFilter() {
+      const select = $('catFilter');
+      const current = select.value;
+      const categories = [...new Set(
+        products.map((product) => String(product.category || '').trim()).filter(Boolean)
+      )].sort((a, b) => a.localeCompare(b));
+
+      select.replaceChildren(new Option('All Categories', ''));
+      categories.forEach((category) => {
+        select.add(new Option(category, category));
+      });
+
+      select.value = categories.includes(current) ? current : '';
+    }
+
+    function addCell(row, text) {
+      const cell = document.createElement('td');
+      cell.textContent = String(text ?? '');
+      row.appendChild(cell);
+      return cell;
+    }
+
+    function renderProducts() {
+      const body = $('productTableBody');
+      const query = $('searchInput').value.trim().toLowerCase();
+      const selectedCategory = $('catFilter').value;
+
+      const visibleProducts = products.filter((product) => {
+        const matchesCategory = !selectedCategory || product.category === selectedCategory;
+        const searchableText = [
+          product.code,
+          product.name,
+          product.category
+        ].join(' ').toLowerCase();
+
+        return matchesCategory && searchableText.includes(query);
+      });
+
+      body.replaceChildren();
+
+      if (visibleProducts.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 7;
+        cell.className = 'empty';
+        cell.textContent = products.length ? 'No matching products found.' : 'No products found.';
+        row.appendChild(cell);
+        body.appendChild(row);
+        return;
+      }
+
+      visibleProducts.forEach((product) => {
+        const row = document.createElement('tr');
+        const stock = getStock(product);
+
+        if (stock <= 0) {
+          row.classList.add('out-of-stock');
+        } else if (stock <= 3) {
+          row.classList.add('low-stock');
+        }
+
+        addCell(row, product.code);
+        addCell(row, product.name);
+        addCell(row, product.category);
+        addCell(row, product.cost);
+        addCell(row, product.price);
+        addCell(row, stock);
+
+        const actionsCell = document.createElement('td');
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'btn-warning btn-sm';
+        editButton.textContent = 'Edit';
+        editButton.dataset.action = 'edit';
+        editButton.dataset.id = String(product.id);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn-danger btn-sm';
+        deleteButton.textContent = 'Delete';
+        deleteButton.dataset.action = 'delete';
+        deleteButton.dataset.id = String(product.id);
+
+        actionsCell.append(editButton, deleteButton);
+        row.appendChild(actionsCell);
+        body.appendChild(row);
+      });
+    }
+
+    function populateCategoryOptions(selectedCategory = '') {
+      const select = $('pCat');
+      const existingCategories = [...select.options]
+        .map((option) => option.value)
+        .filter(Boolean);
+
+      const productCategories = products
+        .map((product) => String(product.category || '').trim())
+        .filter(Boolean);
+
+      [...new Set(productCategories)].forEach((category) => {
+        if (!existingCategories.includes(category)) {
+          select.add(new Option(category, category));
+        }
+      });
+
+      select.value = selectedCategory;
+    }
+
+    function openModal(modalId, focusId) {
+      const modal = $(modalId);
+      previouslyFocusedElement = document.activeElement;
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      $(focusId).focus();
+    }
+
+    function closeModal(modalId) {
+      const modal = $(modalId);
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+
+      if (!$('productModal').classList.contains('active') &&
+          !$('bulkModal').classList.contains('active') &&
+          previouslyFocusedElement) {
+        previouslyFocusedElement.focus();
+        previouslyFocusedElement = null;
+      }
+    }
+
+    function openAddModal() {
+      editingId = null;
+      $('productForm').reset();
+      $('modalTitle').textContent = 'Add New Product';
+      $('saveProductBtn').textContent = 'Save Product';
+      $('pCode').value = getNextProductCode();
+      populateCategoryOptions('');
+      openModal('productModal', 'pCode');
+    }
+
+    function openEditModal(productId) {
+      const product = products.find((item) => String(item.id) === String(productId));
+      if (!product) {
+        setStatus('That product could not be found.', true);
+        return;
+      }
+
+      editingId = product.id;
+      $('productForm').reset();
+      $('modalTitle').textContent = 'Edit Product';
+      $('saveProductBtn').textContent = 'Save Changes';
+      $('pCode').value = product.code ?? '';
+      $('pName').value = product.name ?? '';
+      $('pCost').value = product.cost ?? '';
+      $('pPrice').value = product.price ?? '';
+      $('pStock').value = product.stock ?? '';
+      populateCategoryOptions(product.category ?? '');
+      openModal('productModal', 'pCode');
+    }
+
+    function validateProduct(product, currentId = null) {
+      if (!product.code || !product.name || !product.category) {
+        return 'Code, name, and category are required.';
+      }
+
+      if (!Number.isFinite(product.cost) || product.cost < 0) {
+        return 'Cost must be a valid non-negative number.';
+      }
+
+      if (!Number.isFinite(product.price) || product.price < 0) {
+        return 'Price must be a valid non-negative number.';
+      }
+
+      if (!Number.isInteger(product.stock) || product.stock < 0) {
+        return 'Stock must be a non-negative whole number.';
+      }
+
+      const duplicate = products.some((item) =>
+        String(item.id) !== String(currentId) &&
+        String(item.code || '').trim().toLowerCase() === product.code.toLowerCase()
+      );
+
+      if (duplicate) {
+        return 'A product with this code already exists.';
+      }
+
+      return '';
+    }
+
+    async function handleProductSubmit(event) {
+      event.preventDefault();
+
+      if (!dataLoaded || isSaving) {
+        return;
+      }
+
+      const product = {
+        id: editingId ?? getNextId(),
+        code: $('pCode').value.trim(),
+        name: $('pName').value.trim(),
+        category: $('pCat').value,
+        cost: Number($('pCost').value),
+        price: Number($('pPrice').value),
+        stock: Number($('pStock').value)
+      };
+
+      const validationError = validateProduct(product, editingId);
+      if (validationError) {
+        setStatus(validationError, true);
+        return;
+      }
+
+      const nextProducts = editingId === null
+        ? [...products, product]
+        : products.map((item) =>
+            String(item.id) === String(editingId) ? product : item
+          );
+
+      if (await saveProducts(nextProducts)) {
+        closeModal('productModal');
+        $('productForm').reset();
+        editingId = null;
+      }
+    }
+
+    async function deleteProduct(productId) {
+      const product = products.find((item) => String(item.id) === String(productId));
+      if (!product) {
+        return;
+      }
+
+      if (!window.confirm(`Delete "${product.name}"? This cannot be undone.`)) {
+        return;
+      }
+
+      const nextProducts = products.filter(
+        (item) => String(item.id) !== String(productId)
+      );
+      await saveProducts(nextProducts);
+    }
+
+    function parseCsvLine(line) {
+      const fields = [];
+      let field = '';
+      let inQuotes = false;
+
+      for (let index = 0; index < line.length; index += 1) {
+        const character = line[index];
+
+        if (character === '"') {
+          if (inQuotes && line[index + 1] === '"') {
+            field += '"';
+            index += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (character === ',' && !inQuotes) {
+          fields.push(field.trim());
+          field = '';
+        } else {
+          field += character;
+        }
+      }
+
+      if (inQuotes) {
+        throw new Error('A line contains an unmatched double quote.');
+      }
+
+      fields.push(field.trim());
+      return fields;
+    }
+
+    async function handleBulkImport() {
+      if (!dataLoaded || isSaving) {
+        return;
+      }
+
+      const lines = $('bulkData').value
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      if (lines.length === 0) {
+        setStatus('Paste at least one product to import.', true);
+        return;
+      }
+
+      const imported = [];
+      const knownCodes = new Set(
+        products.map((product) => String(product.code || '').trim().toLowerCase())
+      );
+      let nextId = getNextId();
+
+      try {
+        for (let index = 0; index < lines.length; index += 1) {
+          const fields = parseCsvLine(lines[index]);
+
+          if (fields.length !== 6) {
+            throw new Error(`Line ${index + 1} must contain exactly 6 fields.`);
+          }
+
+          const [code, name, category, costText, priceText, stockText] = fields;
+          const product = {
+            id: nextId++,
+            code,
+            name,
+            category,
+            cost: Number(costText),
+            price: Number(priceText),
+            stock: Number(stockText)
+          };
+
+          if (!product.code || !product.name || !product.category) {
+            throw new Error(`Line ${index + 1} is missing a code, name, or category.`);
+          }
+
+          if (!Number.isFinite(product.cost) || product.cost < 0 ||
+              !Number.isFinite(product.price) || product.price < 0) {
+            throw new Error(`Line ${index + 1} has an invalid cost or price.`);
+          }
+
+          if (!Number.isInteger(product.stock) || product.stock < 0) {
+            throw new Error(`Line ${index + 1} has an invalid stock quantity.`);
+          }
+
+          const normalizedCode = product.code.toLowerCase();
+          if (knownCodes.has(normalizedCode)) {
+            throw new Error(`Line ${index + 1} has a duplicate product code: ${product.code}.`);
+          }
+
+          knownCodes.add(normalizedCode);
+          imported.push(product);
+        }
+      } catch (error) {
+        setStatus(`Import failed: ${error.message}`, true);
+        return;
+      }
+
+      if (await saveProducts([...products, ...imported])) {
+        $('bulkData').value = '';
+        closeModal('bulkModal');
+      }
+    }
+
+    function escapeCsv(value) {
+      const text = String(value ?? '');
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function exportProducts() {
+      const rows = [
+        PRODUCT_HEADERS,
+        ...products.map((product) =>
+          PRODUCT_HEADERS.map((header) => product[header] ?? '')
+        )
+      ];
+
+      const csv = rows.map((row) => row.map(escapeCsv).join(',')).join('\r\n');
+      const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = 'inventory.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    $('btnAdd').addEventListener('click', openAddModal);
+    $('btnBulk').addEventListener('click', () => {
+      $('bulkData').value = '';
+      openModal('bulkModal', 'bulkData');
+    });
+    $('btnExport').addEventListener('click', exportProducts);
+
+    $('productForm').addEventListener('submit', handleProductSubmit);
+    $('closeModalBtn').addEventListener('click', () => closeModal('productModal'));
+    $('closeBulkBtn').addEventListener('click', () => closeModal('bulkModal'));
+    $('doBulkImport').addEventListener('click', handleBulkImport);
+
+    $('searchInput').addEventListener('input', renderProducts);
+    $('catFilter').addEventListener('change', renderProducts);
+
+    $('productTableBody').addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) {
+        return;
+      }
+
+      if (button.dataset.action === 'edit') {
+        openEditModal(button.dataset.id);
+      } else if (button.dataset.action === 'delete') {
+        deleteProduct(button.dataset.id);
+      }
+    });
+
+    ['productModal', 'bulkModal'].forEach((modalId) => {
+      $(modalId).addEventListener('click', (event) => {
+        if (event.target === $(modalId)) {
+          closeModal(modalId);
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if ($('productModal').classList.contains('active')) {
+          closeModal('productModal');
+        } else if ($('bulkModal').classList.contains('active')) {
+          closeModal('bulkModal');
+        }
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
