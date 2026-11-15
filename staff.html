@@ -34,6 +34,7 @@
       document.documentElement.classList.add('authorized');
     })();
   </script>
+  <script src="auth-guard.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -165,6 +166,34 @@
     .role-manager { background: #dbeafe; color: #1e40af; }
     .role-staff { background: #d1fae5; color: #065f46; }
 
+    .perm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      background: #f9fafb;
+    }
+    .perm-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 2px;
+    }
+    .perm-item input { width: auto; margin: 0; cursor: pointer; }
+    .perm-item.disabled { opacity: .55; cursor: not-allowed; }
+    .perm-hint { font-size: 11.5px; color: #6b7280; margin-top: 6px; }
+    .perm-summary { font-size: 11.5px; color: #6b7280; line-height: 1.5; max-width: 220px; }
+    .perm-summary b { color: #111827; }
+    .perm-chip { display:inline-block; background:#eef2ff; color:#4338ca; border-radius:10px; padding:1px 7px; margin:1px 2px 1px 0; font-size:10.5px; font-weight:600; }
+
+    .modal { max-width: 520px; }
+
     @media (max-width: 600px) {
       .page-content { padding: 16px; }
       .card { padding: 12px; }
@@ -260,6 +289,7 @@ async function gsSave(tabName, objects, headers) {
               <th scope="col">Role</th>
               <th scope="col">Phone</th>
               <th scope="col">Status</th>
+              <th scope="col">Permissions</th>
               <th scope="col" style="text-align: right">Actions</th>
             </tr>
           </thead>
@@ -316,6 +346,12 @@ async function gsSave(tabName, objects, headers) {
         </div>
 
         <div class="form-group">
+          <label>Module Permissions</label>
+          <div class="perm-grid" id="permGrid"></div>
+          <p class="perm-hint">Admin role automatically gets full access to all modules. Tick the modules this user may open.</p>
+        </div>
+
+        <div class="form-group">
           <label for="staffPhone">Phone</label>
           <input type="tel" id="staffPhone" autocomplete="tel">
         </div>
@@ -363,6 +399,46 @@ async function gsSave(tabName, objects, headers) {
       let staffList = readStaff();
       let previousFocus = null;
 
+      const PERMISSIONS = [
+        { key: "billing",             label: "Billing / POS" },
+        { key: "customers",           label: "Customer Management" },
+        { key: "sales_history",       label: "Sales History" },
+        { key: "purchase_return",     label: "Purchase & Return" },
+        { key: "inventory",           label: "Inventory" },
+        { key: "reports",             label: "Reports" },
+        { key: "staff",               label: "Staff Management" },
+        { key: "payment_management",  label: "Payment Management" },
+        { key: "customer_return",     label: "Customer Return" }
+      ];
+      const PERM_LABEL = {};
+      PERMISSIONS.forEach(p => { PERM_LABEL[p.key] = p.label; });
+      const ALL_KEYS = PERMISSIONS.map(p => p.key);
+
+      function renderPermGrid(checked, disabled){
+        const grid = document.getElementById("permGrid");
+        grid.innerHTML = PERMISSIONS.map(p => {
+          const on = disabled || (Array.isArray(checked) && checked.indexOf(p.key) > -1);
+          return `<label class="perm-item${disabled ? " disabled" : ""}">
+            <input type="checkbox" name="perm" value="${p.key}" ${on ? "checked" : ""} ${disabled ? "disabled" : ""}>
+            <span>${p.label}</span>
+          </label>`;
+        }).join("");
+      }
+      function collectPerms(){
+        if(document.getElementById("staffRole").value === "Admin") return ALL_KEYS.slice();
+        const arr = [];
+        document.querySelectorAll('#permGrid input[name="perm"]:checked').forEach(cb => arr.push(cb.value));
+        return arr;
+      }
+      document.getElementById("staffRole").addEventListener("change", function(){
+        const isAdmin = this.value === "Admin";
+        document.querySelectorAll('#permGrid input[name="perm"]').forEach(cb => {
+          if(isAdmin){ cb.checked = true; cb.disabled = true; }
+          else { cb.disabled = false; }
+        });
+        document.querySelectorAll("#permGrid .perm-item").forEach(l => l.classList.toggle("disabled", isAdmin));
+      });
+
       function escapeHtml(value) {
         return String(value ?? '').replace(/[&<>"']/g, character => ({
           '&': '&amp;',
@@ -407,7 +483,7 @@ async function gsSave(tabName, objects, headers) {
             : 'No staff members yet. Click "Add New Staff" to get started.';
 
           tbody.innerHTML =
-            `<tr><td colspan="6" class="empty-state">${escapeHtml(message)}</td></tr>`;
+            `<tr><td colspan="7" class="empty-state">${escapeHtml(message)}</td></tr>`;
           return;
         }
 
@@ -429,6 +505,19 @@ async function gsSave(tabName, objects, headers) {
               <td>${active
                 ? '<span style="color:#16a34a">✅ Active</span>'
                 : '<span style="color:#dc2626">❌ Inactive</span>'}</td>
+              <td><div class="perm-summary">${
+                role === 'Admin'
+                  ? '<b>All modules</b> (Admin)'
+                  : (() => {
+                      const ps = Array.isArray(staff.permissions) && staff.permissions.length
+                        ? staff.permissions : ['billing'];
+                      const chips = ps.slice(0, 3)
+                        .map(k => `<span class="perm-chip">${escapeHtml(PERM_LABEL[k] || k)}</span>`)
+                        .join('');
+                      const more = ps.length > 3 ? ` <span style="color:#6b7280">+${ps.length - 3} more</span>` : '';
+                      return chips + more;
+                    })()
+              }</div></td>
               <td style="text-align:right">
                 <button type="button" class="btn btn-secondary btn-sm"
                   data-action="edit" data-id="${escapeHtml(staff.id)}">
@@ -454,6 +543,7 @@ async function gsSave(tabName, objects, headers) {
         document.getElementById('staffUsername').value = staff?.username || '';
         document.getElementById('staffRole').value = staff?.role || '';
         document.getElementById('staffPhone').value = staff?.phone || '';
+        renderPermGrid(staff?.permissions, (staff?.role || '') === 'Admin');
 
         passwordInput.value = '';
         passwordInput.required = !staff;
@@ -513,6 +603,7 @@ async function gsSave(tabName, objects, headers) {
         const password = passwordInput.value;
         const role = document.getElementById('staffRole').value;
         const phone = document.getElementById('staffPhone').value.trim();
+        const permissions = collectPerms();
 
         const duplicate = staffList.some(staff =>
           staff.username.toLowerCase() === username.toLowerCase() &&
@@ -536,6 +627,7 @@ async function gsSave(tabName, objects, headers) {
           staff.username = username;
           staff.role = role;
           staff.phone = phone;
+          staff.permissions = permissions;
           if (password) staff.password = password;
         } else {
           staffList.push({
@@ -545,6 +637,7 @@ async function gsSave(tabName, objects, headers) {
             password,
             role,
             phone,
+            permissions,
             active: true
           });
         }
