@@ -28,10 +28,10 @@
       font: inherit;
     }
 
-    /* Main content — leaves space for the sidebar */
+    /* Main content — margin added dynamically only for fixed sidebars */
     .main-content {
       min-width: 0;
-      margin-left: 250px;
+      margin-left: 0;
       padding: 24px;
     }
 
@@ -1743,13 +1743,30 @@
       }
     });
 
-    /* ---------- Sidebar margin: match actual injected sidebar width ---------- */
+    /* ---------- Sidebar margin: reserve space ONLY for out-of-flow (fixed) sidebars ---------- */
     function adjustMainMargin() {
       const main = document.querySelector('.main-content');
       if (!main) return;
-      const sb = document.querySelector('.sidebar, aside[class*="sidebar"], nav[class*="sidebar"], aside');
-      if (sb && window.innerWidth > 640 && sb.offsetWidth > 0) {
-        main.style.marginLeft = (sb.offsetWidth + 16) + 'px';
+      if (window.innerWidth <= 640) { main.style.marginLeft = ''; return; }
+
+      let sb = document.querySelector('.sidebar, aside, nav') || null;
+      if (!sb) {
+        // Fallback: any fixed/sticky tall element anchored to the left edge
+        sb = Array.from(document.querySelectorAll('body > *')).find((el) => {
+          const cs = getComputedStyle(el);
+          return (cs.position === 'fixed' || cs.position === 'sticky') &&
+            parseFloat(cs.left || 0) <= 0 &&
+            el.offsetHeight >= window.innerHeight * 0.5;
+        }) || null;
+      }
+
+      if (!sb) { main.style.marginLeft = ''; return; }
+
+      const cs = getComputedStyle(sb);
+      // In-flow sidebars (static/relative/sticky in flex) handle layout themselves.
+      // Only fixed/absolute sidebars need a left margin.
+      if (cs.position === 'fixed' || cs.position === 'absolute') {
+        main.style.marginLeft = (sb.offsetWidth + 12) + 'px';
       } else {
         main.style.marginLeft = '';
       }
