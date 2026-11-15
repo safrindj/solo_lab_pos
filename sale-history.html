@@ -31,6 +31,10 @@
     input:focus, select:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
     .search-input { flex: 1; min-width: 200px; }
     .filter-select { min-width: 150px; }
+    .export-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: -6px 0 18px; }
+    .export-bar select { min-width: 180px; }
+    .btn-export { background: #ecfdf5; color: #047857; }
+    .btn-export:hover { background: #d1fae5; }
 
     /* Sale card */
     .sale-card { background: #fff; border: 1px solid #e5e7eb; padding: 16px 18px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: box-shadow .15s; }
@@ -171,6 +175,13 @@
       </select>
     </div>
 
+    <div class="export-bar">
+      <select id="exportMonth" aria-label="Choose month to export">
+        <option value="">Select month to export</option>
+      </select>
+      <button class="btn btn-export" onclick="exportMonthSales()">⬇ Export Month CSV</button>
+    </div>
+
     <!-- Sale List -->
     <div id="saleList"></div>
 
@@ -240,6 +251,26 @@
       });
       filterSelect.value = filterCustomer;
 
+      // Keep the month export list in sync with available sales.
+      var monthSelect = document.getElementById('exportMonth');
+      var selectedMonth = monthSelect.value;
+      var saleMonths = {};
+      sales.forEach(function(s){
+        var d = new Date(s.date || s.dateObj || 0);
+        if (!isNaN(d.getTime())) {
+          var month = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+          saleMonths[month] = true;
+        }
+      });
+      var months = Object.keys(saleMonths).sort().reverse();
+      monthSelect.innerHTML = '<option value="">Select month to export</option>';
+      months.forEach(function(month){
+        var parts = month.split('-');
+        var label = new Date(Number(parts[0]), Number(parts[1]) - 1, 1).toLocaleDateString('en', { month: 'long', year: 'numeric' });
+        monthSelect.add(new Option(label, month));
+      });
+      if (months.indexOf(selectedMonth) > -1) monthSelect.value = selectedMonth;
+
       // Date filter
       var fromDate = null;
       var now = new Date();
@@ -303,6 +334,7 @@
             '</div>' +
             '<div class="sale-actions">' +
               '<button class="btn btn-view" data-action="view">👁 View</button>' +
+              '<button class="btn btn-export" data-action="export">⬇ Export</button>' +
               '<button class="btn btn-delete" data-action="delete">🗑️ Delete</button>' +
             '</div>' +
           '</div>' +
@@ -313,9 +345,65 @@
           '</div>';
 
         card.querySelector('[data-action="view"]').addEventListener('click', function(){ viewSale(key); });
+        card.querySelector('[data-action="export"]').addEventListener('click', function(){ exportSingleSale(key); });
         card.querySelector('[data-action="delete"]').addEventListener('click', function(){ deleteSale(key); });
         container.appendChild(card);
       });
+    }
+
+    function csvCell(value){
+      return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
+    }
+
+    function saleCsvRows(sales){
+      var rows = [['Date', 'Invoice', 'Customer', 'Phone', 'Cashier', 'Payment Method', 'Item', 'Quantity', 'Unit Price', 'Line Total', 'Subtotal', 'Discount', 'Surcharge', 'Total']];
+      sales.forEach(function(sale){
+        var items = sale.items && sale.items.length ? sale.items : [{}];
+        items.forEach(function(item){
+          var qty = Number(item.qty || item.quantity || 1);
+          var price = Number(item.price || 0);
+          rows.push([
+            sale.date || sale.dateObj || '', sale.invoiceNo || sale.id || '', sale.customer || 'Walk-in Customer',
+            sale.customerPhone || '', sale.cashier || '', PAY_LABELS[sale.paymentMethod] || sale.paymentMethod || 'Cash',
+            item.name || '', qty, price, price * qty, sale.subtotal || 0, sale.discount || 0,
+            sale.surcharge || 0, sale.total || 0
+          ]);
+        });
+      });
+      return rows;
+    }
+
+    function downloadSalesCsv(sales, filename){
+      if (!sales.length) { alert('No sales found to export.'); return; }
+      var csv = '\uFEFF' + saleCsvRows(sales).map(function(row){
+        return row.map(csvCell).join(',');
+      }).join('\r\n');
+      var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    }
+
+    function exportSingleSale(key){
+      var sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
+      var sale = sales.find(function(s){ return saleKey(s) === key; });
+      if (!sale) { alert('Sale record not found.'); return; }
+      var invoice = String(sale.invoiceNo || sale.id || 'sale').replace(/[^a-z0-9_-]/gi, '_');
+      downloadSalesCsv([sale], 'sale-' + invoice + '.csv');
+    }
+
+    function exportMonthSales(){
+      var month = document.getElementById('exportMonth').value;
+      if (!month) { alert('Choose a month to export first.'); return; }
+      var sales = JSON.parse(localStorage.getItem('shopSales') || '[]').filter(function(sale){
+        var d = new Date(sale.date || sale.dateObj || 0);
+        return !isNaN(d.getTime()) && d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') === month;
+      });
+      downloadSalesCsv(sales, 'sales-' + month + '.csv');
     }
 
     // ===== VIEW: open invoice detail modal =====
