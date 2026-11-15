@@ -154,6 +154,16 @@
   .promo-msg.ok{display:block;color:var(--green)}
   .promo-msg.bad{display:block;color:var(--red)}
 
+  /* ---------- Customer autocomplete dropdown (linked to customers.html) ---------- */
+  .cust-dropdown{position:absolute;top:100%;left:0;right:0;margin-top:4px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:30;max-height:210px;overflow-y:auto;display:none}
+  .cust-dropdown.show{display:block}
+  .cust-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid #fafafa;transition:background .1s}
+  .cust-item:hover,.cust-item.active{background:var(--red-soft)}
+  .cust-item .cn{font-size:12.5px;font-weight:700;color:var(--text)}
+  .cust-item .cp{font-size:11px;color:var(--muted);margin-top:1px}
+  .cust-item .chint{float:right;font-size:10px;color:var(--faint);font-weight:700}
+  .cust-empty{padding:10px 12px;font-size:12px;color:var(--faint);text-align:center}
+
   .cash-row{display:flex;gap:6px}
   .cash-row .input-wrap{flex:1}
   .exact-btn{padding:0 13px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:11px;font-weight:800;color:#4b5563;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -380,7 +390,8 @@ async function gsSave(tabName, objects, headers) {
           <div class="sec-label"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Customer Profile<span class="link" id="registerNew">+ Register New</span></div>
           <div class="input-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" id="customerInput" placeholder="Type name or scan phone...">
+            <input type="text" id="customerInput" placeholder="Type name or scan phone..." autocomplete="off">
+            <div class="cust-dropdown" id="custDropdown"></div>
           </div>
         </div>
 
@@ -727,19 +738,82 @@ async function gsSave(tabName, objects, headers) {
     recalc();
   });
 
-  /* ---------- Customer ---------- */
+  /* ---------- Customer (linked to customers.html → localStorage 'shopCustomers') ---------- */
+  var CUSTOMERS = [];
+  var currentMatches = [];
+  var activeIdx = -1;
+  function refreshCustomers(){
+    try{ CUSTOMERS = JSON.parse(localStorage.getItem("shopCustomers")||"[]"); }catch(e){ CUSTOMERS = []; }
+  }
+  refreshCustomers();
+  var custDropdown = document.getElementById("custDropdown");
+  var custInput = document.getElementById("customerInput");
+
+  function closeCustDropdown(){ custDropdown.classList.remove("show"); activeIdx = -1; currentMatches = []; }
+  function selectCustomer(c){
+    customerName = c.name; customerPhone = c.phone || "";
+    custInput.value = c.name + (c.phone ? " · " + c.phone : "");
+    closeCustDropdown();
+    showToast("Customer selected: " + c.name);
+  }
+  function renderCustDropdown(){
+    var q = custInput.value.split("·")[0].trim().toLowerCase();
+    if(!q){ closeCustDropdown(); return; }
+    refreshCustomers();
+    currentMatches = CUSTOMERS.filter(function(c){
+      return (c.name||"").toLowerCase().indexOf(q)>-1 || String(c.phone||"").indexOf(q)>-1;
+    }).slice(0, 6);
+    activeIdx = -1;
+    if(currentMatches.length===0){
+      custDropdown.innerHTML = '<div class="cust-empty">No saved customer — click + Register New</div>';
+      custDropdown.classList.add("show");
+      return;
+    }
+    custDropdown.innerHTML = "";
+    currentMatches.forEach(function(c, i){
+      var d = document.createElement("div");
+      d.className = "cust-item";
+      d.innerHTML = '<span class="chint">'+escapeHtml(c.phone||"")+'</span><div class="cn">'+escapeHtml(c.name)+'</div><div class="cp">'+escapeHtml(c.phone||"")+(c.totalSpent?(' · Spent: Rs. '+Number(c.totalSpent).toLocaleString()):"")+'</div>';
+      d.addEventListener("mousedown", function(e){ e.preventDefault(); selectCustomer(c); });
+      custDropdown.appendChild(d);
+    });
+    custDropdown.classList.add("show");
+  }
+
   document.getElementById("registerNew").addEventListener("click", function(){
     var name = prompt("Customer name:");
     if(!name) return;
     var phone = prompt("Phone number:") || "";
     customerName = name; customerPhone = phone;
-    document.getElementById("customerInput").value = name + (phone ? " · " + phone : "");
+    custInput.value = name + (phone ? " · " + phone : "");
+    // Persist to shopCustomers → appears in customers.html + future autocomplete
+    try{
+      refreshCustomers();
+      if(phone && !CUSTOMERS.some(function(c){ return c.phone === phone; })){
+        CUSTOMERS.unshift({ id:"CUST-"+Date.now().toString().slice(-8), name:name, phone:phone, email:"", address:"", totalSpent:0, createdAt:new Date().toISOString(), lastVisit:null });
+        localStorage.setItem("shopCustomers", JSON.stringify(CUSTOMERS));
+      }
+    }catch(e){}
+    closeCustDropdown();
     showToast("Customer registered: " + name);
   });
-  document.getElementById("customerInput").addEventListener("input", function(){
+
+  custInput.addEventListener("input", function(){
     var parts = this.value.split("·");
     customerName = (parts[0]||"").trim();
     customerPhone = (parts[1]||"").trim();
+    renderCustDropdown();
+  });
+  custInput.addEventListener("focus", renderCustDropdown);
+  custInput.addEventListener("keydown", function(e){
+    var items = custDropdown.querySelectorAll(".cust-item");
+    if(e.key === "ArrowDown"){ e.preventDefault(); activeIdx = Math.min(activeIdx+1, currentMatches.length-1); items.forEach(function(it,i){ it.classList.toggle("active", i===activeIdx); }); }
+    else if(e.key === "ArrowUp"){ e.preventDefault(); activeIdx = Math.max(activeIdx-1, 0); items.forEach(function(it,i){ it.classList.toggle("active", i===activeIdx); }); }
+    else if(e.key === "Enter" && activeIdx >= 0 && currentMatches[activeIdx]){ e.preventDefault(); selectCustomer(currentMatches[activeIdx]); }
+    else if(e.key === "Escape"){ closeCustDropdown(); }
+  });
+  document.addEventListener("click", function(e){
+    if(!custInput.contains(e.target) && !custDropdown.contains(e.target)) closeCustDropdown();
   });
 
   /* ---------- Action buttons ---------- */
@@ -865,6 +939,19 @@ async function gsSave(tabName, objects, headers) {
       var sales = JSON.parse(localStorage.getItem("shopSales")||"[]");
       sales.push({ invoiceNo:orderNo, date:new Date().toISOString(), items:cart, subtotal:t.sub, discount:t.promoDisc+t.billDisc, surcharge:t.surcharge, total:t.grand, paymentMethod:paymentMethod, cashier:cashier, customer:customerName, customerPhone:customerPhone });
       localStorage.setItem("shopSales", JSON.stringify(sales));
+    }catch(e){}
+
+    // Link back to customers.html: update this customer's totalSpent + lastVisit
+    try{
+      if(customerPhone){
+        var custs = JSON.parse(localStorage.getItem("shopCustomers")||"[]");
+        var cf = custs.find(function(c){ return c.phone === customerPhone; });
+        if(cf){
+          cf.totalSpent = (Number(cf.totalSpent)||0) + t.grand;
+          cf.lastVisit = new Date().toISOString();
+          localStorage.setItem("shopCustomers", JSON.stringify(custs));
+        }
+      }
     }catch(e){}
 
     document.getElementById("invoiceOverlay").classList.add("show");
