@@ -676,6 +676,151 @@
       let history = readStorage(STORAGE_KEYS.history);
       let pendingPurchaseItems = [];
 
+      // ================= Google Sheets link (inventory + suppliers) =================
+      const GS_WEB_APP_URL =
+        "https://script.google.com/macros/s/AKfycbzBDZu5GWBEq5gJVBoSNusLWW_a4DWC-Lx4WJTjKMxjd_JVr7am4gmeV4liQkaEqvZBjA/exec";
+      const PRODUCT_HEADERS = ["id", "code", "name", "category", "subcategory", "supplier", "cost", "price", "stock"];
+      let inventoryProducts = [];
+      let inventoryLoaded = false;
+      let sheetSuppliers = [];
+
+      const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+      const str = (v) => String(v ?? "").trim();
+
+      async function gsRead(tabName) {
+        const url = new URL(GS_WEB_APP_URL);
+        url.searchParams.set("action", "read");
+        url.searchParams.set("tab", tabName);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Read failed: " + res.status);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error || "Read failed");
+        const rows = json.data;
+        if (!Array.isArray(rows) || rows.length < 2) return [];
+        const headers = rows[0].map((h) => String(h ?? "").trim());
+        return rows.slice(1).filter(Array.isArray).map((row) => {
+          const o = {};
+          headers.forEach((h, i) => { o[h] = row[i] ?? ""; });
+          return o;
+        });
+      }
+
+      async function gsSave(tabName, objects, headers) {
+        const rows = [headers, ...objects.map((o) => headers.map((h) => o[h] ?? ""))];
+        const res = await fetch(GS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "save", tab: tabName, data: rows })
+        });
+        if (!res.ok) throw new Error("Save failed: " + res.status);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error || "Save failed");
+      }
+
+      // Match a free-text product entry to an inventory product (name/code exact, else unique partial)
+      function findInventoryProduct(text) {
+        const q = str(text).toLowerCase();
+        if (!q) return null;
+        let match = inventoryProducts.find((p) => str(p.name).toLowerCase() === q);
+        if (match) return match;
+        match = inventoryProducts.find((p) => str(p.code).toLowerCase() === q);
+        if (match) return match;
+        const partials = inventoryProducts.filter((p) =>
+          str(p.name).toLowerCase().includes(q) || str(p.code).toLowerCase().includes(q));
+        return partials.length === 1 ? partials[0] : null;
+      }
+
+      function populateSupplierSelects() {
+        const fromSheets = sheetSuppliers.map((s) => str(s.name)).filter(Boolean);
+        const used = [...purchases, ...returns].map((r) => str(r.supplier)).filter(Boolean);
+        const fallback = ["Solo Mobile Suppliers", "Tech Wholesale Ltd", "City Electronics"];
+        const all = [...new Set([...fromSheets, ...used, ...fallback])].sort((a, b) => a.localeCompare(b));
+        ["purchaseSupplier", "returnSupplier"].forEach((id) => {
+          const sel = document.getElementById(id);
+          const current = sel.value;
+          sel.replaceChildren(new Option("-- Choose supplier --", ""), ...all.map((s) => new Option(s, s)));
+          if (all.includes(current)) sel.value = current;
+        });
+      }
+
+      function populateProductDatalist() {
+        const dl = document.getElementById("productOptions");
+        if (!dl || !inventoryProducts.length) return;
+        dl.replaceChildren(...inventoryProducts.map((p) => {
+          const opt = document.createElement("option");
+          opt.value = str(p.name) || str(p.code);
+          return opt;
+        }));
+      }
+
+      async function loadInventoryData() {
+        try {
+          const [prods, sups] = await Promise.all([gsRead("products"), gsRead("suppliers")]);
+          inventoryProducts = prods.filter((p) => p.id || p.code || p.name);
+          sheetSuppliers = sups.filter((s) => str(s.name));
+          inventoryLoaded = true;
+          populateProductDatalist();
+        } catch (e) {
+          console.warn("Could not load inventory data:", e);
+          inventoryLoaded = false;
+        }
+        populateSupplierSelects();
+      }
+
+      // Increase inventory stock for each purchased item (free qty also adds to stock)
+      async function applyPurchaseToInventory(record) {
+        if (!inventoryLoaded || !inventoryProducts.length) {
+          alert("Purchase saved. (Inventory could not be reached — stock was not updated.)");
+          return;
+        }
+        const updated = [];
+        const notFound = [];
+        record.items.forEach((item) => {
+          const p = findInventoryProduct(item.product);
+          if (p) {
+            p.stock = num(p.stock) + num(item.qty) + num(item.freeQty || 0);
+            updated.push(item.product);
+          } else {
+            notFound.push(item.product);
+          }
+        });
+        if (updated.length) {
+          try {
+            await gsSave("products", inventoryProducts, PRODUCT_HEADERS);
+          } catch (e) {
+            alert("Purchase saved, but inventory stock update failed: " + e.message);
+            return;
+          }
+        }
+        let msg = "Purchase saved successfully.";
+        if (updated.length) msg += `\n\nStock increased for ${updated.length} item(s) in inventory.`;
+        if (notFound.length) msg += `\n\nNot found in inventory (stock unchanged):\n${notFound.join(", ")}`;
+        alert(msg);
+      }
+
+      // Decrease inventory stock for a returned product (not below zero)
+      async function applyReturnToInventory(record) {
+        if (!inventoryLoaded || !inventoryProducts.length) {
+          alert("Return saved. (Inventory could not be reached — stock was not updated.)");
+          return;
+        }
+        const p = findInventoryProduct(record.product);
+        if (!p) {
+          alert(`Return saved.\n\n"${record.product}" not found in inventory — stock unchanged.`);
+          return;
+        }
+        const before = num(p.stock);
+        p.stock = Math.max(0, before - num(record.qty));
+        try {
+          await gsSave("products", inventoryProducts, PRODUCT_HEADERS);
+        } catch (e) {
+          alert("Return saved, but inventory stock update failed: " + e.message);
+          return;
+        }
+        alert(`Return saved.\n\nStock for "${record.product}" reduced from ${before} to ${p.stock}.`);
+      }
+      // ===============================================================================
+
       const saveStorage = () => {
         try {
           localStorage.setItem(STORAGE_KEYS.purchases, JSON.stringify(purchases));
@@ -938,7 +1083,7 @@
         renderPendingItems();
       });
 
-      document.getElementById("purchaseForm").addEventListener("submit", (event) => {
+      document.getElementById("purchaseForm").addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const message = document.getElementById("purchaseMessage");
@@ -961,9 +1106,12 @@
         saveStorage();
         renderAll();
         closeModal("purchaseModal");
+
+        // Link to inventory: increase stock for purchased items
+        await applyPurchaseToInventory(record);
       });
 
-      document.getElementById("returnForm").addEventListener("submit", (event) => {
+      document.getElementById("returnForm").addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const product = document.getElementById("returnProduct").value.trim();
@@ -980,7 +1128,7 @@
           return;
         }
 
-        returns.push({
+        const record = {
           id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
           supplier: document.getElementById("returnSupplier").value,
           date: document.getElementById("returnDate").value,
@@ -988,11 +1136,15 @@
           qty,
           unitCredit,
           total: qty * unitCredit
-        });
+        };
 
+        returns.push(record);
         saveStorage();
         renderAll();
         closeModal("returnModal");
+
+        // Link to inventory: reduce stock for returned item
+        await applyReturnToInventory(record);
       });
 
       document.querySelectorAll("[data-close-modal]").forEach((button) => {
@@ -1076,6 +1228,7 @@
 
       renderAll();
       renderPendingItems();
+      loadInventoryData();
     })();
   </script>
 </body>
