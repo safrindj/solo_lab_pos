@@ -1,110 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#dc2626">
   <title>Sale History — SOLO LAB MOBILE</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="sidebar.js"></script>
   <style>
-    body { font-family: Arial; background: #f3f4f6; margin: 0; }
-    .page-content { padding: 20px; }
-    .header { text-align: center; margin-bottom: 25px; }
-    .logo { height: 60px; margin-bottom: 8px; }
-    .shopName { font-size: 20px; font-weight: bold; color: #111827; }
-    
-    .top-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; align-items: center; }
-    input, select { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Sora', Arial, sans-serif; background: #f3f4f6; margin: 0; color: #111827; font-size: 14px; }
+    .page-content { padding: 24px; max-width: 1100px; margin: 0 auto; }
+
+    .header { text-align: center; margin-bottom: 20px; }
+    .logo { height: 56px; margin-bottom: 6px; }
+    .shopName { font-size: 22px; font-weight: 800; color: #111827; letter-spacing: 1px; }
+    .page-sub { margin-top: 6px; font-size: 15px; color: #6b7280; font-weight: 600; }
+
+    /* Summary cards */
+    .summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .summary-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 18px; }
+    .summary-card .lbl { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #9ca3af; }
+    .summary-card .val { font-size: 22px; font-weight: 800; color: #111827; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .summary-card .val.red { color: #dc2626; }
+    @media (max-width: 640px) { .summary-row { grid-template-columns: 1fr; } }
+
+    /* Search & filter bar */
+    .top-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; align-items: center; }
+    input, select { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: #fff; }
+    input:focus, select:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
     .search-input { flex: 1; min-width: 200px; }
     .filter-select { min-width: 150px; }
-    
-    .sale-card { background: white; border: 1px solid #e5e7eb; padding: 16px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-    .sale-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-    .sale-id { font-size: 12px; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 4px; }
-    .sale-customer { font-size: 16px; font-weight: 600; color: #111827; }
-    .sale-items { font-size: 14px; color: #374151; margin: 6px 0; line-height: 1.5; }
-    .sale-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f3f4f6; }
-    .sale-total { font-size: 18px; font-weight: bold; color: #dc2626; }
-    .sale-date { font-size: 13px; color: #6b7280; }
-    
-    .btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
-    .btn-delete { background: #fee2e2; color: #dc2626; }
-    .btn-delete:hover { background: #fecaca; }
-    .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
-    .back-link { display: inline-block; margin-top: 20px; color: #2563eb; text-decoration: none; font-size: 14px; }
+
+    /* Sale card */
+    .sale-card { background: #fff; border: 1px solid #e5e7eb; padding: 16px 18px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: box-shadow .15s; }
+    .sale-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
+    .sale-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+    .sale-invoice { font-size: 15px; font-weight: 800; color: #dc2626; letter-spacing: .5px; }
+    .sale-customer { font-size: 14px; font-weight: 600; color: #374151; margin-top: 3px; }
+    .sale-meta { font-size: 12px; color: #6b7280; margin-top: 2px; }
+    .sale-items-preview { font-size: 13px; color: #4b5563; margin: 8px 0; line-height: 1.5; }
+    .sale-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f3f4f6; flex-wrap: wrap; gap: 8px; }
+    .sale-total { font-size: 18px; font-weight: 800; color: #dc2626; font-variant-numeric: tabular-nums; }
+    .sale-date { font-size: 12.5px; color: #6b7280; }
+    .sale-actions { display: flex; gap: 8px; }
+
+    .btn { padding: 7px 14px; border: none; border-radius: 7px; cursor: pointer; font-size: 12.5px; font-weight: 700; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; transition: opacity .15s, transform .1s; }
+    .btn:active { transform: scale(.97); }
+    .btn-view { background: #eff6ff; color: #2563eb; }
+    .btn-view:hover { background: #dbeafe; }
+    .btn-delete { background: #fef2f2; color: #dc2626; }
+    .btn-delete:hover { background: #fee2e2; }
+    .btn svg { width: 13px; height: 13px; }
+
+    .empty-state { text-align: center; padding: 50px 20px; color: #9ca3af; background: #fff; border: 1px dashed #e5e7eb; border-radius: 12px; }
+    .empty-state .big { font-size: 40px; margin-bottom: 10px; }
+    .back-link { display: inline-block; margin-top: 24px; color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 600; }
     .back-link:hover { text-decoration: underline; }
+
+    /* ===== Invoice detail modal ===== */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; overflow-y: auto; }
+    .modal-overlay.show { display: flex; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal { background: #fff; border-radius: 12px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: pop .25s ease; }
+    @keyframes pop { from { transform: scale(.96) translateY(8px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; background: #fff; border-radius: 12px 12px 0 0; z-index: 2; }
+    .modal-head h3 { font-size: 15px; font-weight: 800; color: #111827; }
+    .modal-close { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #6b7280; background: #f3f4f6; border: none; font-size: 16px; }
+    .modal-close:hover { background: #fee2e2; color: #dc2626; }
+    .modal-body { padding: 18px 20px 20px; }
+    .inv-detail-head { text-align: center; padding-bottom: 12px; border-bottom: 2px dashed #ddd; margin-bottom: 12px; }
+    .inv-detail-head .shop { font-size: 18px; font-weight: 800; letter-spacing: 1px; }
+    .inv-detail-head .addr { font-size: 11px; color: #6b7280; margin-top: 3px; }
+    .inv-detail-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 12px; color: #4b5563; margin-bottom: 10px; }
+    .inv-detail-meta b { color: #111827; }
+    .inv-detail-cust { font-size: 12.5px; color: #374151; padding: 8px 0; border-bottom: 1px solid #f3f4f6; margin-bottom: 10px; line-height: 1.7; }
+    .inv-detail-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+    .inv-detail-table th { background: #f9fafb; padding: 7px 8px; text-align: left; font-size: 11.5px; color: #374151; border-bottom: 1px solid #e5e7eb; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
+    .inv-detail-table td { padding: 7px 8px; font-size: 12.5px; border-bottom: 1px solid #f3f4f6; }
+    .inv-detail-table .r { text-align: right; }
+    .inv-detail-table .c { text-align: center; }
+    .inv-detail-totals { margin-left: auto; width: 220px; font-size: 12.5px; }
+    .inv-detail-totals .tr { display: flex; justify-content: space-between; padding: 3px 0; color: #4b5563; }
+    .inv-detail-totals .tr b { color: #111827; }
+    .inv-detail-totals .tr.disc b { color: #16a34a; }
+    .inv-detail-totals .tr.sur b { color: #b91c1c; }
+    .inv-detail-grand { display: flex; justify-content: space-between; font-weight: 800; font-size: 16px; border-top: 2px solid #333; margin-top: 6px; padding-top: 8px; color: #dc2626; }
+    .inv-detail-pay { display: flex; justify-content: space-between; font-size: 12px; color: #4b5563; border-top: 1px dashed #ccc; margin-top: 10px; padding-top: 8px; flex-wrap: wrap; gap: 6px; }
+    .modal-actions { display: flex; gap: 10px; padding: 14px 20px; border-top: 1px solid #e5e7eb; }
+    .modal-actions .btn { flex: 1; justify-content: center; padding: 10px; }
+    .btn-print { background: #2563eb; color: #fff; }
+    .btn-print:hover { opacity: .9; }
+    .btn-close-modal { background: #e5e7eb; color: #374151; }
   </style>
   <script>
-// ==========================================
-// Google Sheets Sync — SOLO LAB MOBILES
-// ==========================================
-const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBDZu5GWBEq5gJVBoSNusLWW_a4DWC-Lx4WJTjKMxjd_JVr7am4gmeV4liQkaEqvZBjA/exec"; // ← PASTE YOUR URL HERE
+  // ==========================================
+  // Google Sheets Sync — SOLO LAB MOBILES
+  // ==========================================
+  const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBDZu5GWBEq5gJVBoSNusLWW_a4DWC-Lx4WJTjKMxjd_JVr7am4gmeV4liQkaEqvZBjA/exec";
 
-async function gsRead(tabName) {
-  try {
-    const res = await fetch(`${GS_WEB_APP_URL}?action=read&tab=${tabName}`);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    
-    // Convert sheet rows to objects (first row = headers)
-    const rows = json.data;
-    if (rows.length < 2) return [];
-    
-    const headers = rows[0].map(h => h.trim());
-    return rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((h, i) => {
-        let val = row[i];
-        // Convert numbers where possible
-        if (!isNaN(parseFloat(val)) && isFinite(val)) val = Number(val);
-        obj[h] = val;
+  async function gsRead(tabName) {
+    try {
+      const res = await fetch(`${GS_WEB_APP_URL}?action=read&tab=${tabName}`);
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      const rows = json.data;
+      if (rows.length < 2) return [];
+      const headers = rows[0].map(h => h.trim());
+      return rows.slice(1).map(row => {
+        const obj = {};
+        headers.forEach((h, i) => {
+          let val = row[i];
+          if (!isNaN(parseFloat(val)) && isFinite(val)) val = Number(val);
+          obj[h] = val;
+        });
+        return obj;
       });
-      return obj;
-    });
-  } catch (err) {
-    console.error('Google Sheets Read Error:', err);
-    alert('Could not load data: ' + err.message);
-    return [];
+    } catch (err) {
+      console.error('Google Sheets Read Error:', err);
+      return [];
+    }
   }
-}
 
-async function gsSave(tabName, objects, headers) {
-  try {
-    // Convert objects back to sheet rows
-    const rows = [headers];
-    objects.forEach(obj => {
-      rows.push(headers.map(h => obj[h] ?? ''));
-    });
-    
-    const res = await fetch(`${GS_WEB_APP_URL}?action=save`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tab: tabName, data: rows })
-    });
-    
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error);
-    return true;
-  } catch (err) {
-    console.error('Google Sheets Save Error:', err);
-    alert('Could not save data: ' + err.message);
-    return false;
+  async function gsSave(tabName, objects, headers) {
+    try {
+      const rows = [headers];
+      objects.forEach(obj => { rows.push(headers.map(h => obj[h] ?? '')); });
+      const res = await fetch(`${GS_WEB_APP_URL}?action=save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tab: tabName, data: rows })
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      return true;
+    } catch (err) {
+      console.error('Google Sheets Save Error:', err);
+      return false;
+    }
   }
-}
-</script>
-
+  </script>
 </head>
 <body>
   <div class="page-content">
     <div class="header">
       <img src="shop-logo.png" alt="Shop Logo" class="logo" onerror="this.style.display='none'">
       <div class="shopName">SOLO LAB MOBILE</div>
-      <h2 style="margin-top:10px; font-size:18px; color:#4b5563;">Sale History</h2>
+      <div class="page-sub">Sale History</div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-row">
+      <div class="summary-card"><div class="lbl">Total Invoices</div><div class="val" id="sumCount">0</div></div>
+      <div class="summary-card"><div class="lbl">Total Revenue</div><div class="val red" id="sumRevenue">Rs. 0</div></div>
+      <div class="summary-card"><div class="lbl">Today's Sales</div><div class="val" id="sumToday">Rs. 0</div></div>
     </div>
 
     <!-- Search & Filter Bar -->
     <div class="top-bar">
-      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search by customer name or items..." oninput="loadSales()">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by invoice no, customer, or item..." oninput="loadSales()">
       <select id="saleFilter" class="filter-select" onchange="loadSales()">
         <option value="">All Customers</option>
       </select>
@@ -122,32 +176,72 @@ async function gsSave(tabName, objects, headers) {
     <a href="index.html" class="back-link">← Back to Dashboard</a>
   </div>
 
+  <!-- ===== Invoice Detail Modal ===== -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal" id="modalPrintArea">
+      <div class="modal-head">
+        <h3>Invoice Details</h3>
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
+        <button class="btn btn-close-modal" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Set default master password if not exists
     if (!localStorage.getItem('masterPassword')) {
       localStorage.setItem('masterPassword', 'admin123');
     }
 
+    var PAY_LABELS = { cash:"Cash", card:"Card (Visa/Mastercard)", online:"Online Transfer", koko:"KOKO QR" };
+    var fmt = function(n){ return "Rs. " + Number(n||0).toLocaleString("en-LK", {maximumFractionDigits:0}); };
+
+    function escapeHtml(s){
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+        return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+      });
+    }
+
+    // Get the unique key for a sale (invoiceNo preferred, fallback to id)
+    function saleKey(sale){ return sale.invoiceNo || sale.id || ("sale-" + (sale.date || "")); }
+
+    // Format date nicely
+    function formatDate(iso){
+      if(!iso) return "—";
+      try {
+        var d = new Date(iso);
+        if(isNaN(d.getTime())) return String(iso);
+        var pad = function(n){ return (n<10?"0":"")+n; };
+        return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()+" · "+pad(d.getHours())+":"+pad(d.getMinutes());
+      } catch(e){ return String(iso); }
+    }
+
     function loadSales() {
-      const sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-      const filterCustomer = document.getElementById('saleFilter').value;
-      const dateRange = document.getElementById('dateFilter').value;
-      const container = document.getElementById('saleList');
+      var sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
+      var searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      var filterCustomer = document.getElementById('saleFilter').value;
+      var dateRange = document.getElementById('dateFilter').value;
+      var container = document.getElementById('saleList');
       container.innerHTML = '';
 
       // Populate customer dropdown
-      const uniqueCustomers = [...new Set(sales.map(s => s.customer).filter(c => c))].sort();
-      const filterSelect = document.getElementById('saleFilter');
+      var uniqueCustomers = [];
+      sales.forEach(function(s){ var c = s.customer || "Walk-in Customer"; if(uniqueCustomers.indexOf(c)===-1) uniqueCustomers.push(c); });
+      uniqueCustomers.sort();
+      var filterSelect = document.getElementById('saleFilter');
       filterSelect.innerHTML = '<option value="">All Customers</option>';
-      uniqueCustomers.forEach(c => {
-        filterSelect.innerHTML += `<option value="${c}">${c}</option>`;
+      uniqueCustomers.forEach(function(c){
+        filterSelect.innerHTML += '<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>';
       });
       filterSelect.value = filterCustomer;
 
-      // Date filter logic
-      let fromDate = null;
-      const now = new Date();
+      // Date filter
+      var fromDate = null;
+      var now = new Date();
       if (dateRange === 'today') {
         fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       } else if (dateRange === 'week') {
@@ -156,64 +250,152 @@ async function gsSave(tabName, objects, headers) {
         fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
       }
 
-      // Apply all filters
-      let filtered = sales.filter(sale => {
-        const matchSearch = !searchTerm || 
-          sale.customer?.toLowerCase().includes(searchTerm) ||
-          sale.items?.toLowerCase().includes(searchTerm);
-        const matchCustomer = !filterCustomer || sale.customer === filterCustomer;
-        const matchDate = !fromDate || (sale.dateObj && new Date(sale.dateObj) >= fromDate);
+      // Apply filters
+      var filtered = sales.filter(function(sale){
+        // Build searchable string: invoiceNo + customer + item names
+        var itemNames = (sale.items || []).map(function(it){ return it.name || ""; }).join(" ");
+        var searchable = (sale.invoiceNo || sale.id || "") + " " + (sale.customer || "") + " " + (sale.customerPhone || "") + " " + itemNames;
+        var matchSearch = !searchTerm || searchable.toLowerCase().indexOf(searchTerm) > -1;
+        var matchCustomer = !filterCustomer || (sale.customer || "Walk-in Customer") === filterCustomer;
+        var saleDate = new Date(sale.date || sale.dateObj || 0);
+        var matchDate = !fromDate || (!isNaN(saleDate.getTime()) && saleDate >= fromDate);
         return matchSearch && matchCustomer && matchDate;
       });
 
-      // Sort: newest first
-      filtered.sort((a, b) => new Date(b.dateObj || b.date) - new Date(a.dateObj || a.date));
+      // Sort newest first
+      filtered.sort(function(a, b){
+        return new Date(b.date || b.dateObj || 0) - new Date(a.date || a.dateObj || 0);
+      });
+
+      // Summary stats (over ALL sales, not just filtered)
+      var totalRev = sales.reduce(function(s, x){ return s + Number(x.total || 0); }, 0);
+      var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var todayRev = sales.reduce(function(s, x){
+        var d = new Date(x.date || 0);
+        return (d >= todayStart) ? s + Number(x.total || 0) : s;
+      }, 0);
+      document.getElementById('sumCount').textContent = sales.length;
+      document.getElementById('sumRevenue').textContent = fmt(totalRev);
+      document.getElementById('sumToday').textContent = fmt(todayRev);
 
       if (filtered.length === 0) {
-        container.innerHTML = `<p class="empty-state">No sale records found</p>`;
+        container.innerHTML = '<div class="empty-state"><div class="big">📋</div><div style="font-weight:700;font-size:15px;margin-bottom:6px;">No sale records found</div><div style="font-size:13px;">Try adjusting your search or filters.</div></div>';
         return;
       }
 
-      filtered.forEach(sale => {
-        container.innerHTML += `
-          <div class="sale-card">
-            <div class="sale-header">
-              <div>
-                <div class="sale-customer">${sale.customer || 'Walk-in Customer'}</div>
-                <div class="sale-id">Receipt: ${sale.id || 'N/A'}</div>
-              </div>
-              <button class="btn btn-delete" onclick="deleteSale('${sale.id}')">🗑️ Delete</button>
-            </div>
-            <div class="sale-items">
-  ${sale.items.map(item => 
-    `${item.name} × ${item.quantity || item.qty} @ LKR ${item.price}`
-  ).join('<br>')}
-</div>
-            <div class="sale-footer">
-              <div class="sale-date">${sale.date || '—'}</div>
-              <div class="sale-total">LKR ${(sale.total || 0).toLocaleString()}</div>
-            </div>
-          </div>
-        `;
+      filtered.forEach(function(sale){
+        var key = saleKey(sale);
+        var itemsPreview = (sale.items || []).slice(0, 3).map(function(it){
+          return escapeHtml(it.name) + " × " + (it.qty || it.quantity || 1);
+        }).join(", ");
+        var extraCount = (sale.items || []).length - 3;
+        if(extraCount > 0) itemsPreview += " + " + extraCount + " more";
+
+        var card = document.createElement('div');
+        card.className = "sale-card";
+        card.innerHTML =
+          '<div class="sale-header">' +
+            '<div>' +
+              '<div class="sale-invoice">📄 ' + escapeHtml(sale.invoiceNo || sale.id || 'N/A') + '</div>' +
+              '<div class="sale-customer">' + escapeHtml(sale.customer || 'Walk-in Customer') + (sale.customerPhone ? ' · ' + escapeHtml(sale.customerPhone) : '') + '</div>' +
+              '<div class="sale-meta">' + (PAY_LABELS[sale.paymentMethod] || sale.paymentMethod || 'Cash') + (sale.cashier ? ' · Cashier: ' + escapeHtml(sale.cashier) : '') + '</div>' +
+            '</div>' +
+            '<div class="sale-actions">' +
+              '<button class="btn btn-view" data-action="view">👁 View</button>' +
+              '<button class="btn btn-delete" data-action="delete">🗑️ Delete</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sale-items-preview">' + (itemsPreview || '—') + '</div>' +
+          '<div class="sale-footer">' +
+            '<div class="sale-date">🕒 ' + formatDate(sale.date) + '</div>' +
+            '<div class="sale-total">' + fmt(sale.total) + '</div>' +
+          '</div>';
+
+        card.querySelector('[data-action="view"]').addEventListener('click', function(){ viewSale(key); });
+        card.querySelector('[data-action="delete"]').addEventListener('click', function(){ deleteSale(key); });
+        container.appendChild(card);
       });
     }
 
-    // Delete function with MASTER PASSWORD protection
-    function deleteSale(saleId) {
-      if (!saleId) return;
-      
-      const masterPass = localStorage.getItem('masterPassword') || 'admin123';
-      const enteredPass = prompt('⚠️ DELETE SALE RECORD\n\nThis action cannot be undone.\nEnter Master Password to continue:');
-      
-      if (enteredPass === null) return; // User cancelled
-      
+    // ===== VIEW: open invoice detail modal =====
+    function viewSale(key){
+      var sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
+      var sale = sales.find(function(s){ return saleKey(s) === key; });
+      if(!sale){ alert("Sale record not found."); return; }
+
+      var itemsRows = (sale.items || []).map(function(it){
+        var qty = it.qty || it.quantity || 1;
+        var price = it.price || 0;
+        return '<tr>' +
+          '<td>' + escapeHtml(it.name || "Item") + '</td>' +
+          '<td class="c">' + qty + '</td>' +
+          '<td class="r">' + fmt(price) + '</td>' +
+          '<td class="r">' + fmt(price * qty) + '</td>' +
+        '</tr>';
+      }).join("");
+
+      var discount = Number(sale.discount || 0);
+      var surcharge = Number(sale.surcharge || 0);
+      var subtotal = Number(sale.subtotal || 0);
+      var total = Number(sale.total || 0);
+
+      var html =
+        '<div class="inv-detail-head">' +
+          '<div class="shop">SOLO LAB MOBILE</div>' +
+          '<div class="addr">23A, D.S. Senanayaka Veediya, Kandy · Tel: 077 732 2237</div>' +
+        '</div>' +
+        '<div class="inv-detail-meta">' +
+          '<div><b>Invoice:</b> ' + escapeHtml(sale.invoiceNo || sale.id || 'N/A') + '</div>' +
+          '<div><b>Date:</b> ' + formatDate(sale.date) + '</div>' +
+          '<div><b>Cashier:</b> ' + escapeHtml(sale.cashier || '—') + '</div>' +
+        '</div>' +
+        '<div class="inv-detail-cust">' +
+          '<div><b>Customer:</b> ' + escapeHtml(sale.customer || 'Walk-in Customer') + '</div>' +
+          '<div><b>Phone:</b> ' + escapeHtml(sale.customerPhone || '—') + '</div>' +
+        '</div>' +
+        '<table class="inv-detail-table">' +
+          '<thead><tr><th>Description</th><th class="c">Qty</th><th class="r">Price</th><th class="r">Total</th></tr></thead>' +
+          '<tbody>' + itemsRows + '</tbody>' +
+        '</table>' +
+        '<div class="inv-detail-totals">' +
+          '<div class="tr"><span>Subtotal</span><b>' + fmt(subtotal) + '</b></div>' +
+          (discount > 0 ? '<div class="tr disc"><span>Discount</span><b>− ' + fmt(discount) + '</b></div>' : '') +
+          (surcharge > 0 ? '<div class="tr sur"><span>Card Surcharge (3%)</span><b>+ ' + fmt(surcharge) + '</b></div>' : '') +
+          '<div class="inv-detail-grand"><span>Total</span><span>' + fmt(total) + '</span></div>' +
+        '</div>' +
+        '<div class="inv-detail-pay">' +
+          '<div><b>Payment:</b> ' + (PAY_LABELS[sale.paymentMethod] || sale.paymentMethod || 'Cash') + '</div>' +
+        '</div>';
+
+      document.getElementById('modalBody').innerHTML = html;
+      document.getElementById('detailModal').classList.add('show');
+    }
+
+    function closeModal(){
+      document.getElementById('detailModal').classList.remove('show');
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('detailModal').addEventListener('click', function(e){
+      if(e.target === this) closeModal();
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') closeModal();
+    });
+
+    // ===== DELETE with master password protection =====
+    function deleteSale(key){
+      if (!key) return;
+      var masterPass = localStorage.getItem('masterPassword') || 'admin123';
+      var enteredPass = prompt('⚠️ DELETE SALE RECORD\n\nInvoice: ' + key + '\nThis action cannot be undone.\nEnter Master Password to continue:');
+      if (enteredPass === null) return;
       if (enteredPass === masterPass) {
-        if (confirm('⚠️ Are you sure you want to delete this sale record?\n\nThis cannot be undone!')) {
-          let sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
-          sales = sales.filter(s => s.id !== saleId);
+        if (confirm('⚠️ Are you sure you want to delete invoice ' + key + '?\n\nThis cannot be undone!')) {
+          var sales = JSON.parse(localStorage.getItem('shopSales') || '[]');
+          sales = sales.filter(function(s){ return saleKey(s) !== key; });
           localStorage.setItem('shopSales', JSON.stringify(sales));
           loadSales();
-          alert('✅ Sale deleted successfully');
+          alert('✅ Invoice ' + key + ' deleted successfully');
         }
       } else {
         alert('❌ INCORRECT PASSWORD\n\nSale record was NOT deleted.');
@@ -222,5 +404,16 @@ async function gsSave(tabName, objects, headers) {
 
     loadSales();
   </script>
+
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #modalPrintArea, #modalPrintArea * { visibility: visible; }
+      #modalPrintArea { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; max-width: none; max-height: none; }
+      .modal-head, .modal-actions { display: none !important; }
+      .modal-overlay { position: static; background: #fff; padding: 0; display: block !important; }
+      .modal { max-height: none; overflow: visible; }
+    }
+  </style>
 </body>
 </html>
