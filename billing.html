@@ -175,7 +175,9 @@
   .invoice{background:#fff;color:#1c1c1c;width:210mm;min-width:210mm;min-height:148mm;max-width:none;border-radius:4px;padding:12mm 15mm;margin:auto 0;box-shadow:0 20px 60px rgba(0,0,0,.35);animation:pop .35s cubic-bezier(.2,.9,.3,1.1);position:relative}
   @keyframes pop{from{transform:scale(.97) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
   .inv-head{display:flex;align-items:center;justify-content:space-between;border-bottom:2px dashed #333;padding-bottom:12px;margin-bottom:8px;gap:12px}
-  .inv-logo{width:74px;height:74px;border:2px solid #dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#dc2626;font-weight:800;font-size:22px;letter-spacing:-2px;flex-shrink:0}
+  /* ===== FIXED: Logo now uses an image ===== */
+  .inv-logo{width:74px;height:74px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .inv-logo img{width:100%;height:100%;object-fit:contain;display:block}
   .inv-brand{text-align:center;flex:1}
   .inv-shop{font-weight:800;font-size:24px;letter-spacing:2px}
   .inv-shop small{display:block;font-weight:600;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#555;margin-top:4px}
@@ -208,9 +210,8 @@
   .inv-btn{flex:1;padding:10px;border-radius:7px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
   .inv-btn.print{background:#2563eb;color:#fff}.inv-btn.new{background:#e5e7eb;color:#333}
   .inv-btn:hover{opacity:.88}
-  .inv-btn svg{width:15px;height:15px} 
-  @media(max-width:700px){.overlay{justify-content:flex-start}.invoice{flex:0 0 210mm;margin:0}.inv-logo{width:74px;height:74px;font-size:22px}.inv-shop{font-size:24px}.inv-barcode{width:140px}.inv-barcode svg{width:140px}}
-  @media print{@page{size:A5 landscape;margin:0}}
+  .inv-btn svg{width:15px;height:15px}
+  @media(max-width:700px){.overlay{justify-content:flex-start}.invoice{flex:0 0 210mm;margin:0}.inv-logo{width:74px;height:74px}.inv-shop{font-size:24px}.inv-barcode{width:140px}.inv-barcode svg{width:140px}}
 
   /* ---------- Toast ---------- */
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:60;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;display:flex;align-items:center;gap:10px;max-width:90vw;box-shadow:0 10px 30px rgba(0,0,0,.3)}
@@ -224,7 +225,7 @@
     .overlay.show{display:block !important;position:relative !important;inset:auto !important;width:210mm;height:148mm;min-height:0;padding:0;margin:0;overflow:hidden;background:#fff;backdrop-filter:none;page-break-after:avoid;break-after:avoid}
     .invoice{display:block;width:210mm;height:148mm;min-width:0;min-height:0;max-width:none;margin:0;padding:8mm 12mm;overflow:hidden;box-shadow:none;border-radius:0;animation:none;page-break-inside:avoid;break-inside:avoid}
     .inv-head{padding-bottom:7px;margin-bottom:4px;gap:8px}
-    .inv-logo{width:58px;height:58px;font-size:18px}
+    .inv-logo{width:58px;height:58px}
     .inv-shop{font-size:20px}
     .inv-shop small{font-size:9px;margin-top:2px}
     .inv-addr{font-size:10px;margin-top:4px;line-height:1.35}
@@ -248,28 +249,24 @@
   }
 </style>
 <script src="sidebar.js"></script>
-  <script>
+<script>
 // ==========================================
 // Google Sheets Sync — SOLO LAB MOBILES
 // ==========================================
-const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBDZu5GWBEq5gJVBoSNusLWW_a4DWC-Lx4WJTjKMxjd_JVr7am4gmeV4liQkaEqvZBjA/exec"; // ← PASTE YOUR URL HERE
+const GS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBDZu5GWBEq5gJVBoSNusLWW_a4DWC-Lx4WJTjKMxjd_JVr7am4gmeV4liQkaEqvZBjA/exec";
 
 async function gsRead(tabName) {
   try {
     const res = await fetch(`${GS_WEB_APP_URL}?action=read&tab=${tabName}`);
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
-    
-    // Convert sheet rows to objects (first row = headers)
     const rows = json.data;
     if (rows.length < 2) return [];
-    
     const headers = rows[0].map(h => h.trim());
     return rows.slice(1).map(row => {
       const obj = {};
       headers.forEach((h, i) => {
         let val = row[i];
-        // Convert numbers where possible
         if (!isNaN(parseFloat(val)) && isFinite(val)) val = Number(val);
         obj[h] = val;
       });
@@ -284,18 +281,15 @@ async function gsRead(tabName) {
 
 async function gsSave(tabName, objects, headers) {
   try {
-    // Convert objects back to sheet rows
     const rows = [headers];
     objects.forEach(obj => {
       rows.push(headers.map(h => obj[h] ?? ''));
     });
-    
     const res = await fetch(`${GS_WEB_APP_URL}?action=save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tab: tabName, data: rows })
     });
-    
     const json = await res.json();
     if (!json.success) throw new Error(json.error);
     return true;
@@ -307,7 +301,6 @@ async function gsSave(tabName, objects, headers) {
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-
 </head>
 <body>
 <div class="app">
@@ -440,7 +433,10 @@ async function gsSave(tabName, objects, headers) {
 <div class="overlay" id="invoiceOverlay">
   <div class="invoice" id="invoicePrint">
     <div class="inv-head">
-      <div class="inv-logo" aria-label="SOLO LAB MOBILE">SL</div>
+      <!-- ===== FIXED: Logo image instead of "SL" text ===== -->
+      <div class="inv-logo" aria-label="SOLO LAB MOBILE">
+        <img src="shop-logo.png" alt="SOLO LAB MOBILE" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=&quot;font-weight:800;font-size:22px;color:#dc2626;letter-spacing:-2px&quot;>SL</span>';">
+      </div>
       <div class="inv-brand">
         <div class="inv-shop">SOLO LAB MOBILE<small>PHONES · ACCESSORIES</small></div>
         <div class="inv-addr">23A, D.S. Senanayaka Veediya, Kandy &nbsp;|&nbsp; Tel: <b>077 732 2237</b></div>
@@ -501,8 +497,8 @@ async function gsSave(tabName, objects, headers) {
 (function(){
   "use strict";
 
-  var PRODUCTS = [];   // loaded live from inventory (Google Sheets) — see loadProducts()
-  var cart = [];                          // EMPTY by default — no default products
+  var PRODUCTS = [];
+  var cart = [];
   var showCost = false, showMin = false;
   var appliedPromo = null;
   var PROMOS = { "SOLO10": 0.10, "WELCOME5": 0.05 };
@@ -588,7 +584,6 @@ async function gsSave(tabName, objects, headers) {
     e.preventDefault();
     var q = searchInput.value.trim().toLowerCase();
     if(!q) return;
-    // Exact barcode/code match → add immediately (works with USB scanners)
     var exact = PRODUCTS.find(function(p){ return (p.code||"").toLowerCase()===q; });
     if(!exact){
       var matches = PRODUCTS.filter(function(p){
@@ -678,7 +673,6 @@ async function gsSave(tabName, objects, headers) {
     document.getElementById("subTotal").textContent = fmt2(sub);
     document.getElementById("grandTotal").textContent = fmt2(grand);
 
-    // Cash change
     var cashGiven = parseFloat(document.getElementById("cashGiven").value) || 0;
     if(cashGiven > 0 && cart.length > 0){
       var change = cashGiven - grand;
