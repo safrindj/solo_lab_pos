@@ -36,7 +36,7 @@
     }
 
     .page-header {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       padding-bottom: 15px;
       border-bottom: 2px solid #FFE0B2;
     }
@@ -48,6 +48,45 @@
     .page-header p {
       margin-top: 5px;
       color: #757575;
+    }
+
+    /* ---------- Tabs ---------- */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 10px 18px;
+      border: 2px solid #FFE0B2;
+      border-radius: 8px;
+      background: white;
+      color: #757575;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .tab:hover:not(.active) {
+      border-color: #F57C00;
+      color: #F57C00;
+    }
+
+    .tab.active {
+      background: #F57C00;
+      border-color: #F57C00;
+      color: white;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
     }
 
     .stats-row {
@@ -149,7 +188,8 @@
       font-size: 12px;
     }
 
-    #searchInput {
+    #searchInput,
+    #supplierSearch {
       flex: 1 1 220px;
     }
 
@@ -205,6 +245,10 @@
       text-align: center;
     }
 
+    .muted {
+      color: #BDBDBD;
+    }
+
     tbody tr.out-of-stock td {
       background: #FFEBEE;
       color: #C62828;
@@ -215,6 +259,98 @@
       color: #E65100;
     }
 
+    /* ---------- Category cards ---------- */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .cat-card {
+      background: white;
+      border: 1px solid #FFE0B2;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.05);
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #FFF0DC;
+    }
+
+    .cat-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #E65100;
+    }
+
+    .cat-count {
+      font-size: 11px;
+      color: #9E9E9E;
+      font-weight: 600;
+    }
+
+    .subcat-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      background: #FFF3E0;
+      border: 1px solid #FFE0B2;
+      border-radius: 20px;
+      font-size: 12.5px;
+      color: #E65100;
+      font-weight: 600;
+    }
+
+    .chip button {
+      padding: 0;
+      background: none;
+      border: 0;
+      color: #C62828;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .add-chip {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .add-chip input {
+      padding: 5px 8px;
+      font-size: 12.5px;
+      width: 140px;
+    }
+
+    .add-chip button {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .no-sub {
+      font-size: 12px;
+      color: #BDBDBD;
+      font-style: italic;
+    }
+
+    /* ---------- Modals ---------- */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -231,7 +367,7 @@
     }
 
     .modal {
-      width: min(500px, 100%);
+      width: min(520px, 100%);
       max-height: 90vh;
       overflow-y: auto;
       padding: 25px;
@@ -270,6 +406,12 @@
       width: 100%;
     }
 
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
     .modal-buttons {
       display: flex;
       justify-content: flex-end;
@@ -278,10 +420,15 @@
     }
 
     textarea {
+      min-height: 80px;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    #bulkData {
       min-height: 120px;
       font-family: monospace;
       font-size: 12px;
-      resize: vertical;
     }
 
     @media (max-width: 900px) {
@@ -301,6 +448,10 @@
         flex: 1 1 100%;
         width: 100%;
       }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -311,102 +462,167 @@
   <main class="main-content">
     <header class="page-header">
       <h1>📦 Inventory Management</h1>
-      <p>Add, edit and manage your products</p>
+      <p>Manage products, suppliers, and categories</p>
     </header>
 
-    <section class="stats-row" aria-label="Inventory statistics">
-      <div class="stat-card">
-        <div class="stat-value" id="totalProducts">0</div>
-        <div class="stat-label">Total Products</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="totalQty">0</div>
-        <div class="stat-label">Total Stock</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="lowStock">0</div>
-        <div class="stat-label">Low Stock</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="outOfStock">0</div>
-        <div class="stat-label">Out of Stock</div>
+    <nav class="tabs" role="tablist" aria-label="Inventory sections">
+      <button type="button" class="tab active" data-tab="products" role="tab" aria-selected="true">📦 Products</button>
+      <button type="button" class="tab" data-tab="suppliers" role="tab" aria-selected="false">🏢 Suppliers</button>
+      <button type="button" class="tab" data-tab="categories" role="tab" aria-selected="false">🏷️ Categories &amp; Sub-Categories</button>
+    </nav>
+
+    <!-- ==================== PRODUCTS VIEW ==================== -->
+    <section class="view active" id="productsView" role="tabpanel">
+      <section class="stats-row" aria-label="Inventory statistics">
+        <div class="stat-card">
+          <div class="stat-value" id="totalProducts">0</div>
+          <div class="stat-label">Total Products</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalQty">0</div>
+          <div class="stat-label">Total Stock</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="lowStock">0</div>
+          <div class="stat-label">Low Stock</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="outOfStock">0</div>
+          <div class="stat-label">Out of Stock</div>
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="Product actions">
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="🔍 Search products by code, name, category, supplier..."
+          aria-label="Search products"
+        >
+        <select id="catFilter" aria-label="Filter by category">
+          <option value="">All Categories</option>
+        </select>
+        <button type="button" class="btn-success" id="btnAdd" disabled>➕ Add Product</button>
+        <button type="button" class="btn-warning" id="btnBulk" disabled>📥 Bulk Import</button>
+        <button type="button" class="btn-secondary" id="btnExport">📋 Export</button>
+      </section>
+
+      <p class="status-message" id="statusMessage" role="status" aria-live="polite"></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Code</th>
+              <th scope="col">Name</th>
+              <th scope="col">Category</th>
+              <th scope="col">Sub-Category</th>
+              <th scope="col">Supplier</th>
+              <th scope="col">Cost</th>
+              <th scope="col">Price</th>
+              <th scope="col">Stock</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productTableBody">
+            <tr><td colspan="9" class="empty">Loading products...</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
-    <section class="toolbar" aria-label="Inventory actions">
-      <input
-        type="search"
-        id="searchInput"
-        placeholder="🔍 Search products..."
-        aria-label="Search products"
-      >
-      <select id="catFilter" aria-label="Filter by category">
-        <option value="">All Categories</option>
-      </select>
-      <button type="button" class="btn-success" id="btnAdd" disabled>➕ Add Product</button>
-      <button type="button" class="btn-warning" id="btnBulk" disabled>📥 Bulk Import</button>
-      <button type="button" class="btn-secondary" id="btnExport">📋 Export</button>
+    <!-- ==================== SUPPLIERS VIEW ==================== -->
+    <section class="view" id="suppliersView" role="tabpanel" hidden>
+      <section class="toolbar" aria-label="Supplier actions">
+        <input
+          type="search"
+          id="supplierSearch"
+          placeholder="🔍 Search suppliers by name, phone, email..."
+          aria-label="Search suppliers"
+        >
+        <button type="button" class="btn-success" id="btnAddSupplier" disabled>➕ Add Supplier</button>
+      </section>
+
+      <p class="status-message" id="supplierStatus" role="status" aria-live="polite"></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Supplier Name</th>
+              <th scope="col">Contact Person</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Email</th>
+              <th scope="col">Notes</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="supplierTableBody">
+            <tr><td colspan="6" class="empty">Loading suppliers...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
-    <p class="status-message" id="statusMessage" role="status" aria-live="polite"></p>
+    <!-- ==================== CATEGORIES VIEW ==================== -->
+    <section class="view" id="categoriesView" role="tabpanel" hidden>
+      <section class="toolbar" aria-label="Category actions">
+        <button type="button" class="btn-success" id="btnAddCategory" disabled>➕ Add New Category</button>
+        <span style="align-self:center;color:#757575;font-size:13px;">Add sub-categories inside each category card below.</span>
+      </section>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Code</th>
-            <th scope="col">Name</th>
-            <th scope="col">Category</th>
-            <th scope="col">Cost</th>
-            <th scope="col">Price</th>
-            <th scope="col">Stock</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="productTableBody">
-          <tr><td colspan="7" class="empty">Loading products...</td></tr>
-        </tbody>
-      </table>
-    </div>
+      <p class="status-message" id="categoryStatus" role="status" aria-live="polite"></p>
+
+      <div class="cat-grid" id="categoriesContainer">
+        <div class="empty">Loading categories...</div>
+      </div>
+    </section>
   </main>
 
   <!-- Add/Edit Product Modal -->
   <div class="modal-overlay" id="productModal" aria-hidden="true">
-    <section
-      class="modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modalTitle"
-    >
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <h2 id="modalTitle">Add New Product</h2>
       <form id="productForm">
-        <div class="form-group">
-          <label for="pCode">Product Code *</label>
-          <input type="text" id="pCode" placeholder="Auto-generated" required>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pCode">Product Code *</label>
+            <input type="text" id="pCode" placeholder="Auto-generated" required>
+          </div>
+          <div class="form-group">
+            <label for="pSupplier">Supplier</label>
+            <select id="pSupplier">
+              <option value="">Select Supplier</option>
+            </select>
+          </div>
         </div>
         <div class="form-group">
           <label for="pName">Product Name *</label>
           <input type="text" id="pName" placeholder="Product name" required>
         </div>
-        <div class="form-group">
-          <label for="pCat">Category *</label>
-          <select id="pCat" required>
-            <option value="">Select Category</option>
-            <option value="Mobile Phones">Mobile Phones</option>
-            <option value="Cables">Cables</option>
-            <option value="Chargers">Chargers</option>
-            <option value="Headphones">Headphones</option>
-            <option value="Speakers">Speakers</option>
-            <option value="Accessories">Accessories</option>
-          </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pCat">Category *</label>
+            <select id="pCat" required>
+              <option value="">Select Category</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pSubcat">Sub-Category</label>
+            <select id="pSubcat" disabled>
+              <option value="">Select category first</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="pCost">Cost Price (LKR) *</label>
-          <input type="number" step="0.01" min="0" id="pCost" placeholder="0.00" required>
-        </div>
-        <div class="form-group">
-          <label for="pPrice">Retail Price (LKR) *</label>
-          <input type="number" step="0.01" min="0" id="pPrice" placeholder="0.00" required>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pCost">Cost Price (LKR) *</label>
+            <input type="number" step="0.01" min="0" id="pCost" placeholder="0.00" required>
+          </div>
+          <div class="form-group">
+            <label for="pPrice">Retail Price (LKR) *</label>
+            <input type="number" step="0.01" min="0" id="pPrice" placeholder="0.00" required>
+          </div>
         </div>
         <div class="form-group">
           <label for="pStock">Stock Quantity *</label>
@@ -420,24 +636,55 @@
     </section>
   </div>
 
+  <!-- Add/Edit Supplier Modal -->
+  <div class="modal-overlay" id="supplierModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="supplierModalTitle">
+      <h2 id="supplierModalTitle">Add New Supplier</h2>
+      <form id="supplierForm">
+        <div class="form-group">
+          <label for="sName">Supplier Name *</label>
+          <input type="text" id="sName" placeholder="e.g. XMART, iNGINEER" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sContact">Contact Person</label>
+            <input type="text" id="sContact" placeholder="Contact name">
+          </div>
+          <div class="form-group">
+            <label for="sPhone">Phone</label>
+            <input type="text" id="sPhone" placeholder="Phone number">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="sEmail">Email</label>
+          <input type="email" id="sEmail" placeholder="supplier@email.com">
+        </div>
+        <div class="form-group">
+          <label for="sNotes">Notes</label>
+          <textarea id="sNotes" placeholder="Payment terms, address, etc."></textarea>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="btn-secondary" id="closeSupplierBtn">Cancel</button>
+          <button type="submit" class="btn-primary" id="saveSupplierBtn">Save Supplier</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
   <!-- Bulk Import Modal -->
   <div class="modal-overlay" id="bulkModal" aria-hidden="true">
-    <section
-      class="modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="bulkTitle"
-    >
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="bulkTitle">
       <h2 id="bulkTitle">📥 Bulk Import Products</h2>
       <p class="modal-description">
-        Format: Code, Name, Category, Cost, Price, Stock — one product per line.
+        Format (new): Code, Name, Category, Sub-Category, Supplier, Cost, Price, Stock — one product per line.<br>
+        Legacy 6-field format (Code, Name, Category, Cost, Price, Stock) is also accepted.
         Fields containing commas should be enclosed in double quotes.
       </p>
       <div class="form-group">
         <label for="bulkData">Paste products here:</label>
         <textarea
           id="bulkData"
-          placeholder="MB001,Samsung A54,Mobile Phones,65000,72000,8"
+          placeholder="MB001,Samsung A54,Mobile Phones,,XMART,65000,72000,8"
         ></textarea>
       </div>
       <div class="modal-buttons">
@@ -452,18 +699,40 @@
 
     const GS_WEB_APP_URL =
       'https://script.google.com/macros/s/AKfycbzBDZu5GWBEq5gJVBoSNusLWW_a4DWC-Lx4WJTjKMxjd_JVr7am4gmeV4liQkaEqvZBjA/exec';
-    const PRODUCT_HEADERS = ['id', 'code', 'name', 'category', 'cost', 'price', 'stock'];
+
+    const PRODUCT_HEADERS  = ['id', 'code', 'name', 'category', 'subcategory', 'supplier', 'cost', 'price', 'stock'];
+    const SUPPLIER_HEADERS = ['id', 'name', 'contact', 'phone', 'email', 'notes'];
+    const CATEGORY_HEADERS = ['id', 'category', 'subcategory'];
+
+    const DEFAULT_CATEGORIES = ['Mobile Phones', 'Cables', 'Chargers', 'Headphones', 'Speakers', 'Accessories'];
 
     let products = [];
-    let editingId = null;
+    let suppliers = [];
+    let categoryRows = [];   // { id, category, subcategory }
+
+    let editingProductId = null;
+    let editingSupplierId = null;
     let isSaving = false;
     let dataLoaded = false;
+    let currentTab = 'products';
     let previouslyFocusedElement = null;
 
     const $ = (id) => document.getElementById(id);
 
     function setStatus(message, isError = false) {
       const status = $('statusMessage');
+      status.textContent = message;
+      status.classList.toggle('error', isError);
+    }
+
+    function setSupplierStatus(message, isError = false) {
+      const status = $('supplierStatus');
+      status.textContent = message;
+      status.classList.toggle('error', isError);
+    }
+
+    function setCategoryStatus(message, isError = false) {
+      const status = $('categoryStatus');
       status.textContent = message;
       status.classList.toggle('error', isError);
     }
@@ -492,13 +761,12 @@
       return rows.slice(1)
         .filter(Array.isArray)
         .map((row) => {
-          const product = {};
+          const obj = {};
           headers.forEach((header, index) => {
-            product[header] = row[index] ?? '';
+            obj[header] = row[index] ?? '';
           });
-          return product;
-        })
-        .filter((product) => product.id || product.code || product.name);
+          return obj;
+        });
     }
 
     async function gsSave(tabName, objects, headers) {
@@ -523,57 +791,149 @@
       }
     }
 
+    function nextIdFor(list) {
+      return list.reduce((largest, item) => {
+        const id = Number(item.id);
+        return Number.isFinite(id) && id > 0 ? Math.max(largest, id) : largest;
+      }, 0) + 1;
+    }
+
     function getNextProductCode() {
       const max = products.reduce((largest, product) => {
         const match = String(product.code || '').match(/^P(\d+)$/i);
         return match ? Math.max(largest, Number(match[1])) : largest;
       }, 0);
-
       return `P${String(max + 1).padStart(3, '0')}`;
     }
 
-    function getNextId() {
-      return products.reduce((largest, product) => {
-        const id = Number(product.id);
-        return Number.isFinite(id) && id > 0 ? Math.max(largest, id) : largest;
-      }, 0) + 1;
+    const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+    const str = (v) => String(v ?? '').trim();
+
+    /* ---------- Derived lists (union of managed lists + product data) ---------- */
+    function allCategoryNames() {
+      const fromRows = categoryRows.map((r) => str(r.category)).filter(Boolean);
+      const fromProducts = products.map((p) => str(p.category)).filter(Boolean);
+      return [...new Set([...fromRows, ...fromProducts])].sort((a, b) => a.localeCompare(b));
     }
 
-    async function loadData() {
+    function subcatNamesFor(category) {
+      const cat = str(category);
+      if (!cat) return [];
+      const fromRows = categoryRows
+        .filter((r) => str(r.category) === cat)
+        .map((r) => str(r.subcategory)).filter(Boolean);
+      const fromProducts = products
+        .filter((p) => str(p.category) === cat)
+        .map((p) => str(p.subcategory)).filter(Boolean);
+      return [...new Set([...fromRows, ...fromProducts])].sort((a, b) => a.localeCompare(b));
+    }
+
+    function allSupplierNames() {
+      const fromSuppliers = suppliers.map((s) => str(s.name)).filter(Boolean);
+      const fromProducts = products.map((p) => str(p.supplier)).filter(Boolean);
+      return [...new Set([...fromSuppliers, ...fromProducts])].sort((a, b) => a.localeCompare(b));
+    }
+
+    /* ---------- Tabs ---------- */
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab').forEach((btn) => {
+        const active = btn.dataset.tab === tab;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      ['products', 'suppliers', 'categories'].forEach((name) => {
+        const view = $(name + 'View');
+        const active = name === tab;
+        view.classList.toggle('active', active);
+        view.hidden = !active;
+      });
+      if (tab === 'products') renderProducts();
+      if (tab === 'suppliers') renderSuppliers();
+      if (tab === 'categories') renderCategories();
+    }
+
+    /* ---------- Load all data ---------- */
+    async function loadAll() {
       $('productTableBody').innerHTML =
-        '<tr><td colspan="7" class="empty">Loading from Google Sheets...</td></tr>';
+        '<tr><td colspan="9" class="empty">Loading from Google Sheets...</td></tr>';
+      $('supplierTableBody').innerHTML =
+        '<tr><td colspan="6" class="empty">Loading suppliers...</td></tr>';
+      $('categoriesContainer').innerHTML = '<div class="empty">Loading categories...</div>';
 
       try {
-        products = await gsRead('products');
+        const [p, s, c] = await Promise.all([
+          gsRead('products'),
+          gsRead('suppliers'),
+          gsRead('categories')
+        ]);
+        products = p.filter((x) => x.id || x.code || x.name);
+        suppliers = s.filter((x) => x.name);
+        categoryRows = c.filter((x) => x.category);
+
+        // First-run seeding: if categories tab is empty, seed from product categories (or defaults)
+        if (categoryRows.length === 0) {
+          const seedCats = products.length
+            ? [...new Set(products.map((p) => str(p.category)).filter(Boolean))]
+            : DEFAULT_CATEGORIES;
+          let cid = 1;
+          categoryRows = seedCats.map((cat) => ({ id: cid++, category: cat, subcategory: '' }));
+          try { await gsSave('categories', categoryRows, CATEGORY_HEADERS); } catch (e) { /* non-fatal */ }
+        }
+
+        // First-run seeding: if suppliers tab is empty, seed from product suppliers
+        if (suppliers.length === 0) {
+          const seedSups = [...new Set(products.map((p) => str(p.supplier)).filter(Boolean))];
+          if (seedSups.length) {
+            let sid = 1;
+            suppliers = seedSups.map((name) => ({ id: sid++, name, contact: '', phone: '', email: '', notes: '' }));
+            try { await gsSave('suppliers', suppliers, SUPPLIER_HEADERS); } catch (e) { /* non-fatal */ }
+          }
+        }
+
         dataLoaded = true;
         $('btnAdd').disabled = false;
         $('btnBulk').disabled = false;
+        $('btnAddSupplier').disabled = false;
+        $('btnAddCategory').disabled = false;
         setStatus('');
+        setSupplierStatus('');
+        setCategoryStatus('');
       } catch (error) {
         console.error(error);
         products = [];
+        suppliers = [];
+        categoryRows = [];
         dataLoaded = false;
         $('btnAdd').disabled = true;
         $('btnBulk').disabled = true;
-        setStatus(`Could not load products: ${error.message}. Reload the page and try again.`, true);
+        $('btnAddSupplier').disabled = true;
+        $('btnAddCategory').disabled = true;
+        setStatus(`Could not load data: ${error.message}. Reload the page and try again.`, true);
       }
 
       updateStats();
       updateCategoryFilter();
       renderProducts();
+      renderSuppliers();
+      renderCategories();
     }
 
+    function setSavingUI(saving) {
+      isSaving = saving;
+      $('saveProductBtn').disabled = saving || !dataLoaded;
+      $('saveSupplierBtn').disabled = saving || !dataLoaded;
+      $('btnAdd').disabled = saving || !dataLoaded;
+      $('btnBulk').disabled = saving || !dataLoaded;
+      $('btnAddSupplier').disabled = saving || !dataLoaded;
+      $('btnAddCategory').disabled = saving || !dataLoaded;
+      $('doBulkImport').disabled = saving;
+    }
+
+    /* ---------- Save helpers ---------- */
     async function saveProducts(nextProducts) {
-      if (isSaving || !dataLoaded) {
-        return false;
-      }
-
-      isSaving = true;
-      $('saveProductBtn').disabled = true;
-      $('btnAdd').disabled = true;
-      $('btnBulk').disabled = true;
-      $('doBulkImport').disabled = true;
-
+      if (isSaving || !dataLoaded) return false;
+      setSavingUI(true);
       try {
         await gsSave('products', nextProducts, PRODUCT_HEADERS);
         products = nextProducts;
@@ -587,41 +947,105 @@
         setStatus(`Could not save data: ${error.message}`, true);
         return false;
       } finally {
-        isSaving = false;
-        $('saveProductBtn').disabled = false;
-        $('btnAdd').disabled = !dataLoaded;
-        $('btnBulk').disabled = !dataLoaded;
-        $('doBulkImport').disabled = false;
+        setSavingUI(false);
       }
     }
 
+    async function saveSuppliers(nextSuppliers) {
+      if (isSaving || !dataLoaded) return false;
+      setSavingUI(true);
+      try {
+        await gsSave('suppliers', nextSuppliers, SUPPLIER_HEADERS);
+        suppliers = nextSuppliers;
+        setSupplierStatus('✅ Supplier saved successfully!');
+        renderSuppliers();
+        return true;
+      } catch (error) {
+        console.error(error);
+        setSupplierStatus(`Could not save supplier: ${error.message}`, true);
+        return false;
+      } finally {
+        setSavingUI(false);
+      }
+    }
+
+    async function saveCategories(nextRows) {
+      if (isSaving || !dataLoaded) return false;
+      setSavingUI(true);
+      try {
+        await gsSave('categories', nextRows, CATEGORY_HEADERS);
+        categoryRows = nextRows;
+        setCategoryStatus('✅ Categories updated!');
+        renderCategories();
+        return true;
+      } catch (error) {
+        console.error(error);
+        setCategoryStatus(`Could not save categories: ${error.message}`, true);
+        return false;
+      } finally {
+        setSavingUI(false);
+      }
+    }
+
+    /* ---------- Inline add (from product form dropdowns) ---------- */
+    async function addCategory(name) {
+      const cat = str(name);
+      const exists = categoryRows.some((r) => str(r.category).toLowerCase() === cat.toLowerCase());
+      if (!exists) {
+        const next = [...categoryRows, { id: nextIdFor(categoryRows), category: cat, subcategory: '' }];
+        await saveCategories(next);
+      }
+      return cat;
+    }
+
+    async function addSubcategory(category, name) {
+      const cat = str(category);
+      const sub = str(name);
+      if (!cat || !sub) return sub;
+      const exists = categoryRows.some(
+        (r) => str(r.category) === cat && str(r.subcategory).toLowerCase() === sub.toLowerCase()
+      );
+      if (!exists) {
+        const next = [...categoryRows];
+        const hasEmptyRow = next.some((r) => str(r.category) === cat && str(r.subcategory) === '');
+        if (!hasEmptyRow) next.push({ id: nextIdFor(next), category: cat, subcategory: '' });
+        next.push({ id: nextIdFor(next), category: cat, subcategory: sub });
+        await saveCategories(next);
+      }
+      return sub;
+    }
+
+    async function addSupplier(name) {
+      const sup = str(name);
+      const exists = suppliers.some((s) => str(s.name).toLowerCase() === sup.toLowerCase());
+      if (!exists) {
+        const next = [...suppliers, { id: nextIdFor(suppliers), name: sup, contact: '', phone: '', email: '', notes: '' }];
+        await saveSuppliers(next);
+      }
+      return sup;
+    }
+
+    /* ---------- Products: stats, filter, render ---------- */
     function getStock(product) {
-      const stock = Number(product.stock);
-      return Number.isFinite(stock) ? stock : 0;
+      return num(product.stock);
     }
 
     function updateStats() {
       $('totalProducts').textContent = products.length;
-      $('totalQty').textContent = products.reduce((sum, product) => sum + getStock(product), 0);
-      $('lowStock').textContent = products.filter((product) => {
-        const stock = getStock(product);
-        return stock > 0 && stock <= 3;
+      $('totalQty').textContent = products.reduce((sum, p) => sum + getStock(p), 0);
+      $('lowStock').textContent = products.filter((p) => {
+        const s = getStock(p);
+        return s > 0 && s <= 3;
       }).length;
-      $('outOfStock').textContent = products.filter((product) => getStock(product) <= 0).length;
+      $('outOfStock').textContent = products.filter((p) => getStock(p) <= 0).length;
     }
 
     function updateCategoryFilter() {
       const select = $('catFilter');
       const current = select.value;
-      const categories = [...new Set(
-        products.map((product) => String(product.category || '').trim()).filter(Boolean)
-      )].sort((a, b) => a.localeCompare(b));
-
+      const categories = allCategoryNames();
       select.replaceChildren(new Option('All Categories', ''));
-      categories.forEach((category) => {
-        select.add(new Option(category, category));
-      });
-
+      categories.forEach((c) => select.add(new Option(c, c)));
       select.value = categories.includes(current) ? current : '';
     }
 
@@ -637,23 +1061,19 @@
       const query = $('searchInput').value.trim().toLowerCase();
       const selectedCategory = $('catFilter').value;
 
-      const visibleProducts = products.filter((product) => {
-        const matchesCategory = !selectedCategory || product.category === selectedCategory;
-        const searchableText = [
-          product.code,
-          product.name,
-          product.category
-        ].join(' ').toLowerCase();
-
-        return matchesCategory && searchableText.includes(query);
+      const visible = products.filter((p) => {
+        const matchesCategory = !selectedCategory || str(p.category) === selectedCategory;
+        const searchable = [p.code, p.name, p.category, p.subcategory, p.supplier]
+          .join(' ').toLowerCase();
+        return matchesCategory && searchable.includes(query);
       });
 
       body.replaceChildren();
 
-      if (visibleProducts.length === 0) {
+      if (visible.length === 0) {
         const row = document.createElement('tr');
         const cell = document.createElement('td');
-        cell.colSpan = 7;
+        cell.colSpan = 9;
         cell.className = 'empty';
         cell.textContent = products.length ? 'No matching products found.' : 'No products found.';
         row.appendChild(cell);
@@ -661,19 +1081,18 @@
         return;
       }
 
-      visibleProducts.forEach((product) => {
+      visible.forEach((product) => {
         const row = document.createElement('tr');
         const stock = getStock(product);
 
-        if (stock <= 0) {
-          row.classList.add('out-of-stock');
-        } else if (stock <= 3) {
-          row.classList.add('low-stock');
-        }
+        if (stock <= 0) row.classList.add('out-of-stock');
+        else if (stock <= 3) row.classList.add('low-stock');
 
         addCell(row, product.code);
         addCell(row, product.name);
-        addCell(row, product.category);
+        addCell(row, str(product.category) || '—');
+        addCell(row, str(product.subcategory) || '—');
+        addCell(row, str(product.supplier) || '—');
         addCell(row, product.cost);
         addCell(row, product.price);
         addCell(row, stock);
@@ -699,25 +1118,49 @@
       });
     }
 
-    function populateCategoryOptions(selectedCategory = '') {
-      const select = $('pCat');
-      const existingCategories = [...select.options]
-        .map((option) => option.value)
-        .filter(Boolean);
-
-      const productCategories = products
-        .map((product) => String(product.category || '').trim())
-        .filter(Boolean);
-
-      [...new Set(productCategories)].forEach((category) => {
-        if (!existingCategories.includes(category)) {
-          select.add(new Option(category, category));
-        }
-      });
-
-      select.value = selectedCategory;
+    /* ---------- Product form dropdowns ---------- */
+    function populateSupplierSelect(selected = '') {
+      const select = $('pSupplier');
+      const sups = allSupplierNames();
+      select.replaceChildren(
+        new Option('Select Supplier', ''),
+        ...sups.map((s) => new Option(s, s)),
+        new Option('➕ Add new supplier…', '__add__')
+      );
+      select.value = sups.includes(str(selected)) ? str(selected) : '';
     }
 
+    function populateCategorySelect(selected = '') {
+      const select = $('pCat');
+      const cats = allCategoryNames();
+      select.replaceChildren(
+        new Option('Select Category *', ''),
+        ...cats.map((c) => new Option(c, c)),
+        new Option('➕ Add new category…', '__add__')
+      );
+      select.value = cats.includes(str(selected)) ? str(selected) : '';
+    }
+
+    function populateSubcatSelect(selected = '') {
+      const select = $('pSubcat');
+      const cat = str($('pCat').value);
+      if (!cat) {
+        select.disabled = true;
+        select.replaceChildren(new Option('Select category first', ''));
+        select.value = '';
+        return;
+      }
+      select.disabled = false;
+      const subs = subcatNamesFor(cat);
+      select.replaceChildren(
+        new Option('No sub-category', ''),
+        ...subs.map((s) => new Option(s, s)),
+        new Option('➕ Add new sub-category…', '__add__')
+      );
+      select.value = subs.includes(str(selected)) ? str(selected) : '';
+    }
+
+    /* ---------- Modals ---------- */
     function openModal(modalId, focusId) {
       const modal = $(modalId);
       previouslyFocusedElement = document.activeElement;
@@ -731,32 +1174,33 @@
       modal.classList.remove('active');
       modal.setAttribute('aria-hidden', 'true');
 
-      if (!$('productModal').classList.contains('active') &&
-          !$('bulkModal').classList.contains('active') &&
-          previouslyFocusedElement) {
+      const anyOpen = ['productModal', 'supplierModal', 'bulkModal']
+        .some((id) => $(id).classList.contains('active'));
+      if (!anyOpen && previouslyFocusedElement) {
         previouslyFocusedElement.focus();
         previouslyFocusedElement = null;
       }
     }
 
-    function openAddModal() {
-      editingId = null;
+    function openAddProductModal() {
+      editingProductId = null;
       $('productForm').reset();
       $('modalTitle').textContent = 'Add New Product';
       $('saveProductBtn').textContent = 'Save Product';
       $('pCode').value = getNextProductCode();
-      populateCategoryOptions('');
+      populateCategorySelect('');
+      populateSubcatSelect('');
+      populateSupplierSelect('');
       openModal('productModal', 'pCode');
     }
 
-    function openEditModal(productId) {
+    function openEditProductModal(productId) {
       const product = products.find((item) => String(item.id) === String(productId));
       if (!product) {
         setStatus('That product could not be found.', true);
         return;
       }
-
-      editingId = product.id;
+      editingProductId = product.id;
       $('productForm').reset();
       $('modalTitle').textContent = 'Edit Product';
       $('saveProductBtn').textContent = 'Save Changes';
@@ -765,7 +1209,9 @@
       $('pCost').value = product.cost ?? '';
       $('pPrice').value = product.price ?? '';
       $('pStock').value = product.stock ?? '';
-      populateCategoryOptions(product.category ?? '');
+      populateCategorySelect(product.category ?? '');
+      populateSubcatSelect(product.subcategory ?? '');
+      populateSupplierSelect(product.supplier ?? '');
       openModal('productModal', 'pCode');
     }
 
@@ -773,172 +1219,397 @@
       if (!product.code || !product.name || !product.category) {
         return 'Code, name, and category are required.';
       }
-
       if (!Number.isFinite(product.cost) || product.cost < 0) {
         return 'Cost must be a valid non-negative number.';
       }
-
       if (!Number.isFinite(product.price) || product.price < 0) {
         return 'Price must be a valid non-negative number.';
       }
-
       if (!Number.isInteger(product.stock) || product.stock < 0) {
         return 'Stock must be a non-negative whole number.';
       }
-
-      const duplicate = products.some((item) =>
-        String(item.id) !== String(currentId) &&
-        String(item.code || '').trim().toLowerCase() === product.code.toLowerCase()
+      const duplicate = products.some(
+        (item) => String(item.id) !== String(currentId) &&
+          str(item.code).toLowerCase() === product.code.toLowerCase()
       );
-
-      if (duplicate) {
-        return 'A product with this code already exists.';
-      }
-
+      if (duplicate) return 'A product with this code already exists.';
       return '';
     }
 
     async function handleProductSubmit(event) {
       event.preventDefault();
-
-      if (!dataLoaded || isSaving) {
-        return;
-      }
+      if (!dataLoaded || isSaving) return;
 
       const product = {
-        id: editingId ?? getNextId(),
-        code: $('pCode').value.trim(),
-        name: $('pName').value.trim(),
-        category: $('pCat').value,
+        id: editingProductId ?? nextIdFor(products),
+        code: str($('pCode').value),
+        name: str($('pName').value),
+        category: str($('pCat').value),
+        subcategory: str($('pSubcat').value),
+        supplier: str($('pSupplier').value),
         cost: Number($('pCost').value),
         price: Number($('pPrice').value),
         stock: Number($('pStock').value)
       };
 
-      const validationError = validateProduct(product, editingId);
+      const validationError = validateProduct(product, editingProductId);
       if (validationError) {
         setStatus(validationError, true);
         return;
       }
 
-      const nextProducts = editingId === null
+      const nextProducts = editingProductId === null
         ? [...products, product]
-        : products.map((item) =>
-            String(item.id) === String(editingId) ? product : item
-          );
+        : products.map((item) => String(item.id) === String(editingProductId) ? product : item);
 
       if (await saveProducts(nextProducts)) {
         closeModal('productModal');
         $('productForm').reset();
-        editingId = null;
+        editingProductId = null;
       }
     }
 
     async function deleteProduct(productId) {
       const product = products.find((item) => String(item.id) === String(productId));
-      if (!product) {
-        return;
-      }
-
-      if (!window.confirm(`Delete "${product.name}"? This cannot be undone.`)) {
-        return;
-      }
-
-      const nextProducts = products.filter(
-        (item) => String(item.id) !== String(productId)
-      );
-      await saveProducts(nextProducts);
+      if (!product) return;
+      if (!window.confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+      await saveProducts(products.filter((item) => String(item.id) !== String(productId)));
     }
 
+    /* ---------- Suppliers render & CRUD ---------- */
+    function renderSuppliers() {
+      const body = $('supplierTableBody');
+      const query = $('supplierSearch').value.trim().toLowerCase();
+
+      const visible = suppliers.filter((s) =>
+        [s.name, s.contact, s.phone, s.email, s.notes].join(' ').toLowerCase().includes(query)
+      );
+
+      body.replaceChildren();
+
+      if (visible.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 6;
+        cell.className = 'empty';
+        cell.textContent = suppliers.length ? 'No matching suppliers found.' : 'No suppliers yet. Click "Add Supplier" to create one.';
+        row.appendChild(cell);
+        body.appendChild(row);
+        return;
+      }
+
+      visible.forEach((s) => {
+        const row = document.createElement('tr');
+        addCell(row, s.name);
+        addCell(row, str(s.contact) || '—');
+        addCell(row, str(s.phone) || '—');
+        addCell(row, str(s.email) || '—');
+        addCell(row, str(s.notes) || '—');
+
+        const actionsCell = document.createElement('td');
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'btn-warning btn-sm';
+        editButton.textContent = 'Edit';
+        editButton.dataset.action = 'edit-supplier';
+        editButton.dataset.id = String(s.id);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn-danger btn-sm';
+        deleteButton.textContent = 'Delete';
+        deleteButton.dataset.action = 'delete-supplier';
+        deleteButton.dataset.id = String(s.id);
+
+        actionsCell.append(editButton, deleteButton);
+        row.appendChild(actionsCell);
+        body.appendChild(row);
+      });
+    }
+
+    function openAddSupplierModal() {
+      editingSupplierId = null;
+      $('supplierForm').reset();
+      $('supplierModalTitle').textContent = 'Add New Supplier';
+      $('saveSupplierBtn').textContent = 'Save Supplier';
+      openModal('supplierModal', 'sName');
+    }
+
+    function openEditSupplierModal(supplierId) {
+      const s = suppliers.find((item) => String(item.id) === String(supplierId));
+      if (!s) {
+        setSupplierStatus('That supplier could not be found.', true);
+        return;
+      }
+      editingSupplierId = s.id;
+      $('supplierForm').reset();
+      $('supplierModalTitle').textContent = 'Edit Supplier';
+      $('saveSupplierBtn').textContent = 'Save Changes';
+      $('sName').value = s.name ?? '';
+      $('sContact').value = s.contact ?? '';
+      $('sPhone').value = s.phone ?? '';
+      $('sEmail').value = s.email ?? '';
+      $('sNotes').value = s.notes ?? '';
+      openModal('supplierModal', 'sName');
+    }
+
+    async function handleSupplierSubmit(event) {
+      event.preventDefault();
+      if (!dataLoaded || isSaving) return;
+
+      const name = str($('sName').value);
+      if (!name) {
+        setSupplierStatus('Supplier name is required.', true);
+        return;
+      }
+
+      const duplicate = suppliers.some(
+        (s) => String(s.id) !== String(editingSupplierId) && str(s.name).toLowerCase() === name.toLowerCase()
+      );
+      if (duplicate) {
+        setSupplierStatus('A supplier with this name already exists.', true);
+        return;
+      }
+
+      const supplier = {
+        id: editingSupplierId ?? nextIdFor(suppliers),
+        name,
+        contact: str($('sContact').value),
+        phone: str($('sPhone').value),
+        email: str($('sEmail').value),
+        notes: str($('sNotes').value)
+      };
+
+      const next = editingSupplierId === null
+        ? [...suppliers, supplier]
+        : suppliers.map((item) => String(item.id) === String(editingSupplierId) ? supplier : item);
+
+      if (await saveSuppliers(next)) {
+        closeModal('supplierModal');
+        $('supplierForm').reset();
+        editingSupplierId = null;
+        // Refresh product form supplier dropdown if it's open
+        if ($('productModal').classList.contains('active')) populateSupplierSelect($('pSupplier').value);
+      }
+    }
+
+    async function deleteSupplier(supplierId) {
+      const s = suppliers.find((item) => String(item.id) === String(supplierId));
+      if (!s) return;
+      const usedBy = products.filter((p) => str(p.supplier).toLowerCase() === str(s.name).toLowerCase()).length;
+      const msg = usedBy > 0
+        ? `Delete "${s.name}"? It is used by ${usedBy} product(s). Products will keep the supplier name.`
+        : `Delete "${s.name}"? This cannot be undone.`;
+      if (!window.confirm(msg)) return;
+      await saveSuppliers(suppliers.filter((item) => String(item.id) !== String(supplierId)));
+    }
+
+    /* ---------- Categories render & CRUD ---------- */
+    function renderCategories() {
+      const container = $('categoriesContainer');
+      const cats = allCategoryNames();
+
+      if (cats.length === 0) {
+        container.innerHTML = '<div class="empty">No categories yet. Click "Add New Category" to create one.</div>';
+        return;
+      }
+
+      container.replaceChildren();
+
+      cats.forEach((cat) => {
+        const subs = subcatNamesFor(cat);
+
+        const card = document.createElement('div');
+        card.className = 'cat-card';
+
+        const header = document.createElement('div');
+        header.className = 'cat-header';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'cat-name';
+        nameSpan.textContent = cat;
+
+        const countSpan = document.createElement('span');
+        countSpan.className = 'cat-count';
+        countSpan.textContent = subs.length ? `${subs.length} sub-categor${subs.length === 1 ? 'y' : 'ies'}` : 'No sub-categories';
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn-danger btn-sm';
+        delBtn.textContent = 'Delete';
+        delBtn.dataset.action = 'del-cat';
+        delBtn.dataset.cat = cat;
+
+        header.append(nameSpan, countSpan, delBtn);
+        card.appendChild(header);
+
+        const chips = document.createElement('div');
+        chips.className = 'subcat-chips';
+
+        if (subs.length === 0) {
+          const none = document.createElement('span');
+          none.className = 'no-sub';
+          none.textContent = 'No sub-categories yet.';
+          chips.appendChild(none);
+        } else {
+          subs.forEach((sub) => {
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.textContent = sub;
+            const x = document.createElement('button');
+            x.type = 'button';
+            x.textContent = '×';
+            x.title = `Remove sub-category "${sub}"`;
+            x.dataset.action = 'del-sub';
+            x.dataset.cat = cat;
+            x.dataset.sub = sub;
+            chip.appendChild(x);
+            chips.appendChild(chip);
+          });
+        }
+
+        // Inline add sub-category
+        const addChip = document.createElement('span');
+        addChip.className = 'add-chip';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'New sub-category';
+        input.dataset.cat = cat;
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = 'btn-primary btn-sm';
+        addBtn.textContent = 'Add';
+        addBtn.dataset.action = 'add-sub';
+        addBtn.dataset.cat = cat;
+        addChip.append(input, addBtn);
+        chips.appendChild(addChip);
+
+        card.appendChild(chips);
+        container.appendChild(card);
+      });
+    }
+
+    async function handleAddCategory() {
+      if (!dataLoaded || isSaving) return;
+      const name = window.prompt('Enter new category name:');
+      if (!name || !str(name)) return;
+      const cat = str(name);
+      if (allCategoryNames().some((c) => c.toLowerCase() === cat.toLowerCase())) {
+        setCategoryStatus(`Category "${cat}" already exists.`, true);
+        return;
+      }
+      await addCategory(cat);
+    }
+
+    async function handleCategoryContainerClick(event) {
+      const btn = event.target.closest('button[data-action]');
+      if (!btn) return;
+      if (isSaving || !dataLoaded) return;
+
+      const cat = btn.dataset.cat;
+
+      if (btn.dataset.action === 'del-cat') {
+        const usedBy = products.filter((p) => str(p.category).toLowerCase() === cat.toLowerCase()).length;
+        const msg = usedBy > 0
+          ? `Delete category "${cat}" and all its sub-categories? It is used by ${usedBy} product(s). Products keep their category name.`
+          : `Delete category "${cat}" and all its sub-categories? This cannot be undone.`;
+        if (!window.confirm(msg)) return;
+        const next = categoryRows.filter((r) => str(r.category).toLowerCase() !== cat.toLowerCase());
+        await saveCategories(next);
+      }
+
+      if (btn.dataset.action === 'del-sub') {
+        const sub = btn.dataset.sub;
+        if (!window.confirm(`Remove sub-category "${sub}" from "${cat}"?`)) return;
+        const next = categoryRows.filter(
+          (r) => !(str(r.category) === cat && str(r.subcategory).toLowerCase() === sub.toLowerCase())
+        );
+        await saveCategories(next);
+      }
+
+      if (btn.dataset.action === 'add-sub') {
+        const input = btn.parentElement.querySelector('input');
+        const name = str(input.value);
+        if (!name) { input.focus(); return; }
+        if (subcatNamesFor(cat).some((s) => s.toLowerCase() === name.toLowerCase())) {
+          setCategoryStatus(`Sub-category "${name}" already exists under "${cat}".`, true);
+          return;
+        }
+        await addSubcategory(cat, name);
+      }
+    }
+
+    /* ---------- Bulk import ---------- */
     function parseCsvLine(line) {
       const fields = [];
       let field = '';
       let inQuotes = false;
-
-      for (let index = 0; index < line.length; index += 1) {
-        const character = line[index];
-
-        if (character === '"') {
-          if (inQuotes && line[index + 1] === '"') {
-            field += '"';
-            index += 1;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (character === ',' && !inQuotes) {
+      for (let i = 0; i < line.length; i += 1) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') { field += '"'; i += 1; }
+          else { inQuotes = !inQuotes; }
+        } else if (ch === ',' && !inQuotes) {
           fields.push(field.trim());
           field = '';
         } else {
-          field += character;
+          field += ch;
         }
       }
-
-      if (inQuotes) {
-        throw new Error('A line contains an unmatched double quote.');
-      }
-
+      if (inQuotes) throw new Error('A line contains an unmatched double quote.');
       fields.push(field.trim());
       return fields;
     }
 
     async function handleBulkImport() {
-      if (!dataLoaded || isSaving) {
-        return;
-      }
+      if (!dataLoaded || isSaving) return;
 
-      const lines = $('bulkData').value
-        .split(/\r?\n/)
-        .map((line) => line.trim())
-        .filter(Boolean);
-
+      const lines = $('bulkData').value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
       if (lines.length === 0) {
         setStatus('Paste at least one product to import.', true);
         return;
       }
 
       const imported = [];
-      const knownCodes = new Set(
-        products.map((product) => String(product.code || '').trim().toLowerCase())
-      );
-      let nextId = getNextId();
+      const knownCodes = new Set(products.map((p) => str(p.code).toLowerCase()));
+      let nextId = nextIdFor(products);
 
       try {
-        for (let index = 0; index < lines.length; index += 1) {
-          const fields = parseCsvLine(lines[index]);
+        for (let i = 0; i < lines.length; i += 1) {
+          const fields = parseCsvLine(lines[i]);
+          let code, name, category, subcategory, supplier, costText, priceText, stockText;
 
-          if (fields.length !== 6) {
-            throw new Error(`Line ${index + 1} must contain exactly 6 fields.`);
+          if (fields.length === 8) {
+            [code, name, category, subcategory, supplier, costText, priceText, stockText] = fields;
+          } else if (fields.length === 6) {
+            [code, name, category, costText, priceText, stockText] = fields;
+            subcategory = ''; supplier = '';
+          } else {
+            throw new Error(`Line ${i + 1} must contain 8 fields (or 6 in legacy format). Found ${fields.length}.`);
           }
 
-          const [code, name, category, costText, priceText, stockText] = fields;
           const product = {
             id: nextId++,
-            code,
-            name,
-            category,
+            code, name, category, subcategory, supplier,
             cost: Number(costText),
             price: Number(priceText),
             stock: Number(stockText)
           };
 
           if (!product.code || !product.name || !product.category) {
-            throw new Error(`Line ${index + 1} is missing a code, name, or category.`);
+            throw new Error(`Line ${i + 1} is missing a code, name, or category.`);
           }
-
           if (!Number.isFinite(product.cost) || product.cost < 0 ||
               !Number.isFinite(product.price) || product.price < 0) {
-            throw new Error(`Line ${index + 1} has an invalid cost or price.`);
+            throw new Error(`Line ${i + 1} has an invalid cost or price.`);
           }
-
           if (!Number.isInteger(product.stock) || product.stock < 0) {
-            throw new Error(`Line ${index + 1} has an invalid stock quantity.`);
+            throw new Error(`Line ${i + 1} has an invalid stock quantity.`);
           }
-
           const normalizedCode = product.code.toLowerCase();
           if (knownCodes.has(normalizedCode)) {
-            throw new Error(`Line ${index + 1} has a duplicate product code: ${product.code}.`);
+            throw new Error(`Line ${i + 1} has a duplicate product code: ${product.code}.`);
           }
-
           knownCodes.add(normalizedCode);
           imported.push(product);
         }
@@ -953,6 +1624,7 @@
       }
     }
 
+    /* ---------- Export ---------- */
     function escapeCsv(value) {
       const text = String(value ?? '');
       return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
@@ -961,16 +1633,12 @@
     function exportProducts() {
       const rows = [
         PRODUCT_HEADERS,
-        ...products.map((product) =>
-          PRODUCT_HEADERS.map((header) => product[header] ?? '')
-        )
+        ...products.map((p) => PRODUCT_HEADERS.map((h) => p[h] ?? ''))
       ];
-
       const csv = rows.map((row) => row.map(escapeCsv).join(',')).join('\r\n');
       const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-
       link.href = url;
       link.download = 'inventory.csv';
       document.body.appendChild(link);
@@ -979,53 +1647,103 @@
       URL.revokeObjectURL(url);
     }
 
-    $('btnAdd').addEventListener('click', openAddModal);
+    /* ---------- Event wiring ---------- */
+    // Tabs
+    document.querySelectorAll('.tab').forEach((btn) => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    // Products
+    $('btnAdd').addEventListener('click', openAddProductModal);
     $('btnBulk').addEventListener('click', () => {
       $('bulkData').value = '';
       openModal('bulkModal', 'bulkData');
     });
     $('btnExport').addEventListener('click', exportProducts);
-
     $('productForm').addEventListener('submit', handleProductSubmit);
     $('closeModalBtn').addEventListener('click', () => closeModal('productModal'));
     $('closeBulkBtn').addEventListener('click', () => closeModal('bulkModal'));
     $('doBulkImport').addEventListener('click', handleBulkImport);
-
     $('searchInput').addEventListener('input', renderProducts);
     $('catFilter').addEventListener('change', renderProducts);
 
     $('productTableBody').addEventListener('click', (event) => {
       const button = event.target.closest('button[data-action]');
-      if (!button) {
-        return;
-      }
+      if (!button) return;
+      if (button.dataset.action === 'edit') openEditProductModal(button.dataset.id);
+      else if (button.dataset.action === 'delete') deleteProduct(button.dataset.id);
+    });
 
-      if (button.dataset.action === 'edit') {
-        openEditModal(button.dataset.id);
-      } else if (button.dataset.action === 'delete') {
-        deleteProduct(button.dataset.id);
+    // Product form dropdown "Add new" handlers
+    $('pCat').addEventListener('change', async () => {
+      if ($('pCat').value !== '__add__') { populateSubcatSelect(''); return; }
+      $('pCat').value = '';
+      const name = window.prompt('Enter new category name:');
+      if (!name || !str(name)) return;
+      const cat = await addCategory(str(name));
+      populateCategorySelect(cat);
+      populateSubcatSelect('');
+    });
+
+    $('pSubcat').addEventListener('change', async () => {
+      if ($('pSubcat').value !== '__add__') return;
+      const cat = str($('pCat').value);
+      if (!cat) return;
+      $('pSubcat').value = '';
+      const name = window.prompt(`Enter new sub-category under "${cat}":`);
+      if (!name || !str(name)) return;
+      const sub = await addSubcategory(cat, str(name));
+      populateSubcatSelect(sub);
+    });
+
+    $('pSupplier').addEventListener('change', async () => {
+      if ($('pSupplier').value !== '__add__') return;
+      $('pSupplier').value = '';
+      const name = window.prompt('Enter new supplier name:');
+      if (!name || !str(name)) return;
+      const sup = await addSupplier(str(name));
+      populateSupplierSelect(sup);
+    });
+
+    // Suppliers
+    $('btnAddSupplier').addEventListener('click', openAddSupplierModal);
+    $('supplierSearch').addEventListener('input', renderSuppliers);
+    $('supplierForm').addEventListener('submit', handleSupplierSubmit);
+    $('closeSupplierBtn').addEventListener('click', () => closeModal('supplierModal'));
+    $('supplierTableBody').addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      if (button.dataset.action === 'edit-supplier') openEditSupplierModal(button.dataset.id);
+      else if (button.dataset.action === 'delete-supplier') deleteSupplier(button.dataset.id);
+    });
+
+    // Categories
+    $('btnAddCategory').addEventListener('click', handleAddCategory);
+    $('categoriesContainer').addEventListener('click', handleCategoryContainerClick);
+    $('categoriesContainer').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && event.target.matches('input[data-cat]')) {
+        event.preventDefault();
+        const addBtn = event.target.parentElement.querySelector('button[data-action="add-sub"]');
+        if (addBtn) addBtn.click();
       }
     });
 
-    ['productModal', 'bulkModal'].forEach((modalId) => {
+    // Modal overlay click-to-close + Escape
+    ['productModal', 'supplierModal', 'bulkModal'].forEach((modalId) => {
       $(modalId).addEventListener('click', (event) => {
-        if (event.target === $(modalId)) {
-          closeModal(modalId);
-        }
+        if (event.target === $(modalId)) closeModal(modalId);
       });
     });
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
-        if ($('productModal').classList.contains('active')) {
-          closeModal('productModal');
-        } else if ($('bulkModal').classList.contains('active')) {
-          closeModal('bulkModal');
-        }
+        ['productModal', 'supplierModal', 'bulkModal'].forEach((id) => {
+          if ($(id).classList.contains('active')) closeModal(id);
+        });
       }
     });
 
-    loadData();
+    loadAll();
   </script>
 </body>
 </html>
