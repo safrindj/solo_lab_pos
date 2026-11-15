@@ -80,11 +80,20 @@
       .invoice-no { min-width: 0; }
     }
     
+    @page { size: A5 landscape; margin: 8mm; }
     @media print {
       body { background: white; padding: 0; }
       .no-print { display: none !important; }
       .page-content { max-width: 100%; }
       .undertaking-form { border: none; }
+      body.print-undertaking * { visibility: hidden !important; }
+      body.print-undertaking #printableUndertaking,
+      body.print-undertaking #printableUndertaking * { visibility: visible !important; }
+      body.print-undertaking #printableUndertaking { position: absolute; inset: 0; width: 100%; }
+      body.print-completion * { visibility: hidden !important; }
+      body.print-completion #printableCompletion,
+      body.print-completion #printableCompletion * { visibility: visible !important; }
+      body.print-completion #printableCompletion { position: absolute; inset: 0; width: 100%; }
     }
   </style>
 </head>
@@ -137,6 +146,8 @@
       <div class="form-row">
         <label>Advance Payment (Rs.):</label>
         <input type="number" id="advancePaid" value="0" min="0" style="max-width:120px;">
+        <label style="margin-left:10px;">Repair Charge (Rs.):</label>
+        <input type="number" id="repairCost" value="0" min="0" style="max-width:140px;">
       </div>
       
       <div class="btn-row" style="margin-top:20px;">
@@ -174,6 +185,8 @@
             <strong id="invNoDisplay">SLM-00001</strong>
           </div>
         </div>
+
+        <div style="font-size:11px; margin-bottom:10px;">Repair Reference: <strong id="formRepairRefDisplay"></strong></div>
 
         <!-- Customer & Date -->
         <div class="form-row">
@@ -272,6 +285,59 @@
       </div>
     </div>
 
+    <div class="card" id="completionPreview" style="display:none;">
+      <div class="no-print" style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;">🧾 Completed Repair Invoice</h3>
+        <div>
+          <button class="btn btn-success btn-sm" onclick="printCompletionInvoice()">🖨️ Print</button>
+          <button class="btn btn-secondary btn-sm" onclick="hideCompletionPreview()">✕ Close</button>
+        </div>
+      </div>
+      <div class="undertaking-form" id="printableCompletion">
+        <div class="form-header">
+          <div style="text-align:center; width:80px;">
+            <div style="font-size:24px; font-weight:bold; color:#f57c00;">SLM</div>
+          </div>
+          <div class="form-logo">
+            <h2>SOLO LAB MOBILES</h2>
+            <p>23A, DS Senanayake Veediya, Kandy | 📞 077 732 2237 | 076 932 2237</p>
+            <p style="font-style:italic;">Repair • Restore • Stay Connected</p>
+          </div>
+          <div class="invoice-no">
+            <span>COMPLETION INVOICE</span>
+            <strong id="completionInvoiceNoDisplay"></strong>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Customer:</label><span id="completionCustomerDisplay" style="flex:1; border-bottom:1px solid #999; padding:0 6px;"></span>
+          <label>Phone:</label><span id="completionPhoneDisplay" style="min-width:120px; border-bottom:1px solid #999; padding:0 6px;"></span>
+          <label>Date:</label><span id="completionDateDisplay" style="min-width:100px; border-bottom:1px solid #999; padding:0 6px;"></span>
+        </div>
+        <div class="form-row">
+          <label>Repair Reference:</label><strong id="completionRepairRefDisplay"></strong>
+          <label style="margin-left:20px;">Undertaking Invoice:</label><strong id="completionUndertakingRefDisplay"></strong>
+        </div>
+        <div class="form-row">
+          <label>Device:</label><span id="completionDeviceDisplay" style="flex:1; border-bottom:1px solid #999; padding:0 6px;"></span>
+          <label>IMEI/Serial:</label><span id="completionSerialDisplay" style="flex:1; border-bottom:1px solid #999; padding:0 6px;"></span>
+        </div>
+        <div class="form-section" style="margin:18px 0;">
+          <h3>Repair Details</h3>
+          <p id="completionFaultDisplay" style="min-height:35px;"></p>
+        </div>
+        <div class="form-section" style="max-width:420px; margin-left:auto;">
+          <div class="form-row"><label>Repair Charge (Rs.):</label><strong id="completionCostDisplay" style="margin-left:auto;"></strong></div>
+          <div class="form-row"><label>Advance Paid (Rs.):</label><strong id="completionAdvanceDisplay" style="margin-left:auto;"></strong></div>
+          <div class="form-row" style="border-top:1px solid #333; padding-top:8px;"><label>Balance Due (Rs.):</label><strong id="completionBalanceDisplay" style="margin-left:auto;"></strong></div>
+        </div>
+        <p style="margin-top:25px; font-size:12px;">Device returned to customer. Please keep this invoice for your records.</p>
+        <div style="margin-top:35px; display:flex; justify-content:space-between; font-size:12px;">
+          <span style="width:40%; border-top:1px solid #999; padding-top:6px;">Customer Signature</span>
+          <span style="width:40%; border-top:1px solid #999; padding-top:6px;">Authorized Signature</span>
+        </div>
+      </div>
+    </div>
+
     <div class="card no-print">
       <h2>📋 Saved Repairs</h2>
       <div id="repairList" class="repair-list" aria-live="polite"></div>
@@ -321,7 +387,9 @@ function validateRepair() {
   const customer = document.getElementById('custName').value.trim();
   const model = document.getElementById('deviceModel').value.trim();
   const advanceInput = document.getElementById('advancePaid');
+  const costInput = document.getElementById('repairCost');
   const advance = Number(advanceInput.value);
+  const cost = Number(costInput.value);
 
   if (!customer || !model) {
     alert('Please enter the customer name and device model.');
@@ -330,6 +398,11 @@ function validateRepair() {
   if (advanceInput.value.trim() === '' || !Number.isFinite(advance) || advance < 0) {
     alert('Advance payment must be a valid amount of zero or more.');
     advanceInput.focus();
+    return false;
+  }
+  if (costInput.value.trim() === '' || !Number.isFinite(cost) || cost < 0) {
+    alert('Repair charge must be a valid amount of zero or more.');
+    costInput.focus();
     return false;
   }
   return true;
@@ -347,6 +420,7 @@ function collectRepair() {
     condition: getSelectedCondition(),
     fault: document.getElementById('faultDesc').value.trim(),
     advance: Number(document.getElementById('advancePaid').value),
+    repairCost: Number(document.getElementById('repairCost').value),
     undertaking: {
       availableItems: Array.from(document.querySelectorAll('.item-avail'), input => input.checked),
       repairEstimates: Array.from(document.querySelectorAll('.repair-est'), input => input.checked),
@@ -356,12 +430,17 @@ function collectRepair() {
   };
 }
 
-function saveRepair() {
+function saveRepair(options = {}) {
   if (!validateRepair()) return;
 
   const repair = collectRepair();
   const repairs = getSavedRepairs();
   const existingIndex = repairs.findIndex(item => item.id === repair.id);
+  if (options.showCompletion) {
+    repair.completedDate = new Date().toLocaleDateString();
+  } else if (existingIndex >= 0) {
+    repair.completedDate = repairs[existingIndex].completedDate || '';
+  }
   if (existingIndex >= 0) {
     repairs[existingIndex] = repair;
   } else {
@@ -376,12 +455,16 @@ function saveRepair() {
   }
 
   renderRepairs();
-  alert('Repair saved.');
+  if (options.showCompletion) {
+    showCompletionInvoice(repair);
+  } else {
+    showUndertaking();
+  }
 }
 
 function finalizeRepair() {
   document.getElementById('repairStatus').value = 'completed';
-  saveRepair();
+  saveRepair({ showCompletion: true });
 }
 
 function markUnableToRepair() {
@@ -394,20 +477,62 @@ function showUndertaking() {
 
   const repair = collectRepair();
   document.getElementById('invNoDisplay').textContent = repair.id.replace('-R', '');
+  document.getElementById('formRepairRefDisplay').textContent = repair.id;
   document.getElementById('formCustNameDisplay').textContent = repair.customer;
   document.getElementById('formDateDisplay').textContent = repair.date;
   document.getElementById('formDeviceDisplay').textContent = repair.model;
   document.getElementById('formImeiDisplay').textContent = repair.serial || '—';
   document.getElementById('formConditionDisplay').textContent = repair.condition || '—';
+  hideCompletionPreview();
   document.getElementById('undertakingPreview').style.display = 'block';
+}
+
+function showCompletionInvoice(repair) {
+  const money = amount => `Rs. ${Number(amount || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const invoiceNumber = repair.id.replace(/^SLM-R-/, 'SLM-C-');
+  const undertakingNumber = repair.id.replace(/^SLM-R-/, 'SLM-');
+  const cost = Number(repair.repairCost) || 0;
+  const advance = Number(repair.advance) || 0;
+
+  document.getElementById('completionInvoiceNoDisplay').textContent = invoiceNumber;
+  document.getElementById('completionCustomerDisplay').textContent = repair.customer || '';
+  document.getElementById('completionPhoneDisplay').textContent = repair.phone || '—';
+  document.getElementById('completionDateDisplay').textContent = repair.completedDate || repair.date || '';
+  document.getElementById('completionRepairRefDisplay').textContent = repair.id;
+  document.getElementById('completionUndertakingRefDisplay').textContent = undertakingNumber;
+  document.getElementById('completionDeviceDisplay').textContent = repair.model || '';
+  document.getElementById('completionSerialDisplay').textContent = repair.serial || '—';
+  document.getElementById('completionFaultDisplay').textContent = repair.fault || 'Repair completed';
+  document.getElementById('completionCostDisplay').textContent = money(cost);
+  document.getElementById('completionAdvanceDisplay').textContent = money(advance);
+  document.getElementById('completionBalanceDisplay').textContent = money(cost - advance);
+
+  hidePreview();
+  document.getElementById('completionPreview').style.display = 'block';
+  document.getElementById('completionPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function hidePreview() {
   document.getElementById('undertakingPreview').style.display = 'none';
 }
 
-function printUndertaking() {
+function hideCompletionPreview() {
+  document.getElementById('completionPreview').style.display = 'none';
+}
+
+function printInvoice(className) {
+  const clearPrintMode = () => document.body.classList.remove(className);
+  window.addEventListener('afterprint', clearPrintMode, { once: true });
+  document.body.classList.add(className);
   window.print();
+}
+
+function printUndertaking() {
+  printInvoice('print-undertaking');
+}
+
+function printCompletionInvoice() {
+  printInvoice('print-completion');
 }
 
 function newRepair() {
@@ -417,6 +542,7 @@ function newRepair() {
   document.getElementById('deviceSerial').value = '';
   document.getElementById('faultDesc').value = '';
   document.getElementById('advancePaid').value = '0';
+  document.getElementById('repairCost').value = '0';
   document.getElementById('repairStatus').value = 'pending';
   document.querySelectorAll('input[name="deviceCondition"]').forEach(input => { input.checked = false; });
   document.querySelectorAll('#printableUndertaking input[type="checkbox"]').forEach(input => { input.checked = false; });
@@ -425,6 +551,7 @@ function newRepair() {
   document.getElementById('repairId').value = nextRepairId();
   setDateToday();
   hidePreview();
+  hideCompletionPreview();
 }
 
 function loadRepair(repair) {
@@ -437,6 +564,7 @@ function loadRepair(repair) {
   document.getElementById('deviceSerial').value = repair.serial || '';
   document.getElementById('faultDesc').value = repair.fault || '';
   document.getElementById('advancePaid').value = Number.isFinite(Number(repair.advance)) ? repair.advance : 0;
+  document.getElementById('repairCost').value = Number.isFinite(Number(repair.repairCost)) ? repair.repairCost : 0;
   document.querySelectorAll('input[name="deviceCondition"]').forEach(input => {
     input.checked = input.value === repair.condition;
   });
@@ -453,6 +581,7 @@ function loadRepair(repair) {
   });
   document.getElementById('formRemarks').value = details.remarks || '';
   hidePreview();
+  hideCompletionPreview();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
