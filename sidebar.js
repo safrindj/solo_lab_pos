@@ -35,13 +35,11 @@
       { href: "checkout.html",           label: "POS Billing",         icon: I.cart },
       { href: "sale-history.html",       label: "Sales History",       icon: I.hist },
       { href: "customers.html",          label: "Customer Management", icon: I.cust },
-      { href: "customer-return.html",    label: "Customer Returns",    icon: I.ret  },
-      { href: "invoice.html",            label: "Invoices",            icon: I.inv  }
+      { href: "customer-return.html",    label: "Customer Returns",    icon: I.ret  }
     ]},
     { title: "Stock & Inventory", dot: "#3b82f6", items: [
       { href: "inventory.html",          label: "Inventory Manager",   icon: I.box  },
-      { href: "purchase.html",           label: "Purchases & Returns", icon: I.truck},
-      { href: "supplier.html",           label: "Supplier Registry",   icon: I.supp }
+      { href: "purchase.html",           label: "Purchases & Returns", icon: I.truck}
     ]},
     { title: "Finance & Settings", dot: "#16a34a", items: [
       { href: "reports.html",            label: "Reports",             icon: I.rep  },
