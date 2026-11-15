@@ -127,6 +127,10 @@ async function gsSave(tabName, objects, headers) {
         <div class="stat-value" id="recentCustomers">0</div>
         <div class="stat-label">New This Month</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalCredit">Rs. 0</div>
+        <div class="stat-label">Total Credit Outstanding</div>
+      </div>
     </div>
 
     <!-- Search -->
@@ -144,12 +148,14 @@ async function gsSave(tabName, objects, headers) {
               <th>Phone</th>
               <th>Email</th>
               <th>Total Spent</th>
+              <th>Discount %</th>
+              <th>Credit Balance</th>
               <th>Last Visit</th>
               <th style="text-align:right">Actions</th>
             </tr>
           </thead>
           <tbody id="customerTableBody">
-            <tr><td colspan="6" class="empty-state">No customers yet. Click "Add New Customer" to get started!</td></tr>
+            <tr><td colspan="8" class="empty-state">No customers yet. Click "Add New Customer" to get started!</td></tr>
           </tbody>
         </table>
       </div>
@@ -177,6 +183,14 @@ async function gsSave(tabName, objects, headers) {
         <div class="form-group">
           <label>Address</label>
           <textarea id="customerAddress" placeholder="Optional"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Discount % (loyalty — auto-applies in billing)</label>
+          <input type="number" id="customerDiscount" min="0" max="100" step="0.5" placeholder="e.g. 5" value="0">
+        </div>
+        <div class="form-group">
+          <label>Credit Bill Balance (Rs. — amount customer owes)</label>
+          <input type="number" id="customerCredit" min="0" step="1" placeholder="Outstanding credit amount" value="0">
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -211,6 +225,9 @@ async function gsSave(tabName, objects, headers) {
         return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
       }).length;
       document.getElementById('recentCustomers').textContent = thisMonth;
+      
+      const credit = customers.reduce((sum, c) => sum + (Number(c.creditBalance) || 0), 0);
+      document.getElementById('totalCredit').textContent = 'Rs. ' + credit.toLocaleString();
     }
 
     // Render customer list
@@ -226,7 +243,7 @@ async function gsSave(tabName, objects, headers) {
       });
       
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${searchTerm ? 'No matching customers found' : 'No customers yet. Click "Add New Customer" to get started!'}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">${searchTerm ? 'No matching customers found' : 'No customers yet. Click "Add New Customer" to get started!'}</td></tr>`;
         return;
       }
       
@@ -235,7 +252,8 @@ async function gsSave(tabName, objects, headers) {
           <td><strong>${escapeHtml(c.name)}</strong></td>
           <td>${escapeHtml(c.phone)}</td>
           <td>${c.email ? escapeHtml(c.email) : '<span style="color:#9ca3af">—</span>'}</td>
-          <td style="font-weight:500">Rs. ${(c.totalSpent || 0).toLocaleString()}</td>
+          <td style="font-weight:600">${(Number(c.discountPct)||0)}%</td>
+          <td style="font-weight:700;color:${(Number(c.creditBalance)||0)>0?'#dc2626':'#16a34a'}">Rs. ${(Number(c.creditBalance)||0).toLocaleString()}</td>
           <td>${c.lastVisit ? new Date(c.lastVisit).toLocaleDateString('en-GB') : '<span style="color:#9ca3af">—</span>'}</td>
           <td style="text-align:right">
             <button class="btn btn-secondary btn-sm" onclick="editCustomer('${c.id}')">✏️ Edit</button>
@@ -271,6 +289,8 @@ async function gsSave(tabName, objects, headers) {
       document.getElementById('customerPhone').value = customer.phone;
       document.getElementById('customerEmail').value = customer.email || '';
       document.getElementById('customerAddress').value = customer.address || '';
+      document.getElementById('customerDiscount').value = Number(customer.discountPct) || 0;
+      document.getElementById('customerCredit').value = Number(customer.creditBalance) || 0;
       document.getElementById('customerModal').classList.add('show');
     }
 
@@ -282,6 +302,8 @@ async function gsSave(tabName, objects, headers) {
       const phone = document.getElementById('customerPhone').value.trim();
       const email = document.getElementById('customerEmail').value.trim();
       const address = document.getElementById('customerAddress').value.trim();
+      const discountPct = parseFloat(document.getElementById('customerDiscount').value) || 0;
+      const creditBalance = parseFloat(document.getElementById('customerCredit').value) || 0;
       
       if (editMode) {
         // Update existing
@@ -294,6 +316,8 @@ async function gsSave(tabName, objects, headers) {
             phone,
             email,
             address,
+            discountPct,
+            creditBalance,
             updatedAt: new Date().toISOString()
           };
         }
@@ -305,6 +329,8 @@ async function gsSave(tabName, objects, headers) {
           phone,
           email,
           address,
+          discountPct,
+          creditBalance,
           totalSpent: 0,
           createdAt: new Date().toISOString(),
           lastVisit: null
