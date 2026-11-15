@@ -1743,6 +1743,25 @@
       }
     });
 
+    /* ---------- Sidebar margin: match actual injected sidebar width ---------- */
+    function adjustMainMargin() {
+      const main = document.querySelector('.main-content');
+      if (!main) return;
+      const sb = document.querySelector('.sidebar, aside[class*="sidebar"], nav[class*="sidebar"], aside');
+      if (sb && window.innerWidth > 640 && sb.offsetWidth > 0) {
+        main.style.marginLeft = (sb.offsetWidth + 16) + 'px';
+      } else {
+        main.style.marginLeft = '';
+      }
+    }
+    window.addEventListener('load', adjustMainMargin);
+    window.addEventListener('resize', adjustMainMargin);
+    // sidebar.js is deferred — re-check after it (possibly) injects
+    const sidebarObserver = new MutationObserver(adjustMainMargin);
+    sidebarObserver.observe(document.body, { childList: true, subtree: true });
+    setTimeout(adjustMainMargin, 300);
+    setTimeout(adjustMainMargin, 1200);
+
     loadAll();
   </script>
 </body>
