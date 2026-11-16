@@ -115,6 +115,9 @@
   .ci-info{flex:1;min-width:0}
   .ci-name{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ci-code{font-size:10px;color:var(--faint);letter-spacing:.3px;margin-top:1px}
+  .ci-details{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px}
+  .ci-details input{width:100%;min-width:0;padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:10px;outline:none}
+  .ci-details input:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(220,38,38,.1)}
   .ci-qty{display:flex;align-items:center;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0}
   .ci-qty button{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--muted);transition:background .12s,color .12s}
   .ci-qty button:hover{background:var(--red-soft);color:var(--red)}
@@ -206,9 +209,9 @@
   .inv-customer{padding:8px 0 10px;border-bottom:1px solid #eee;margin-bottom:8px}
   .inv-customer h4{font-size:12px;color:#555;margin-bottom:5px}
   .inv-customer p{font-size:12px;margin:3px 0;color:#333}
-  .inv-table{width:100%;border-collapse:collapse;margin-bottom:8px}
-  .inv-table th{background:#f9fafb;padding:7px 8px;text-align:left;font-size:12px;color:#374151;border-bottom:1px solid #ddd}
-  .inv-table td{padding:7px 8px;font-size:12px;border-bottom:1px solid #eee}
+  .inv-table{width:100%;table-layout:fixed;border-collapse:collapse;margin-bottom:8px}
+  .inv-table th{background:#f9fafb;padding:7px 8px;text-align:left;font-size:12px;color:#374151;border-bottom:1px solid #ddd;overflow-wrap:anywhere}
+  .inv-table td{padding:7px 8px;font-size:12px;border-bottom:1px solid #eee;overflow-wrap:anywhere}
   .inv-table .text-right{text-align:right}.inv-table .text-center{text-align:center}
   .inv-totals{margin-left:auto;width:245px;padding-top:4px;font-size:12px}
   .inv-t-row{display:flex;justify-content:space-between;padding:4px 0;color:#555}
@@ -426,7 +429,7 @@ async function gsSave(tabName, objects, headers) {
               <option value="cash">Cash Payment</option>
               <option value="card">Card Payment (+3.5%)</option>
               <option value="online">Online Transfer</option>
-              <option value="koko">KOKO QR</option>
+              <option value="koko">KOKO QR (+14%)</option>
             </select>
           </div>
         </div>
@@ -479,14 +482,14 @@ async function gsSave(tabName, objects, headers) {
       <p><strong>Address:</strong> <span>—</span></p>
     </div>
     <table class="inv-table">
-      <thead><tr><th style="width:50%">Description</th><th class="text-center" style="width:15%">Qty</th><th class="text-right" style="width:15%">Price</th><th class="text-right" style="width:20%">Total</th></tr></thead>
+      <thead><tr><th style="width:30%">Description</th><th style="width:20%">Serial Number</th><th style="width:15%">Warranty</th><th class="text-center" style="width:8%">Qty</th><th class="text-right" style="width:12%">Price</th><th class="text-right" style="width:15%">Total</th></tr></thead>
       <tbody id="invoiceItems"></tbody>
     </table>
     <div class="inv-totals">
       <div class="inv-t-row"><span>Subtotal</span><b class="num" id="invSub">Rs. 0</b></div>
       <div class="inv-t-row disc" id="invPromoRow" style="display:none"><span>Promo Discount <span id="invPromoLabel"></span></span><b class="num" id="invPromo">− Rs. 0</b></div>
       <div class="inv-t-row disc" id="invDiscRow" style="display:none"><span>Bill Discount</span><b class="num" id="invDisc">− Rs. 0</b></div>
-      <div class="inv-t-row sur" id="invSurRow" style="display:none"><span>Card Surcharge (3%)</span><b class="num" id="invSur">+ Rs. 0</b></div>
+      <div class="inv-t-row sur" id="invSurRow" style="display:none"><span id="invSurLabel">Card Surcharge (3%)</span><b class="num" id="invSur">+ Rs. 0</b></div>
       <div class="inv-grand"><span>Total</span><span class="amt num" id="invGrandTotal">Rs. 0</span></div>
     </div>
     <div class="inv-pay">
@@ -528,6 +531,7 @@ async function gsSave(tabName, objects, headers) {
   var appliedPromo = null;
   var PROMOS = { "SOLO10": 0.10, "WELCOME5": 0.05 };
   var CARD_SURCHARGE = 0.03;
+  var KOKO_SURCHARGE = 0.14;
   var paymentMethod = "cash";
   var cashier = "Shop Owner";
   var customerName = "", customerPhone = "";
@@ -638,7 +642,7 @@ async function gsSave(tabName, objects, headers) {
       if(ex.qty >= p.stock){ showToast("Only " + p.stock + " unit(s) in stock for " + p.name + "."); return; }
       ex.qty++;
     } else {
-      cart.push({ id:p.id, code:p.code, name:p.name, price:p.retailPrice, qty:1, stock:p.stock });
+      cart.push({ id:p.id, code:p.code, name:p.name, price:p.retailPrice, qty:1, stock:p.stock, serialNumber:"", warrantyPeriod:"" });
     }
     renderCart();
   }
@@ -656,7 +660,8 @@ async function gsSave(tabName, objects, headers) {
         var div = document.createElement("div");
         div.className = "cart-item";
         div.innerHTML =
-          '<div class="ci-info"><div class="ci-name">'+escapeHtml(it.name)+'</div><div class="ci-code">'+escapeHtml(it.code)+'</div></div>'+
+          '<div class="ci-info"><div class="ci-name">'+escapeHtml(it.name)+'</div><div class="ci-code">'+escapeHtml(it.code)+'</div>'+ 
+          '<div class="ci-details"><input type="text" data-field="serialNumber" data-id="'+it.id+'" value="'+escapeHtml(it.serialNumber||"")+'" placeholder="Serial number" aria-label="Serial number for '+escapeHtml(it.name)+'"><input type="text" data-field="warrantyPeriod" data-id="'+it.id+'" value="'+escapeHtml(it.warrantyPeriod||"")+'" placeholder="Warranty period" aria-label="Warranty period for '+escapeHtml(it.name)+'"></div></div>'+
           '<div class="ci-qty"><button data-act="dec" data-id="'+it.id+'">−</button><span class="num">'+it.qty+'</span><button data-act="inc" data-id="'+it.id+'">+</button></div>'+
           '<div class="ci-price num">'+fmt(it.price*it.qty)+'</div>'+
           '<button class="ci-rm" data-act="rm" data-id="'+it.id+'" aria-label="Remove">'+trashSvg+'</button>';
@@ -681,6 +686,13 @@ async function gsSave(tabName, objects, headers) {
     if(act==="rm"){ cart = cart.filter(function(x){ return x.id!==id; }); }
     renderCart();
   });
+  cartArea.addEventListener("input", function(e){
+    var field = e.target.getAttribute("data-field");
+    if(!field) return;
+    var id = parseInt(e.target.getAttribute("data-id"),10);
+    var it = cart.find(function(x){ return x.id===id; });
+    if(it) it[field] = e.target.value;
+  });
 
   /* ---------- Totals ---------- */
   var completeBtn = document.getElementById("completeBtn");
@@ -698,7 +710,8 @@ async function gsSave(tabName, objects, headers) {
     var afterPromo = sub - promoDisc;
     var bd = Math.min(billDiscount||0, afterPromo);
     var afterDisc = afterPromo - bd;
-    var surcharge = (paymentMethod==="card") ? Math.round(afterDisc * CARD_SURCHARGE) : 0;
+    var surchargeRate = paymentMethod==="card" ? CARD_SURCHARGE : (paymentMethod==="koko" ? KOKO_SURCHARGE : 0);
+    var surcharge = Math.round(afterDisc * surchargeRate);
     var grand = afterDisc + surcharge;
 
     document.getElementById("subTotal").textContent = fmt2(sub);
@@ -929,10 +942,14 @@ async function gsSave(tabName, objects, headers) {
     cart.forEach(function(it){
       var row = document.createElement("tr");
       var nameCell = document.createElement("td");
+      var serialCell = document.createElement("td");
+      var warrantyCell = document.createElement("td");
       var qtyCell = document.createElement("td");
       var priceCell = document.createElement("td");
       var totalCell = document.createElement("td");
       nameCell.textContent = it.name;
+      serialCell.textContent = it.serialNumber || "—";
+      warrantyCell.textContent = it.warrantyPeriod || "—";
       qtyCell.textContent = it.qty;
       qtyCell.className = "text-center";
       priceCell.textContent = fmt(it.price);
@@ -940,6 +957,8 @@ async function gsSave(tabName, objects, headers) {
       totalCell.textContent = fmt(it.price * it.qty);
       totalCell.className = "text-right";
       row.appendChild(nameCell);
+      row.appendChild(serialCell);
+      row.appendChild(warrantyCell);
       row.appendChild(qtyCell);
       row.appendChild(priceCell);
       row.appendChild(totalCell);
@@ -959,8 +978,9 @@ async function gsSave(tabName, objects, headers) {
       document.getElementById("invDisc").textContent = "− " + fmt(t.billDisc);
     } else { dr.style.display="none"; }
     var sr = document.getElementById("invSurRow");
-    if(paymentMethod==="card"){
+    if(paymentMethod==="card" || paymentMethod==="koko"){
       sr.style.display="flex";
+      document.getElementById("invSurLabel").textContent = paymentMethod==="koko" ? "KOKO QR Surcharge (14%)" : "Card Surcharge (3%)";
       document.getElementById("invSur").textContent = "+ " + fmt(t.surcharge);
     } else { sr.style.display="none"; }
     document.getElementById("invGrandTotal").textContent = fmt(t.grand);
