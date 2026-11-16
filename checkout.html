@@ -117,6 +117,7 @@
   .ci-code{font-size:10px;color:var(--faint);letter-spacing:.3px;margin-top:1px}
   .ci-details{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px}
   .ci-details input{width:100%;min-width:0;padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:10px;outline:none}
+  .ci-details input[data-field="description"]{grid-column:1 / -1}
   .ci-details input:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(220,38,38,.1)}
   .ci-qty{display:flex;align-items:center;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0}
   .ci-qty button{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--muted);transition:background .12s,color .12s}
@@ -212,6 +213,7 @@
   .inv-table{width:100%;table-layout:fixed;border-collapse:collapse;margin-bottom:8px}
   .inv-table th{background:#f9fafb;padding:7px 8px;text-align:left;font-size:12px;color:#374151;border-bottom:1px solid #ddd;overflow-wrap:anywhere}
   .inv-table td{padding:7px 8px;font-size:12px;border-bottom:1px solid #eee;overflow-wrap:anywhere}
+  .inv-item-description{display:block;margin-top:3px;font-size:10px;color:#666;white-space:pre-wrap}
   .inv-table .text-right{text-align:right}.inv-table .text-center{text-align:center}
   .inv-totals{margin-left:auto;width:245px;padding-top:4px;font-size:12px}
   .inv-t-row{display:flex;justify-content:space-between;padding:4px 0;color:#555}
@@ -530,7 +532,7 @@ async function gsSave(tabName, objects, headers) {
   var showCost = false, showMin = false;
   var appliedPromo = null;
   var PROMOS = { "SOLO10": 0.10, "WELCOME5": 0.05 };
-  var CARD_SURCHARGE = 0.03;
+  var CARD_SURCHARGE = 0.035;
   var KOKO_SURCHARGE = 0.14;
   var paymentMethod = "cash";
   var cashier = "Shop Owner";
@@ -642,7 +644,7 @@ async function gsSave(tabName, objects, headers) {
       if(ex.qty >= p.stock){ showToast("Only " + p.stock + " unit(s) in stock for " + p.name + "."); return; }
       ex.qty++;
     } else {
-      cart.push({ id:p.id, code:p.code, name:p.name, price:p.retailPrice, qty:1, stock:p.stock, serialNumber:"", warrantyPeriod:"" });
+      cart.push({ id:p.id, code:p.code, name:p.name, price:p.retailPrice, qty:1, stock:p.stock, description:"", serialNumber:"", warrantyPeriod:"" });
     }
     renderCart();
   }
@@ -661,7 +663,7 @@ async function gsSave(tabName, objects, headers) {
         div.className = "cart-item";
         div.innerHTML =
           '<div class="ci-info"><div class="ci-name">'+escapeHtml(it.name)+'</div><div class="ci-code">'+escapeHtml(it.code)+'</div>'+ 
-          '<div class="ci-details"><input type="text" data-field="serialNumber" data-id="'+it.id+'" value="'+escapeHtml(it.serialNumber||"")+'" placeholder="Serial number" aria-label="Serial number for '+escapeHtml(it.name)+'"><input type="text" data-field="warrantyPeriod" data-id="'+it.id+'" value="'+escapeHtml(it.warrantyPeriod||"")+'" placeholder="Warranty period" aria-label="Warranty period for '+escapeHtml(it.name)+'"></div></div>'+
+          '<div class="ci-details"><input type="text" data-field="description" data-id="'+it.id+'" value="'+escapeHtml(it.description||"")+'" placeholder="Optional note" aria-label="Optional note for '+escapeHtml(it.name)+'"><input type="text" data-field="serialNumber" data-id="'+it.id+'" value="'+escapeHtml(it.serialNumber||"")+'" placeholder="Serial number" aria-label="Serial number for '+escapeHtml(it.name)+'"><input type="text" data-field="warrantyPeriod" data-id="'+it.id+'" value="'+escapeHtml(it.warrantyPeriod||"")+'" placeholder="Warranty period" aria-label="Warranty period for '+escapeHtml(it.name)+'"></div></div>'+
           '<div class="ci-qty"><button data-act="dec" data-id="'+it.id+'">−</button><span class="num">'+it.qty+'</span><button data-act="inc" data-id="'+it.id+'">+</button></div>'+
           '<div class="ci-price num">'+fmt(it.price*it.qty)+'</div>'+
           '<button class="ci-rm" data-act="rm" data-id="'+it.id+'" aria-label="Remove">'+trashSvg+'</button>';
@@ -948,6 +950,12 @@ async function gsSave(tabName, objects, headers) {
       var priceCell = document.createElement("td");
       var totalCell = document.createElement("td");
       nameCell.textContent = it.name;
+      if(it.description){
+        var description = document.createElement("span");
+        description.className = "inv-item-description";
+        description.textContent = it.description;
+        nameCell.appendChild(description);
+      }
       serialCell.textContent = it.serialNumber || "—";
       warrantyCell.textContent = it.warrantyPeriod || "—";
       qtyCell.textContent = it.qty;
@@ -980,7 +988,7 @@ async function gsSave(tabName, objects, headers) {
     var sr = document.getElementById("invSurRow");
     if(paymentMethod==="card" || paymentMethod==="koko"){
       sr.style.display="flex";
-      document.getElementById("invSurLabel").textContent = paymentMethod==="koko" ? "KOKO QR Surcharge (14%)" : "Card Surcharge (3%)";
+      document.getElementById("invSurLabel").textContent = paymentMethod==="koko" ? "KOKO QR Surcharge (14%)" : "Card Surcharge (3.5%)";
       document.getElementById("invSur").textContent = "+ " + fmt(t.surcharge);
     } else { sr.style.display="none"; }
     document.getElementById("invGrandTotal").textContent = fmt(t.grand);
